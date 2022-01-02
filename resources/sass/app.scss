@@ -1,0 +1,60 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
+
+@import "~@fortawesome/fontawesome-free/scss/fontawesome";
+@import "~@fortawesome/fontawesome-free/scss/solid";
+@import "~@fortawesome/fontawesome-free/scss/regular";
+@import "~@fortawesome/fontawesome-free/scss/brands";
+
+
+html {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+#app {
+    min-height: 100%;
+}
+
+main {
+    min-height: 400px;
+}
+
+.loading-screen {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 220px;
+    padding: 5px;
+    background-color: rgba(0, 0, 0, 0.7);
+    font-size: 13px;
+    line-height: 13px;
+    color: white;
+    z-index: 9999;
+    border-top-left-radius: 5px;
+}
+
+.loading-screen-enter-active {
+    transition: opacity .1s linear;
+}
+.loading-screen-leave-active {
+    transition: opacity .5s ease;
+}
+.loading-screen-enter, .loading-screen-leave-to {
+    opacity: 0;
+}

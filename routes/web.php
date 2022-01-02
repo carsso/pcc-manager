@@ -1,0 +1,53 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PccController;
+use App\Http\Controllers\OvhApiController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', [HomeController::class, 'index'])
+    ->middleware('guest')
+    ->name('home');
+
+Route::get('/login', [OvhApiController::class, 'login'])
+    ->middleware('guest')
+    ->name('login');
+
+Route::get('/logout', [OvhApiController::class, 'logout'])
+    ->name('logout');
+
+Route::get('/login/token/{token}', [OvhApiController::class, 'token'])
+    ->middleware('guest')
+    ->name('login.token');
+
+Route::get('/login/redirect', [OvhApiController::class, 'redirect'])
+    ->middleware('guest')
+    ->name('login.redirect');
+
+Route::group(['middleware' => ['auth']], function() {
+
+    Route::get('/pcc', [PccController::class, 'index'])
+        ->name('pcc');
+
+    Route::get('/pcc/{pccName}', [PccController::class, 'pcc'])
+        ->name('pcc.pcc');
+
+    Route::get('/pcc/{pccName}/datacenter/{datacenterId}', [PccController::class, 'datacenter'])
+        ->name('pcc.datacenter');
+
+    Route::any('/ovhapi{uri?}', [OvhApiController::class, 'request'])
+        ->where('uri', '.*')
+        ->name('ovhapi');
+
+});
