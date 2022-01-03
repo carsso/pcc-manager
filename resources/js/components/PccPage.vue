@@ -389,7 +389,11 @@ export default {
                 for (const i in users) {
                     const user = users[i];
                     if(!user['error']) {
-                        this.$set(this.users, user['key'], {...user['value']});
+                        let value = user['value'];
+                        if(this.users[value.userId]) {
+                            value.rights = this.users[value.userId].rights;
+                        }
+                        this.$set(this.users, user['key'], {...value});
                         this.loadUser(user['key']);
                     }
                 }
