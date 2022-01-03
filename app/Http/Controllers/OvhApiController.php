@@ -24,6 +24,7 @@ class OvhApiController extends Controller
             config('ovh.endpoint'),
         );
 
+        /*
         $rights = [
             [
                 'method'    => 'GET',
@@ -40,6 +41,13 @@ class OvhApiController extends Controller
             [
                 'method'    => 'DELETE',
                 'path'      => '/*'
+            ],
+        ];
+        */
+        $rights = [
+            [
+                'method'    => 'GET',
+                'path'      => '/dedicatedCloud*'
             ],
         ];
         $redirect = route('login.redirect');
