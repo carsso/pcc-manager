@@ -540,7 +540,7 @@ export default {
                 } else if(access == 'noAccess') {
                     resultClass = 'text-danger';
                 } else if(access == 'disabled') {
-                    resultClass = 'text-black';
+                    resultClass = 'text-danger';
                 }
             }
             return resultClass;
