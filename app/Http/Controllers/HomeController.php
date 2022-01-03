@@ -9,7 +9,7 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $demoAccounts = json_decode(env('OVH_DEMO_ACCOUNTS', '{}'), true);
+        $demoAccounts = config('ovh.demo_accounts');
         return view('home', compact('demoAccounts'));
     }
 }

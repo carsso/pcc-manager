@@ -19,9 +19,9 @@ class OvhApiController extends Controller
     public function login(Request $request)
     {
         $ovhApi = new OvhApi(
-            env('OVH_APPLICATION_KEY'),
-            env('OVH_APPLICATION_SECRET'),
-            env('OVH_ENDPOINT'),
+            config('ovh.application_key'),
+            config('ovh.application_secret'),
+            config('ovh.endpoint'),
         );
 
         $rights = [
