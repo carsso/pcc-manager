@@ -11,8 +11,6 @@ Written in PHP/Laravel and VueJS. _Depends on the [OVHcloud API wrapper](https:/
 #### Datacenter view:
 ![Datacenter view](https://user-images.githubusercontent.com/666182/147897550-666653e9-d7e7-4528-bda9-1a8be3dc6265.png)
 
-This HTTP wrapper will allow you to easily make OVH API calls by abstracting authentication and requests signature.
-
 ## Deployment
 
 #### Clone repository : 
