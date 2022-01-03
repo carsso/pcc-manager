@@ -5,8 +5,7 @@
 @import 'variables';
 
 // Bootstrap
-@import '~bootstrap/scss/bootstrap';
-
+@import '~bootstrap-dark-5/scss/bootstrap-blackbox';
 
 @import "~@fortawesome/fontawesome-free/scss/fontawesome";
 @import "~@fortawesome/fontawesome-free/scss/solid";
@@ -33,28 +32,4 @@ body {
 
 main {
     min-height: 400px;
-}
-
-.loading-screen {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    width: 220px;
-    padding: 5px;
-    background-color: rgba(0, 0, 0, 0.7);
-    font-size: 13px;
-    line-height: 13px;
-    color: white;
-    z-index: 9999;
-    border-top-left-radius: 5px;
-}
-
-.loading-screen-enter-active {
-    transition: opacity .1s linear;
-}
-.loading-screen-leave-active {
-    transition: opacity .5s ease;
-}
-.loading-screen-enter, .loading-screen-leave-to {
-    opacity: 0;
 }

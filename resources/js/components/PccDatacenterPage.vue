@@ -3,6 +3,9 @@
         <transition name="loading-screen">
             <LoadingScreen v-if="loading"/>
         </transition>
+        <transition name="errors-zone">
+            <errors-zone :errors="errors" v-if="errors" />
+        </transition>
         <div class="card my-2">
             <div class="card-body p-3">
                 <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
@@ -54,7 +57,7 @@
                     <div class="card-body p-3">
                         <div class="card-title">
                             <span class="h5">Datastores</span>
-                            <small class="badge rounded-pill bg-danger position-absolute top-0 start-0 m-3">{{filers && Object.keys(filers).length}}</small>
+                            <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{filers && Object.keys(filers).length}}</small>
                             <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
                                 <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
                             </button>
@@ -73,6 +76,7 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
+                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                             :gauge-color="[{offset:0,color:'#0b8c5a'},{offset:50,color:'#f4c009'},{offset:100,color:'#de3a21'}]"
                                             :scale-interval="0">
                                             <div class="inner-text">
@@ -93,6 +97,7 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
+                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                             :gauge-color="[{offset:0,color:'#0b8c5a'},{offset:50,color:'#f4c009'},{offset:100,color:'#de3a21'}]"
                                             :scale-interval="0">
                                             <div class="inner-text">
@@ -147,6 +152,7 @@
                                                         :separator-step="0"
                                                         :min="0"
                                                         :max="(filer.spaceUsed + filer.spaceFree) | round(0)"
+                                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0">
                                                     </vue-svg-gauge>
@@ -166,7 +172,7 @@
                     <div class="card-body p-3">
                         <div class="card-title">
                             <span class="h5">Hosts</span>
-                            <small class="badge rounded-pill bg-danger position-absolute top-0 start-0 m-3">{{hosts && Object.keys(hosts).length}}</small>
+                            <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{hosts && Object.keys(hosts).length}}</small>
                             <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
                                 <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
                             </button>
@@ -185,6 +191,7 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
+                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                             :gauge-color="[{offset:0,color:'#0b8c5a'},{offset:50,color:'#f4c009'},{offset:100,color:'#de3a21'}]"
                                             :scale-interval="0">
                                             <div class="inner-text">
@@ -205,6 +212,7 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
+                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                             :gauge-color="[{offset:0,color:'#0b8c5a'},{offset:50,color:'#f4c009'},{offset:100,color:'#de3a21'}]"
                                             :scale-interval="0">
                                             <div class="inner-text">
@@ -262,6 +270,7 @@
                                                         :separator-step="0"
                                                         :min="0"
                                                         :max="host.cpuMax/1000"
+                                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0">
                                                     </vue-svg-gauge>
@@ -279,6 +288,7 @@
                                                         :separator-step="0"
                                                         :min="0"
                                                         :max="host.ram.value"
+                                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0">
                                                     </vue-svg-gauge>
@@ -299,7 +309,7 @@
             <div class="card-body p-3">
                 <div class="card-title">
                     <span class="h5">Virtual Machines</span>
-                    <small class="badge rounded-pill bg-danger position-absolute top-0 start-0 m-3">{{vms && Object.keys(vms).length}}</small>
+                    <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{vms && Object.keys(vms).length}}</small>
                     <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
                         <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
                     </button>
@@ -364,6 +374,7 @@
                                                         :separator-step="0"
                                                         :min="0"
                                                         :max="(filer.capacity/1024)"
+                                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0">
                                                     </vue-svg-gauge>
@@ -410,6 +421,7 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="(vm.memoryMax/1024)"
+                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                             gauge-color="#f4c009"
                                             :scale-interval="0">
                                         </vue-svg-gauge>
@@ -428,6 +440,7 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="(vm.cpuMax/1000)"
+                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                             gauge-color="#f4c009"
                                             :scale-interval="0">
                                         </vue-svg-gauge>
@@ -458,6 +471,7 @@
 
 <script>
 import LoadingScreen from "./LoadingScreen";
+import ErrorsZone from "./ErrorsZone";
 import {useGetLoader} from "./compositions/axios/loadingRequest";
 import {VueSvgGauge} from 'vue-svg-gauge'
 
@@ -466,6 +480,7 @@ export default {
 
     components: {
         LoadingScreen,
+        ErrorsZone,
         VueSvgGauge,
     },
 

@@ -3,6 +3,9 @@
         <transition name="loading-screen">
             <LoadingScreen v-if="loading"/>
         </transition>
+        <transition name="errors-zone">
+            <errors-zone :errors="errors" v-if="errors" />
+        </transition>
         <div class="row text-center">
             <div class="col-6" v-for="(pcc, pccName) in pccs" :key="pccName">
                 <div class="card">
@@ -71,6 +74,7 @@
 
 <script>
 import LoadingScreen from "./LoadingScreen";
+import ErrorsZone from "./ErrorsZone";
 import {useGetLoader} from "./compositions/axios/loadingRequest";
 
 export default {
@@ -78,6 +82,7 @@ export default {
 
     components: {
         LoadingScreen,
+        ErrorsZone,
     },
 
     props: {

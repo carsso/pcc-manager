@@ -3,6 +3,9 @@
         <transition name="loading-screen">
             <LoadingScreen v-if="loading"/>
         </transition>
+        <transition name="errors-zone">
+            <errors-zone :errors="errors" v-if="errors" />
+        </transition>
         <div class="card my-2">
             <div class="card-body p-3">
                 <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
@@ -68,7 +71,7 @@
             <div class="card-body p-3">
                 <div class="card-title">
                     <span class="h5">Active tasks</span>
-                    <small class="badge rounded-pill bg-danger position-absolute top-0 start-0 m-3">{{tasks && Object.keys(tasks).length}}</small>
+                    <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{tasks && Object.keys(tasks).length}}</small>
                     <div class="position-absolute top-0 end-0 m-3">
                         <button class="btn btn-sm badge" :class="autoRefresh ? 'btn-danger' : 'btn-primary'" @click="autoRefresh = !autoRefresh">
                             <i class="fas" :class="autoRefresh ? 'fa-times' : 'fa-check'"></i>
@@ -115,6 +118,7 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
+                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                             gauge-color="#f4c009"
                                             :scale-interval="0">
                                         </vue-svg-gauge>
@@ -173,6 +177,7 @@
 
 <script>
 import LoadingScreen from "./LoadingScreen";
+import ErrorsZone from "./ErrorsZone";
 import {useGetLoader} from "./compositions/axios/loadingRequest";
 import {VueSvgGauge} from 'vue-svg-gauge'
 import moment from "moment";
@@ -183,6 +188,7 @@ export default {
 
     components: {
         LoadingScreen,
+        ErrorsZone,
         VueSvgGauge,
     },
 

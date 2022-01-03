@@ -1,9 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PccController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OvhApiController;
+use App\Http\Controllers\DarkmodeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,9 @@ Route::get('/login/token/{token}', [OvhApiController::class, 'token'])
 Route::get('/login/redirect', [OvhApiController::class, 'redirect'])
     ->middleware('guest')
     ->name('login.redirect');
+
+Route::get('/darkmode/{enable}', [DarkmodeController::class, 'json'])
+    ->name('darkmode');
 
 Route::group(['middleware' => ['auth']], function() {
 

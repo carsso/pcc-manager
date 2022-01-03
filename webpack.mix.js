@@ -1,4 +1,6 @@
 const mix = require('laravel-mix');
+const webpack = require('webpack');
+const path = require('path');
 
 /*
  |--------------------------------------------------------------------------
@@ -13,4 +15,10 @@ const mix = require('laravel-mix');
 
 mix.js('resources/js/app.js', 'public/js')
     .vue()
-    .sass('resources/sass/app.scss', 'public/css');
+    .sass('resources/sass/app.scss', 'public/css', {
+        sassOptions: {
+            includePaths: [
+                path.resolve(__dirname, './node_modules/bootstrap/scss/')
+            ]
+        }
+    });

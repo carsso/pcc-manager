@@ -9,9 +9,11 @@
                 @endif
                 {{ config('app.name') }}
             </a>
-
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <ul class="navbar-nav me-auto mb-2 mb-md-0">
                     @auth
                         @php
                             $menuLinks = [
@@ -26,18 +28,24 @@
                         @endphp
                     @endauth
                     @foreach($menuLinks as $routeName => $text)
-                        <li>
+                        <li class="nav-item">
                             <a class="nav-link @route($routeName) text-secondary @else text-white @endroute" href="{{ route($routeName) }}">{{ $text }}</a>
                         </li>
                     @endforeach
                 </ul>
 
-                <div class="text-end">
+                <div class="d-flex">
                     @auth
-                        <a class="btn btn-outline-danger" href="{{ route('logout') }}">
+                        <a class="btn btn-outline-danger me-2 mb-2 mb-md-0" href="{{ route('logout') }}">
                             Logout
                         </a>
                     @endauth
+                </div>
+                <div class="d-flex">
+                    <darkmode-toggler
+                        :darkmode="{{ Cookie::get('darkmode') ? 'true' : 'false' }}"
+                        route="{{ route('home') }}">
+                    </darkmode-toggler>
                 </div>
             </div>
         </div>

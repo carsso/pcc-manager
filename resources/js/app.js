@@ -27,6 +27,23 @@ files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(
 
 Vue.prototype.global = window;
 
+let globalData = new Vue({
+    data: { $currentDarkmode: (document.documentElement.dataset.bsColorScheme == 'dark') }
+});
+
+Vue.mixin({
+    computed: {
+        $currentDarkmode: {
+            get: function () { return globalData.$data.$currentDarkmode },
+            set: function (darkmode) {
+                globalData.$data.$currentDarkmode = darkmode;
+                document.documentElement.dataset.bsColorScheme = darkmode ? 'dark' : 'light';
+            }
+        }
+    },
+});
+
+
 Vue.filter('round', function (value, decimals) {
     if (!value) {
         value = 0
