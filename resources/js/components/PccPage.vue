@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <div v-if="!datacenters" class="card my-2">
+        <div v-if="!datacenters" class="card my-3">
             <div class="card-body p-4">
                 <i class="fas fa-circle-notch fa-spin me-2"></i> Loading datacenters from OVHcloud API...
             </div>
@@ -83,7 +83,7 @@
                     </div>
                 </div>
                 <div v-if="!tasks" class="my-2">
-                    <i class="fas fa-circle-notch fa-spin me-2"></i> Loading Tasks from OVHcloud API...
+                    <i class="fas fa-circle-notch fa-spin me-2"></i> Loading tasks from OVHcloud API...
                 </div>
                 <template v-else>
                     <table class="table table-sm table-striped table-bordered">
@@ -108,7 +108,7 @@
                                     <small class="text-muted">#{{task.taskId}}</small>
                                 </td>
                                 <td>
-                                    <small>{{task.name}}</small><br />
+                                    {{task.name}}<br />
                                     <div class="micro-gauge">
                                         <vue-svg-gauge
                                             :start-angle="-270"
@@ -172,6 +172,110 @@
                 </template>
             </div>
         </div>
+
+        <div class="card my-3 text-center">
+            <div class="card-body p-3">
+                <div class="card-title">
+                    <span class="h5">Users</span>
+                    <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{users && Object.keys(users).length}}</small>
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <button class="btn btn-sm badge btn-info" @click="loadAll()">
+                            <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
+                        </button>
+                    </div>
+                </div>
+                <div v-if="!users" class="my-2">
+                    <i class="fas fa-circle-notch fa-spin me-2"></i> Loading users from OVHcloud API...
+                </div>
+                <template v-else>
+                    <table class="table table-sm table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">State</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Contact</th>
+                                <th scope="col">Global accesses</th>
+                                <th scope="col" v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
+                                    {{ datacenter.description }}
+                                    <span class="text-muted">#{{ datacenterId }}</span>
+                                    accesses
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="user in _.orderBy(_.values(users), ['name'])" :key="user.userId">
+                                <td>
+                                    <span :class="getUserStateClass(user)">
+                                        <i class="fas fa-circle"></i>
+                                        {{user.state}}
+                                    </span>
+                                    <br />
+                                    <small class="text-muted">#{{user.userId}}</small>
+                                </td>
+                                <td>
+                                    {{user.name}}<br />
+                                    <small class="text-muted">{{user.firstName}} {{user.lastName}}</small>
+                                </td>
+                                <td>
+                                    <small v-if="user.email">
+                                        {{user.email}}
+                                        (<abbr title="Technical email alerts">Alerts</abbr> :
+                                        <i class="fas" :class="user.receiveAlerts ? 'fa-check text-success' : 'fa-times text-danger'"></i>)
+                                    </small>
+                                    <br />
+                                    <small v-if="user.phoneNumber">
+                                        {{user.phoneNumber}}
+                                        (<abbr title="Security token validation">Token</abbr> :
+                                        <i class="fas" :class="user.isTokenValidator ? 'fa-check text-success' : 'fa-times text-danger'"></i>)
+                                    </small>
+                                </td>
+                                <td>
+                                    <abbr title="NSX access">NSX</abbr> :
+                                    <i class="fas" :class="user.nsxRight ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                                    <!--
+                                        <small>
+                                            -
+                                            <abbr title="Manage rights (OVHcloud plugin)">Rights</abbr> :
+                                            <i class="fas" :class="user.canManageRights ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                                        </small>
+                                    -->
+                                    <br />
+                                    <small>
+                                        <abbr title="Manage IPs (OVHcloud plugin)">IPs</abbr> :
+                                        <i class="fas" :class="user.canManageNetwork ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                                        -
+                                        <abbr title="Manage IP failovers (OVHcloud plugin)">IPFO</abbr> :
+                                        <i class="fas" :class="user.canManageIpFailOvers ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                                    </small>
+                                </td>
+                                <td v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
+                                    <span v-if="user.rights && user.rights[datacenterId]">
+                                        Datacenter :
+                                        <span :class="getUserAccessStateClass(user.rights[datacenterId].right)">{{ user.rights[datacenterId].right }}</span>
+                                        -
+                                        <small>
+                                            <abbr title="Add ressources (OVHcloud plugin)">Add ress.</abbr> :
+                                            <i class="fas" :class="user.rights[datacenterId].canAddRessource ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                                        </small>
+                                        <br />
+                                        <small>
+                                            <abbr title="VM Network access">VM Network</abbr> :
+                                            <span :class="getUserAccessStateClass(user.rights[datacenterId].vmNetworkRole)">{{ user.rights[datacenterId].vmNetworkRole }}</span>
+                                            -
+                                            <abbr title="v(x)Lans access">v(x)Lans</abbr> :
+                                            <span :class="getUserAccessStateClass(user.rights[datacenterId].networkRole)">{{ user.rights[datacenterId].networkRole }}</span>
+                                        </small>
+                                    </span>
+                                    <span v-else>
+                                        <i class="fas fa-circle-notch fa-spin me-2"></i> Loading user datacenter rights<br />from OVHcloud API...
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </template>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -223,6 +327,7 @@ export default {
         return {
             pcc: {},
             datacenters: null,
+            users: null,
             tasks: null,
             taskIds: {},
             timer: null,
@@ -262,11 +367,51 @@ export default {
                 this.loadPcc();
                 this.loadDatacenters();
                 this.loadTasks();
+                this.loadUsers();
             }
         },
 
         async loadPcc() {
             this.pcc = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}`);
+        },
+
+        async loadUsers() {
+            const userIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user`);
+            if(!userIds.length) {
+                this.users = {};
+            }
+            let userIdsChunks = this.chunkArray(userIds, 40);
+            for(let userIdsChunk of userIdsChunks) {
+                const users = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userIdsChunk.join(',')}?batch=,`);
+                if(this.users === null) {
+                    this.users = {};
+                }
+                for (const i in users) {
+                    const user = users[i];
+                    if(!user['error']) {
+                        this.$set(this.users, user['key'], {...user['value']});
+                        this.loadUser(user['key']);
+                    }
+                }
+            }
+        },
+
+        async loadUser(userId) {
+            this.loadUserRights(userId);
+        },
+
+        async loadUserRights(userId) {
+            const userRightIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/right`);
+            let userRightIdsChunks = this.chunkArray(userRightIds, 40);
+            let rights = {};
+            for(let userRightIdsChunk of userRightIdsChunks) {
+                const userRights = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/right/${userRightIdsChunk.join(',')}?batch=,`);
+                for (const i in userRights) {
+                    const userRight = userRights[i]['value'];
+                    rights[userRight.datacenterId] = userRight;
+                }
+            }
+            this.$set(this.users[userId], 'rights', {...rights});
         },
 
         async loadDatacenters() {
@@ -280,8 +425,8 @@ export default {
                 if(this.datacenters === null) {
                     this.datacenters = {};
                 }
-                for (const datacenterId in datacenters) {
-                    const datacenter = datacenters[datacenterId];
+                for (const i in datacenters) {
+                    const datacenter = datacenters[i];
                     if(!datacenter['error']) {
                         this.$set(this.datacenters, datacenter['key'], {...datacenter['value']});
                     }
@@ -315,8 +460,8 @@ export default {
                 if(this.tasks === null) {
                     this.tasks = {};
                 }
-                for (const taskId in tasks) {
-                    const task = tasks[taskId];
+                for (const i in tasks) {
+                    const task = tasks[i];
                     if(!task['error']) {
                         let value = task['value'];
                         this.$set(this.tasks, task['key'], {...value});
@@ -332,7 +477,6 @@ export default {
             }
             return results;
         },
-
 
         getTaskStateClass(task) {
             var resultClass = 'text-warning';
@@ -361,6 +505,42 @@ export default {
                     resultClass = 'text-black';
                 } else {
                     resultClass = 'text-danger';
+                }
+            }
+            return resultClass;
+        },
+
+        getUserStateClass(user) {
+            var resultClass = 'text-warning';
+            if(user.state) {
+                if(user.state == 'creating') {
+                    resultClass = 'text-warning';
+                } else if(user.state == 'deleting') {
+                    resultClass = 'text-warning';
+                } else if(user.state == 'delivered') {
+                    resultClass = 'text-success';
+                } else if(user.state == 'error') {
+                    resultClass = 'text-danger';
+                }
+            }
+            return resultClass;
+        },
+
+        getUserAccessStateClass(access) {
+            var resultClass = 'text-warning';
+            if(access) {
+                if(access == 'admin') {
+                    resultClass = 'text-success';
+                } else if(access == 'readwrite') {
+                    resultClass = 'text-success';
+                } else if(access == 'manager') {
+                    resultClass = 'text-success';
+                } else if(access == 'readonly') {
+                    resultClass = 'text-warning';
+                } else if(access == 'noAccess') {
+                    resultClass = 'text-danger';
+                } else if(access == 'disabled') {
+                    resultClass = 'text-black';
                 }
             }
             return resultClass;
