@@ -23,22 +23,24 @@
                 </div>
             </div>
         </div>
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="mb-3">Test with an demo account</h3>
-                    @foreach($demoAccounts as $demoAccount)
-                        <p>
-                            {{ $demoAccount['name'] }}<br />
-                            <small>{{ $demoAccount['description'] }}</small><br />
-                            <a class="btn btn-outline-warning btn-sm" href="{{ route('login.token', ['token' => $demoAccount['token']]) }}">
-                                Log-in with this account
-                            </a>
-                        </p>
-                    @endforeach
+        @if($demoAccounts)
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="mb-3">Test with an demo account</h3>
+                        @foreach($demoAccounts as $demoAccount)
+                            <p>
+                                {{ $demoAccount['name'] }}<br />
+                                <small>{{ $demoAccount['description'] }}</small><br />
+                                <a class="btn btn-outline-warning btn-sm" href="{{ route('login.token', ['token' => $demoAccount['token']]) }}">
+                                    Log-in with this account
+                                </a>
+                            </p>
+                        @endforeach
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 </div>
 @endsection
