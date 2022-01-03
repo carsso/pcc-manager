@@ -44,6 +44,11 @@ composer install --no-interaction --prefer-dist --optimize-autoloader
 php artisan optimize
 ```
 
+#### Create the storage symbolic links
+```sh
+php artisan storage:link
+```
+
 ## Development
 
 #### Pre-requisites
@@ -75,6 +80,11 @@ cp .env.dev.example .env
 vim .env
 ```
 _Read https://github.com/ovh/php-ovh#supported-apis to find the URL to generate the script credentials and the supported endpoints_
+
+#### Create the storage symbolic links
+```sh
+php artisan storage:link
+```
 
 #### Build js and css files:
 ```sh
