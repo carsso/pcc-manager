@@ -8,30 +8,42 @@
         @endif
         {{ config('app.name') }}
     </h1>
-    <p>You are not logged-in. Please login first</p>
+    <div class="d-flex">
+        <div>
+            <p>
+                {{ config('app.name') }} is an OVHcloud PCC infrastructures realtime visualization web interface.
+            </p>
+        </div>
+    </div>
 
     <div class="row text-center">
-        <div class="col">
-            <div class="card">
+        <div class="col-12 col-sm-6 col-md-5 col-lg-4">
+            <div class="card my-3">
+                <img src="https://user-images.githubusercontent.com/666182/148128946-e64ce228-5c82-45b0-ad0b-19d94fc5814d.png" class="card-img-top" alt="">
                 <div class="card-body">
-                    <h3 class="mb-4">Login with your account</h3>
+                    <p class="card-text">Visualize you virtual machines, hosts and datastores health & resource usage.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-7 col-lg-8">
+            <div class="card my-3">
+                <div class="card-body">
+                    <h3 class="mb-3">Login with your OVHcloud account</h3>
                     @foreach(config('ovh') as $endpoint => $config)
                         @if(config('ovh.'.$endpoint.'.application_secret'))
-                            <p>
-                                <a class="btn btn-primary btn-lg" href="{{ route('login', ['endpoint' => $endpoint]) }}">
-                                    Login with your {{ config('ovh.'.$endpoint.'.name') }} account
-                                </a>
-                            </p>
+                            <a class="btn btn-outline-primary m-2 py-2" href="{{ route('login', ['endpoint' => $endpoint]) }}">
+                                <span class="fi fi-{{ config('ovh.'.$endpoint.'.flag') }} display-6 mb-2"></span><br />
+                                {{ config('ovh.'.$endpoint.'.name') }}<br />
+                                <small>{{ config('ovh.'.$endpoint.'.domain') }}</small>
+                            </a>
                         @endif
                     @endforeach
                 </div>
             </div>
-        </div>
-        @if($hasDemoAccounts)
-            <div class="col">
-                <div class="card">
+            @if($hasDemoAccounts)
+                <div class="card my-3">
                     <div class="card-body">
-                        <h3 class="mb-3">Test with an demo account</h3>
+                        <h3 class="mb-3">Test with a demo account</h3>
                         @foreach(config('ovh') as $endpoint => $config)
                             @if(config('ovh.'.$endpoint.'.application_secret'))
                                 @foreach(config('ovh.'.$endpoint.'.demo_accounts') as $demoAccount)
@@ -47,8 +59,11 @@
                         @endforeach
                     </div>
                 </div>
-            </div>
-        @endif
+            @endif
+        </div>
     </div>
+</div>
+<div class="container">
+    @include('includes.compatible-products')
 </div>
 @endsection

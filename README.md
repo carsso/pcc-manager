@@ -9,7 +9,7 @@ Written in PHP/Laravel and VueJS. _Depends on the [OVHcloud API wrapper](https:/
 ### Screenshots:
 
 #### Datacenter view:
-![Datacenter view](https://user-images.githubusercontent.com/666182/147897550-666653e9-d7e7-4528-bda9-1a8be3dc6265.png)
+![Datacenter view](https://user-images.githubusercontent.com/666182/148128946-e64ce228-5c82-45b0-ad0b-19d94fc5814d.png)
 
 ## Deployment
 

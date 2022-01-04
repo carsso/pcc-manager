@@ -6,5 +6,22 @@
         :pcc-names='@json($pccNames)'
         ovhapi-route="{{ route('ovhapi') }}">
     </pccs-page>
+    @if(empty($pccNames))
+        <div class="card my-3">
+            <div class="card-body py-5">
+                <p class="card-text text-center h2 mb-4">
+                    No compatible product found on your OVHcloud account.
+                </p>
+                <p class="card-text text-center">
+                    <a class="btn btn-outline-danger btn-lg" href="{{ route('logout') }}">
+                        Logout
+                    </a>
+                </p>
+            </div>
+        </div>
+        <div class="mt-5">
+            @include('includes.compatible-products')
+        </div>
+    @endif
 </div>
 @endsection
