@@ -21,18 +21,18 @@ Route::get('/', [HomeController::class, 'index'])
     ->middleware('guest')
     ->name('home');
 
-Route::get('/login', [OvhApiController::class, 'login'])
+Route::get('/login/{endpoint}', [OvhApiController::class, 'login'])
     ->middleware('guest')
     ->name('login');
 
 Route::get('/logout', [OvhApiController::class, 'logout'])
     ->name('logout');
 
-Route::get('/login/token/{token}', [OvhApiController::class, 'token'])
+Route::get('/login/{endpoint}/token/{token}', [OvhApiController::class, 'token'])
     ->middleware('guest')
     ->name('login.token');
 
-Route::get('/login/redirect', [OvhApiController::class, 'redirect'])
+Route::get('/login/{endpoint}/redirect', [OvhApiController::class, 'redirect'])
     ->middleware('guest')
     ->name('login.redirect');
 

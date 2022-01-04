@@ -9,7 +9,12 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $demoAccounts = config('ovh.demo_accounts');
-        return view('home', compact('demoAccounts'));
+        $hasDemoAccounts = false;
+        foreach(config('ovh') as $endpoint => $config) {
+            if(config('ovh.'.$endpoint.'.application_secret') && config('ovh.'.$endpoint.'.demo_accounts')) {
+                $hasDemoAccounts = true;
+            }
+        }
+        return view('home', compact('hasDemoAccounts'));
     }
 }

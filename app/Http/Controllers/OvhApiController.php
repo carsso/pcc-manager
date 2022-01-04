@@ -16,12 +16,14 @@ use GuzzleHttp\Exception\RequestException;
 
 class OvhApiController extends Controller
 {
-    public function login(Request $request)
+    public function login(Request $request, String $endpoint)
     {
+        $this->checkEndpoint($endpoint);
+
         $ovhApi = new OvhApi(
-            config('ovh.application_key'),
-            config('ovh.application_secret'),
-            config('ovh.endpoint'),
+            config('ovh.'.$endpoint.'.application_key'),
+            config('ovh.'.$endpoint.'.application_secret'),
+            $endpoint,
         );
 
         /*
@@ -47,36 +49,59 @@ class OvhApiController extends Controller
         $rights = [
             [
                 'method'    => 'GET',
+                'path'      => '/*'
+            ],
+        ];
+        $rights = [
+            [
+                'method'    => 'GET',
                 'path'      => '/dedicatedCloud*'
             ],
         ];
-        $redirect = route('login.redirect');
+        $redirect = route('login.redirect', ['endpoint' => $endpoint]);
         $credentials = $ovhApi->requestCredentials($rights, $redirect);
         session(['loginConsumerKey' => $credentials['consumerKey']]);
 
         return redirect($credentials['validationUrl']);
     }
 
-    public function redirect()
+    protected function checkEndpoint(String $endpoint)
+    {
+        if(!config('ovh.'.$endpoint)) {
+            abort(404, 'Endpoint '.$endpoint.' not found');
+        }
+        if(!config('ovh.'.$endpoint.'.application_key')) {
+            abort(404, 'Endpoint '.$endpoint.' application key not found');
+        }
+        if(!config('ovh.'.$endpoint.'.application_secret')) {
+            abort(404, 'Endpoint '.$endpoint.' application secret not found');
+        }
+
+        return true;
+    }
+
+    public function redirect(String $endpoint)
     {
         if($consumerKey = session('loginConsumerKey'))
         {
-            return $this->tryLogin($consumerKey);
+            return $this->tryLogin($endpoint, $consumerKey);
         }
         return redirect()->route('pcc');
     }
 
-    public function token(String $token)
+    public function token(String $endpoint, String $token)
     {
-        return $this->tryLogin($token);
+        return $this->tryLogin($endpoint, $token);
     }
 
-    private function tryLogin(String $consumerKey)
+    private function tryLogin(String $endpoint, String $consumerKey)
     {
+        $this->checkEndpoint($endpoint);
+
         session()->invalidate();
         session()->regenerateToken();
         
-        if (Auth::attempt(['consumerKey' => $consumerKey])) {
+        if (Auth::attempt(['consumerKey' => $consumerKey, 'endpoint' => $endpoint])) {
             return redirect()->route('pcc');
         }
 

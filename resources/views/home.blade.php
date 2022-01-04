@@ -15,27 +15,35 @@
             <div class="card">
                 <div class="card-body">
                     <h3 class="mb-4">Login with your account</h3>
-                    <p>
-                        <a class="btn btn-primary btn-lg" href="{{ route('login') }}">
-                            Login with your OVHcloud account
-                        </a>
-                    </p>
+                    @foreach(config('ovh') as $endpoint => $config)
+                        @if(config('ovh.'.$endpoint.'.application_secret'))
+                            <p>
+                                <a class="btn btn-primary btn-lg" href="{{ route('login', ['endpoint' => $endpoint]) }}">
+                                    Login with your {{ config('ovh.'.$endpoint.'.name') }} account
+                                </a>
+                            </p>
+                        @endif
+                    @endforeach
                 </div>
             </div>
         </div>
-        @if($demoAccounts)
+        @if($hasDemoAccounts)
             <div class="col">
                 <div class="card">
                     <div class="card-body">
                         <h3 class="mb-3">Test with an demo account</h3>
-                        @foreach($demoAccounts as $demoAccount)
-                            <p>
-                                {{ $demoAccount['name'] }}<br />
-                                <small>{{ $demoAccount['description'] }}</small><br />
-                                <a class="btn btn-outline-warning btn-sm" href="{{ route('login.token', ['token' => $demoAccount['token']]) }}">
-                                    Log-in with this account
-                                </a>
-                            </p>
+                        @foreach(config('ovh') as $endpoint => $config)
+                            @if(config('ovh.'.$endpoint.'.application_secret'))
+                                @foreach(config('ovh.'.$endpoint.'.demo_accounts') as $demoAccount)
+                                    <p>
+                                        {{ $demoAccount['name'] }}<br />
+                                        <small>{{ $demoAccount['description'] }}</small><br />
+                                        <a class="btn btn-outline-warning btn-sm" href="{{ route('login.token', ['endpoint' => $endpoint, 'token' => $demoAccount['token']]) }}">
+                                            Log-in with this account ({{ config('ovh.'.$endpoint.'.name') }})
+                                        </a>
+                                    </p>
+                                @endforeach
+                            @endif
                         @endforeach
                     </div>
                 </div>
