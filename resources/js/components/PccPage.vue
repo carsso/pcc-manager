@@ -119,6 +119,7 @@
                                             :min="0"
                                             :max="100"
                                             :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                             gauge-color="#f4c009"
                                             :scale-interval="0">
                                         </vue-svg-gauge>

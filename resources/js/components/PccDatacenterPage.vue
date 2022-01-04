@@ -77,6 +77,7 @@
                                             :min="0"
                                             :max="100"
                                             :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                             :gauge-color="[{offset:0,color:'#0b8c5a'},{offset:50,color:'#f4c009'},{offset:100,color:'#de3a21'}]"
                                             :scale-interval="0">
                                             <div class="inner-text">
@@ -98,6 +99,7 @@
                                             :min="0"
                                             :max="100"
                                             :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                             :gauge-color="[{offset:0,color:'#0b8c5a'},{offset:50,color:'#f4c009'},{offset:100,color:'#de3a21'}]"
                                             :scale-interval="0">
                                             <div class="inner-text">
@@ -153,6 +155,7 @@
                                                         :min="0"
                                                         :max="(filer.spaceUsed + filer.spaceFree) | round(0)"
                                                         :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0">
                                                     </vue-svg-gauge>
@@ -192,6 +195,7 @@
                                             :min="0"
                                             :max="100"
                                             :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                             :gauge-color="[{offset:0,color:'#0b8c5a'},{offset:50,color:'#f4c009'},{offset:100,color:'#de3a21'}]"
                                             :scale-interval="0">
                                             <div class="inner-text">
@@ -213,6 +217,7 @@
                                             :min="0"
                                             :max="100"
                                             :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                             :gauge-color="[{offset:0,color:'#0b8c5a'},{offset:50,color:'#f4c009'},{offset:100,color:'#de3a21'}]"
                                             :scale-interval="0">
                                             <div class="inner-text">
@@ -271,6 +276,7 @@
                                                         :min="0"
                                                         :max="host.cpuMax/1000"
                                                         :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0">
                                                     </vue-svg-gauge>
@@ -289,6 +295,7 @@
                                                         :min="0"
                                                         :max="host.ram.value"
                                                         :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0">
                                                     </vue-svg-gauge>
@@ -375,6 +382,7 @@
                                                         :min="0"
                                                         :max="(filer.capacity/1024)"
                                                         :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0">
                                                     </vue-svg-gauge>
@@ -422,6 +430,7 @@
                                             :min="0"
                                             :max="(vm.memoryMax/1024)"
                                             :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                             gauge-color="#f4c009"
                                             :scale-interval="0">
                                         </vue-svg-gauge>
@@ -441,6 +450,7 @@
                                             :min="0"
                                             :max="(vm.cpuMax/1000)"
                                             :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                             gauge-color="#f4c009"
                                             :scale-interval="0">
                                         </vue-svg-gauge>
