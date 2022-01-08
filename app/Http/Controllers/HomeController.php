@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-
 class HomeController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $hasDemoAccounts = false;
         foreach(config('ovh') as $endpoint => $config) {
@@ -16,5 +13,10 @@ class HomeController extends Controller
             }
         }
         return view('home', compact('hasDemoAccounts'));
+    }
+
+    public function legal()
+    {
+        return view('legal');
     }
 }

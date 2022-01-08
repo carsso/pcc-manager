@@ -21,6 +21,9 @@ Route::get('/', [HomeController::class, 'index'])
     ->middleware('guest')
     ->name('home');
 
+Route::get('/legal', [HomeController::class, 'legal'])
+    ->name('legal');
+
 Route::get('/login/{endpoint}', [OvhApiController::class, 'login'])
     ->middleware('guest')
     ->name('login');
