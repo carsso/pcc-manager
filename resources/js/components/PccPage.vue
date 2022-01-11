@@ -40,15 +40,15 @@
         </div>
         <template v-else>
             <div class="row text-center">
-                <div class="col-12 col-lg-6">
-                    <div class="card my-2" v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
+                <div class="col-12 col-lg-6" v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
+                    <div class="card my-2">
                         <div class="card-body p-3 row">
                             <div class="col-12 col-lg-8">
                                 <div class="mb-1">
                                     <span class="h4">
-                                        {{ datacenter.description }}
+                                        {{ datacenter.description || datacenter.name }}
                                     </span>
-                                    <span class="text-muted">#{{ datacenterId }}</span>
+                                    <span class="text-muted">{{ datacenter.description ? datacenter.name : '#'+datacenterId }}</span>
                                 </div>
                                 <div>
                                     <span>{{ datacenter.commercialName }}</span>
@@ -197,8 +197,8 @@
                                 <th scope="col">Contact</th>
                                 <th scope="col">Global accesses</th>
                                 <th scope="col" v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
-                                    {{ datacenter.description }}
-                                    <span class="text-muted">#{{ datacenterId }}</span>
+                                    {{ datacenter.description || datacenter.name }}
+                                    <span class="text-muted">{{ datacenter.description ? datacenter.name : '#'+datacenterId }}</span>
                                     accesses
                                 </th>
                             </tr>

@@ -7,7 +7,7 @@
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
         <div class="row text-center">
-            <div class="col-6" v-for="(pcc, pccName) in pccs" :key="pccName">
+            <div class="col-12 col-lg-6 mb-3" v-for="(pcc, pccName) in pccs" :key="pccName">
                 <div class="card">
                     <div class="card-body p-4">
                         <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
@@ -46,9 +46,9 @@
                                         <div class="col-12 col-lg-8">
                                             <div class="mb-1">
                                                 <span class="h4">
-                                                    {{ datacenter.description }}
+                                                    {{ datacenter.description || datacenter.name }}
                                                 </span>
-                                                <span class="text-muted">#{{ datacenterId }}</span>
+                                                <span class="text-muted">{{ datacenter.description ? datacenter.name : '#'+datacenterId }}</span>
                                             </div>
                                             <div>
                                                 <span>{{ datacenter.commercialName }}</span>

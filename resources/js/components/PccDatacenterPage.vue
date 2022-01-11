@@ -37,9 +37,9 @@
                             <div class="mb-1">
                                 <span>Datacenter</span>
                                 <span class="h4">
-                                    {{ datacenter.description }}
+                                    {{ datacenter.description || datacenter.name }}
                                 </span>
-                                <span class="text-muted">#{{ datacenterId }}</span>
+                                <span class="text-muted">{{ datacenter.description ? datacenter.name : '#'+datacenterId }}</span>
                             </div>
                             <div class="mb-1">
                                 <span class="h5">{{ datacenter.commercialName }}</span>
