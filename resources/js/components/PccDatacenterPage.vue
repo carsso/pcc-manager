@@ -13,7 +13,12 @@
                 </button>
                 <div class="row text-center">
                     <div class="col-4">
-                        <h3 class="mb-1">{{ pccName }}</h3>
+                        <h3 class="mb-1">
+                            <a :href="`${pccRoute}/${pccName}`">
+                                <i class="far fa-arrow-alt-circle-left"></i>
+                            </a>
+                            {{ pccName }}
+                        </h3>
                         <h4 class="mb-1">{{ pcc.description }}</h4>
                         <div>
                             <a target="_blank" :href="pcc.webInterfaceUrl">{{ pcc.webInterfaceUrl }}</a>
@@ -21,17 +26,17 @@
                     </div>
                     <div class="col-4 py-2">
                         <div v-if="!Object.keys(pcc).length" class="my-3">
-                            <i class="fas fa-circle-notch fa-spin me-2"></i> Loading pcc from OVHcloud API...
+                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading pcc from OVHcloud API...
                         </div>
                         <div v-else>
-                            <i class="fas fa-map-marked-alt"></i> Datacenter : {{ pcc.location }}<br />
-                            Commercial range : {{ pcc.commercialRange }}<br />
-                            <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major }} {{ pcc.version.minor }}
+                            <i class="fas fa-map-marked-alt"></i> Datacenter: {{ pcc.location }}<br />
+                            Commercial range: {{ pcc.commercialRange }}<br />
+                            <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}
                         </div>
                     </div>
                     <div class="col-4 py-3">
                         <div v-if="!Object.keys(datacenter).length" class="my-2">
-                            <i class="fas fa-circle-notch fa-spin me-2"></i> Loading datacenter from OVHcloud API...
+                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading datacenter from OVHcloud API...
                         </div>
                         <template v-else>
                             <div class="mb-1">
@@ -63,7 +68,7 @@
                             </button>
                         </div>
                         <div v-if="!filers" class="my-2">
-                            <i class="fas fa-circle-notch fa-spin me-2"></i> Loading datastores from OVHcloud API...
+                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading datastores from OVHcloud API...
                         </div>
                         <template v-else>
                             <div class="row">
@@ -112,7 +117,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <table class="table table-sm table-striped table-bordered">
+                            <table class="table table-sm table-striped table-bordered mb-0">
                                 <thead>
                                     <tr>
                                         <th scope="col" colspan="2">Name</th>
@@ -123,11 +128,11 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(filer, filerId) in filers" :key="filerId">
-                                        <td :title="`State : ${filer.state} - Profile : ${filer.profile}`">
+                                        <td :title="`State: ${filer.state} - Profile: ${filer.profile}`">
                                             <i class="fas fa-circle" :class="getDatastoreStateClass(filer)"></i><br />
                                             <small class="text-muted">#{{filerId}}</small>
                                         </td>
-                                        <td :title="`State : ${filer.state} - Profile : ${filer.profile} - Node : ${filer.master.split(/\./)[0]} ${filer.activeNode}`">
+                                        <td :title="`State: ${filer.state} - Profile: ${filer.profile} - Node: ${filer.master.split(/\./)[0]} ${filer.activeNode}`">
                                             {{filer.name || 'pcc-00'+filerId }}
                                             <i v-if="filer.global" class="fas fa-globe text-info" title="Global"></i><br />
                                             <small class="text-muted">
@@ -181,7 +186,7 @@
                             </button>
                         </div>
                         <div v-if="!hosts" class="my-2">
-                            <i class="fas fa-circle-notch fa-spin me-2"></i> Loading hosts from OVHcloud API...
+                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading hosts from OVHcloud API...
                         </div>
                         <template v-else>
                             <div class="row">
@@ -230,7 +235,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <table class="table table-sm table-striped table-bordered">
+                            <table class="table table-sm table-striped table-bordered mb-0">
                                 <thead>
                                     <tr>
                                         <th scope="col" colspan="2">Name</th>
@@ -242,13 +247,13 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(host, hostId) in hosts" :key="hostId">
-                                        <td :title="`Rack : ${host.rack} - State : ${host.state} - Connexion state : ${host.connectionState} - In maintenance : ${(host.inMaintenance)?'yes':'no'}`">
+                                        <td :title="`Rack: ${host.rack} - State: ${host.state} - Connexion state: ${host.connectionState} - In maintenance: ${(host.inMaintenance)?'yes':'no'}`">
                                             <i class="fas fa-circle" :class="getHostStateClass(host)"></i><br />
                                             <small class="text-muted">#{{hostId}}</small>
                                         </td>
-                                        <td :title="`Rack : ${host.rack} - State : ${host.state} - Connexion state : ${host.connectionState} - In maintenance : ${(host.inMaintenance)?'yes':'no'}`">
+                                        <td :title="`Rack: ${host.rack} - State: ${host.state} - Connexion state: ${host.connectionState} - In maintenance: ${(host.inMaintenance)?'yes':'no'}`">
                                             {{host.name || 'host'+hostId }}<br />
-                                            <small class="text-muted">Rack : {{host.rack}}</small>
+                                            <small class="text-muted">Rack: {{host.rack}}</small>
                                         </td>
                                         <td>
                                             <small>{{host.profile}}</small><br />
@@ -281,7 +286,7 @@
                                                         :scale-interval="0">
                                                     </vue-svg-gauge>
                                                 </div>
-                                                <small>CPU : {{host.cpuUsed/1000 | round(1)}} <small>of</small> {{host.cpuMax/1000 | round(0)}} <small>{{host.cpu.unit}}</small></small>
+                                                <small>CPU: {{host.cpuUsed/1000 | round(1)}} <small>of</small> {{host.cpuMax/1000 | round(0)}} <small>{{host.cpu.unit}}</small></small>
                                             </template>
                                             <br />
                                             <template v-if="host.memoryUsed">
@@ -300,7 +305,7 @@
                                                         :scale-interval="0">
                                                     </vue-svg-gauge>
                                                 </div>
-                                                <small>RAM : {{host.memoryUsed/1024 | round(0)}} <small>of</small> {{host.ram.value | round(0)}} <small>{{host.ram.unit}}</small></small>
+                                                <small>RAM: {{host.memoryUsed/1024 | round(0)}} <small>of</small> {{host.ram.value | round(0)}} <small>{{host.ram.unit}}</small></small>
                                             </template>
                                         </td>
                                     </tr>
@@ -322,10 +327,10 @@
                     </button>
                 </div>
                 <div v-if="!vms" class="my-2">
-                    <i class="fas fa-circle-notch fa-spin me-2"></i> Loading VMs from OVHcloud API...
+                    <i class="fas fa-circle-notch fa-spin me-1"></i> Loading VMs from OVHcloud API...
                 </div>
                 <template v-else>
-                    <table class="table table-sm table-striped table-bordered">
+                    <table class="table table-sm table-striped table-bordered mb-0">
                         <thead>
                             <tr>
                                 <th scope="col" colspan="2">Name</th>
@@ -356,11 +361,11 @@
                         </thead>
                         <tbody>
                             <tr v-for="vm in _.orderBy(_.values(vms), ['name'])" :key="vm.vmId">
-                                <td :title="`State : ${vm.powerState} - MoRef : ${vm.moRef}`">
+                                <td :title="`State: ${vm.powerState} - MoRef: ${vm.moRef}`">
                                     <i class="fas fa-circle" :class="getVirtualMachineStateClass(vm)"></i><br />
                                     <small class="text-muted">#{{vm.vmId}}</small>
                                 </td>
-                                <td :title="`State : ${vm.powerState} - MoRef : ${vm.moRef}`">
+                                <td :title="`State: ${vm.powerState} - MoRef: ${vm.moRef}`">
                                     {{vm.name}}
                                     <span class="badge lightgrey" v-if="isOvhVm(vm)" title="This virtual machine is managed by OVH">OVH VM</span>
                                 </td>
@@ -370,7 +375,7 @@
                                 <td v-if="vm.powerState != 'deleted'">
                                     <small title="Host" class="text-muted">{{vm.hostName}}</small><br />
                                     <template v-if="vm.filers">
-                                        <div v-for="filer in vm.filers" :key="filer.id" class="inline" :title="`Filer ${(filer.name.substring(0, 13) == 'storageLocal_')?'local':filer.name} : ${round(filer.committed/1024, 1)} of ${round(filer.capacity/1024, 0)} GB`">
+                                        <div v-for="filer in vm.filers" :key="filer.id" class="inline" :title="`Filer ${(filer.name.substring(0, 13) == 'storageLocal_')?'local':filer.name}: ${round(filer.committed/1024, 1)} of ${round(filer.capacity/1024, 0)} GB`">
                                             <template v-if="filer.capacity">
                                                 <div class="micro-gauge">
                                                     <vue-svg-gauge
@@ -395,12 +400,12 @@
                                 <td v-if="vm.powerState != 'deleted'">
                                     <span class="badge" :class="(vm.snapshotNum)?'bg-danger':'bg-success'">{{vm.snapshotNum}}</span>
                                 </td>
-                                <td :title="`VMWare Tools : ${vm.vmwareTools} - ${vm.vmwareToolsVersion}`" v-if="vm.powerState != 'deleted'">
+                                <td :title="`VMWare Tools: ${vm.vmwareTools} - ${vm.vmwareToolsVersion}`" v-if="vm.powerState != 'deleted'">
                                     <span class="badge" :class="getVirtualMachineVmwareToolsData('class', vm)">
                                         <i class="fa" :class="getVirtualMachineVmwareToolsData('icon', vm)"></i>
                                     </span>
                                 </td>
-                                <td :title="`Backup : ${vm.backup && vm.backup.state ? vm.backup.state : 'removed'} - Restore points : ${ vm.backup && vm.backup.restorePoints ? Object.keys(vm.backup.restorePoints).length : 0}`">
+                                <td :title="`Backup: ${vm.backup && vm.backup.state ? vm.backup.state : 'removed'} - Restore points: ${ vm.backup && vm.backup.restorePoints ? Object.keys(vm.backup.restorePoints).length : 0}`">
                                     <span class="badge" :class="getVirtualMachineBackupClass(vm)">
                                         <i class="fa" :class="getVirtualMachineBackupIcon(vm)"></i> 
                                         <span v-if="vm.backup && vm.backup.state != 'removed'">
@@ -416,10 +421,10 @@
                                 <td colspan="6" v-if="vm.powerState == 'deleted'" class="text-center text-secondary">
                                     <i>Virtual machine removed</i>
                                 </td>
-                                <td v-if="vm.powerState != 'deleted'" :title="`Fault Tolerance : ${vm.stateFt}`">
+                                <td v-if="vm.powerState != 'deleted'" :title="`Fault Tolerance: ${vm.stateFt}`">
                                     <i class="fas fa-circle" :class="getVirtualMachineFtClass(vm)"></i>
                                 </td>
-                                <td :title="`RAM usage : ${round(vm.memoryUsed/1024, 2)} of ${round(vm.memoryMax/1024, 0)} GB - ${vm.cpuNum} vCPU`" v-if="vm.powerState != 'deleted'">
+                                <td :title="`RAM usage: ${round(vm.memoryUsed/1024, 2)} of ${round(vm.memoryMax/1024, 0)} GB - ${vm.cpuNum} vCPU`" v-if="vm.powerState != 'deleted'">
                                     <div class="micro-gauge">
                                         <vue-svg-gauge
                                             :start-angle="-270"
@@ -439,7 +444,7 @@
                                     <br />
                                     {{vm.cpuNum}} <small>vCPU</small>
                                 </td>
-                                <td :title="`CPU usage : ${round(vm.cpuUsed/1000, 2)} of ${round(vm.cpuMax/1000, 1)} GHz - CPU Ready : ${vm.cpuReady} ms (${vm.cpuReadyPercent}} %)`" v-if="vm.powerState != 'deleted'">
+                                <td :title="`CPU usage: ${round(vm.cpuUsed/1000, 2)} of ${round(vm.cpuMax/1000, 1)} GHz - CPU Ready: ${vm.cpuReady} ms (${vm.cpuReadyPercent}} %)`" v-if="vm.powerState != 'deleted'">
                                     <div class="micro-gauge">
                                         <vue-svg-gauge
                                             :start-angle="-270"
@@ -458,15 +463,15 @@
                                     {{vm.cpuUsed/1000 | round(1)}} <small>GHz</small>
                                     <br />
                                     <small>
-                                        Ready : 
+                                        Ready: 
                                         <span :class="(vm.cpuReadyPercent<3)?'text-primary':'text-warning'">{{vm.cpuReady | round(0)}} <small>ms</small></span>
                                     </small>
                                 </td>
-                                <td v-if="vm.powerState != 'deleted'" :title="`Network TX/RX : ${round(vm.netTx/100, 1)} MBps / ${round(vm.netRx/100, 1)} MBps - Disk IOs R/W : ${round(vm.readPerSecond, 0)} IOps / ${round(vm.writePerSecond, 0)} IOps`">
+                                <td v-if="vm.powerState != 'deleted'" :title="`Network TX/RX: ${round(vm.netTx/100, 1)} MBps / ${round(vm.netRx/100, 1)} MBps - Disk IOs R/W: ${round(vm.readPerSecond, 0)} IOps / ${round(vm.writePerSecond, 0)} IOps`">
                                     <small><i class="fas fa-caret-up"></i> {{vm.netTx/100 | round(1)}} / {{vm.netRx/100 | round(1)}} <i class="fas fa-caret-down"></i> <small>MBps</small></small><br />
                                     <small><i class="fas fa-caret-up"></i> {{vm.readPerSecond | round(0)}} / {{vm.writePerSecond | round(0)}} <i class="fas fa-caret-down"></i> <small>IOps</small></small>
                                 </td>
-                                <td v-if="vm.powerState != 'deleted'" :title="`Disk R/W : ${round(vm.readRate/100, 1)} MBps / ${round(vm.writeRate/100, 1)} MBps - Disk latency R/W : ${round(vm.readLatency, 0)} ms / ${round(vm.writeLatency, 0)} ms`">
+                                <td v-if="vm.powerState != 'deleted'" :title="`Disk R/W: ${round(vm.readRate/100, 1)} MBps / ${round(vm.writeRate/100, 1)} MBps - Disk latency R/W: ${round(vm.readLatency, 0)} ms / ${round(vm.writeLatency, 0)} ms`">
                                     <small><i class="fas fa-caret-up"></i> {{vm.readRate/100 | round(1)}} / {{vm.writeRate/100 | round(1)}} <i class="fas fa-caret-down"></i> <small>MBps</small></small><br />
                                     <small><i class="fas fa-caret-up"></i> {{vm.readLatency | round(0)}} / {{vm.writeLatency | round(0)}} <i class="fas fa-caret-down"></i> <small>ms</small></small>
                                 </td>
@@ -500,6 +505,10 @@ export default {
             required: true,
         },
         datacenterId: {
+            type: String,
+            required: true,
+        },
+        pccRoute: {
             type: String,
             required: true,
         },

@@ -6,14 +6,19 @@
         <transition name="errors-zone">
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
-        <div class="card my-2">
+        <div class="card">
             <div class="card-body p-3">
                 <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
                     <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
                 </button>
                 <div class="row text-center">
                     <div class="col-4">
-                        <h3 class="mb-1">{{ pccName }}</h3>
+                        <h3 class="mb-1">
+                            <a :href="`${pccRoute}`">
+                                <i class="far fa-arrow-alt-circle-left"></i>
+                            </a>
+                            {{ pccName }}
+                        </h3>
                         <h4 class="mb-1">{{ pcc.description }}</h4>
                         <div>
                             <a target="_blank" :href="pcc.webInterfaceUrl">{{ pcc.webInterfaceUrl }}</a>
@@ -21,27 +26,37 @@
                     </div>
                     <div class="col-4 py-2">
                         <div v-if="!Object.keys(pcc).length" class="my-3">
-                            <i class="fas fa-circle-notch fa-spin me-2"></i> Loading pcc from OVHcloud API...
+                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading pcc from OVHcloud API...
                         </div>
                         <div v-else>
-                            <i class="fas fa-map-marked-alt"></i> Datacenter : {{ pcc.location }}<br />
-                            Commercial range : {{ pcc.commercialRange }}<br />
-                            <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major }} {{ pcc.version.minor }}
+                            <i class="fas fa-map-marked-alt"></i> Datacenter: {{ pcc.location }}<br />
+                            Commercial range: {{ pcc.commercialRange }}<br />
+                            <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}
+                            <template v-if="pcc.upgrades">
+                                <small class="text-warning" v-if="pcc.upgrades.length > 0"><abbr :title="`Available upgrade(s): ${pcc.upgrades.join(', ')}`">Upgrade available</abbr></small>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="col-4 py-2">
+                        <div v-if="Object.keys(pcc).length">
+                            <i class="fas fa-tachometer-alt"></i> Bandwidth: {{ pcc.bandwidth }}<br />
+                            <i class="fas fa-user-lock"></i> Concurrent sessions: {{ pcc.userLimitConcurrentSession }}<br />
+                            <i class="far fa-clock"></i> Session timeout: {{ pcc.userSessionTimeout ? pcc.userSessionTimeout : 'never' }}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div v-if="!datacenters" class="card my-3">
+        <div v-if="!datacenters" class="card mt-3">
             <div class="card-body p-4">
-                <i class="fas fa-circle-notch fa-spin me-2"></i> Loading datacenters from OVHcloud API...
+                <i class="fas fa-circle-notch fa-spin me-1"></i> Loading datacenters from OVHcloud API...
             </div>
         </div>
         <template v-else>
             <div class="row text-center">
-                <div class="col-12 col-lg-6" v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
-                    <div class="card my-2">
+                <div class="col-12 col-lg-6 mt-3" v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
+                    <div class="card">
                         <div class="card-body p-3 row">
                             <div class="col-12 col-lg-8">
                                 <div class="mb-1">
@@ -56,7 +71,7 @@
                                 </div>
                             </div>
                             <div class="col-12 col-lg-4">
-                                <a class="btn btn-primary btn-sm" :href="`/pcc/${pccName}/datacenter/${datacenterId}`">
+                                <a class="btn btn-outline-primary btn-sm" :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}`">
                                     <i class="fas fa-building"></i> View<br />
                                     Datacenter
                                 </a>
@@ -67,7 +82,151 @@
             </div>
         </template>
 
-        <div class="card my-2 text-center">
+        <div class="row text-center">
+            <div class="col-12 col-lg-6">
+                <div class="card mt-3 text-center">
+                    <div class="card-body p-3">
+                        <div class="card-title">
+                            <span class="h5">Product options</span>
+                            <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{options && Object.keys(options).length}}</small>
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <button class="btn btn-sm badge btn-info" @click="loadAll()">
+                                    <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <table class="table table-sm table-striped table-bordered mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">State</th>
+                                    <th scope="col" colspan="2">Product options</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-if="!options" class="py-4">
+                                    <td colspan="2">
+                                        <i class="fas fa-circle-notch fa-spin me-1"></i> Loading from OVHcloud API...
+                                    </td>
+                                </tr>
+                                <tr v-else-if="!Object.keys(options).length">
+                                    <td colspan="2">
+                                        <i>No option enabled</i>
+                                    </td>
+                                </tr>
+                                <tr v-for="option in _.orderBy(_.values(options), ['state', 'name'], ['desc', 'asc'])" :key="option.name">
+                                    <td>
+                                        <span :class="getOptionStateClass(option)">
+                                            <i class="fas fa-circle"></i>
+                                            {{option.state}}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {{option.description}}
+                                        <small class="text-muted">
+                                            ({{option.name}})
+                                        </small>
+                                        <span class="text-muted" v-if="option.version">
+                                            - {{option.version}}
+                                            <template v-if="option.upgrades">
+                                                <small class="text-warning" v-if="option.upgrades.length > 0"><abbr :title="`Available upgrade(s): ${option.upgrades.join(', ')}`">Upgrade available</abbr></small>
+                                            </template>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <div class="card mt-3 text-center">
+                    <div class="card-body p-3">
+                        <div class="card-title">
+                            <span class="h5">Sector-specific compliance options</span>
+                            <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{complianceOptions && Object.keys(complianceOptions).length}}</small>
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <button class="btn btn-sm badge btn-info" @click="loadAll()">
+                                    <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <table class="table table-sm table-striped table-bordered mb-0">
+                            <tbody>
+                                <tr v-if="!complianceOptions">
+                                    <td colspan="2">
+                                        <i class="fas fa-circle-notch fa-spin me-1"></i> Loading from OVHcloud API...
+                                    </td>
+                                </tr>
+                                <tr v-else-if="!Object.keys(complianceOptions).length">
+                                    <td colspan="2">
+                                        <i>No sector-specific compliance option enabled</i>
+                                    </td>
+                                </tr>
+                                <tr v-for="option in _.orderBy(_.values(complianceOptions), ['state', 'name'], ['desc', 'asc'])" :key="option.name">
+                                    <td>
+                                        <span :class="getOptionStateClass(option)">
+                                            <i class="fas fa-circle"></i>
+                                            {{option.state}}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {{option.description}}
+                                        <small class="text-muted">
+                                            ({{option.name}})
+                                        </small>
+                                        <span class="text-muted" v-if="option.version">
+                                            - {{option.version}}
+                                            <template v-if="option.upgrades">
+                                                <small class="text-warning" v-if="option.upgrades.length > 0"><abbr :title="`Available upgrade(s): ${option.upgrades.join(', ')}`">Upgrade available</abbr></small>
+                                            </template>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card mt-3 text-center">
+                    <div class="card-body p-3">
+                        <div class="card-title">
+                            <span class="h5">IP blocks</span>
+                            <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{ips && Object.keys(ips).length}}</small>
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <button class="btn btn-sm badge btn-info" @click="loadAll()">
+                                    <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <table class="table table-sm table-striped table-bordered mb-0">
+                            <tbody>
+                                <tr v-if="!ips">
+                                    <td colspan="2">
+                                        <i class="fas fa-circle-notch fa-spin me-1"></i> Loading IP blocks from OVHcloud API...
+                                    </td>
+                                </tr>
+                                <tr v-else-if="!Object.keys(ips).length">
+                                    <td colspan="2">
+                                        <i>No IP block found</i>
+                                    </td>
+                                </tr>
+                                <tr v-for="ip in _.orderBy(_.values(ips), ['network'])" :key="ip.network" :title="`${ip.country} - ${ip.network} : Netmask: ${ip.netmask} - Gateway: ${ip.gateway}`">
+                                    <td>
+                                        <span class="fi me-1" :class="'fi-'+flagFromCountry(ip.country).toLowerCase()"></span>
+                                        {{ip.network}}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">Gateway: {{ip.gateway}}</small>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3 text-center">
             <div class="card-body p-3">
                 <div class="card-title">
                     <span class="h5">Active tasks</span>
@@ -82,99 +241,113 @@
                         </button>
                     </div>
                 </div>
-                <div v-if="!tasks" class="my-2">
-                    <i class="fas fa-circle-notch fa-spin me-2"></i> Loading tasks from OVHcloud API...
-                </div>
-                <template v-else>
-                    <table class="table table-sm table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th scope="col">State</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Created by</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Related to</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="task in _.orderBy(_.values(tasks), ['lastModificationDate'], ['desc'])" :key="task.taskId">
-                                <td>
-                                    <span :class="getTaskStateClass(task)">
-                                        <i class="fas fa-circle"></i>
-                                        {{task.state}}
-                                    </span>
-                                    <small v-if="task.state == 'todo'" class="text-muted"> - {{dateFormat(task.executionDate)}}</small>
-                                    <br />
-                                    <small class="text-muted">#{{task.taskId}}</small>
-                                </td>
-                                <td>
-                                    {{task.name}}<br />
-                                    <div class="micro-gauge">
-                                        <vue-svg-gauge
-                                            :start-angle="-270"
-                                            :end-angle="90"
-                                            :inner-radius="0"
-                                            :value="task.progress"
-                                            :separator-step="0"
-                                            :min="0"
-                                            :max="100"
-                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
-                                            gauge-color="#f4c009"
-                                            :scale-interval="0">
-                                        </vue-svg-gauge>
-                                    </div>
-                                    <small>{{task.progress | round(0)}}%</small>
-                                    -
-                                    <small class="text-muted" v-if="task.description">
-                                        {{task.description}}
-                                    </small>
-                                    <small class="text-muted" v-else>
-                                        <i>No description</i>
-                                    </small>
-                                </td>
-                                <td>
-                                    <small>{{task.createdFrom}}</small><br />
-                                    <small class="text-muted" v-if="task.createdBy">({{task.createdBy}})</small>
-                                </td>
-                                <td>
-                                    <small v-if="task.endDate && task.state == 'done'" class="text-success">
-                                        Finished on<br />
-                                        {{dateFormat(task.endDate)}}
-                                    </small>
-                                    <small v-else>
-                                        Last change : <br />
-                                        {{dateFormat(task.lastModificationDate)}}
-                                    </small>
-                                </td>
-                                <td>
-                                    <small v-if="task.parentTaskId" class="text-muted">
-                                        <abbr title="Parent task">Task.</abbr> : #{{task.parentTaskId}}<br />
-                                    </small>
-                                    <small v-if="task.datacenterId" class="text-muted">
-                                        <abbr title="Datacenter">Datac.</abbr> : #{{task.datacenterId}}<br />
-                                    </small>
-                                    <small v-if="task.userId" class="text-muted">
-                                        User : #{{task.userId}}<br />
-                                    </small>
-                                    <small v-if="task.orderId" class="text-muted">
-                                        Order : #{{task.orderId}}<br />
-                                    </small>
-                                    <small v-if="task.vlanId" class="text-muted">
-                                        Vlan : #{{task.vlanId}}<br />
-                                    </small>
-                                    <small v-if="task.filerId" class="text-muted">
-                                        Filer : #{{task.filerId}}<br />
-                                    </small>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </template>
+                <table class="table table-sm table-striped table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">State</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Created by</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Related to</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-if="!tasks">
+                            <td colspan="5">
+                                <i class="fas fa-circle-notch fa-spin me-1"></i> Loading tasks from OVHcloud API...
+                            </td>
+                        </tr>
+                        <tr v-else-if="!Object.keys(tasks).length">
+                            <td colspan="5">
+                                <i>No task found</i>
+                            </td>
+                        </tr>
+                        <tr v-for="task in _.orderBy(_.values(tasks), ['lastModificationDate'], ['desc'])" :key="task.taskId">
+                            <td>
+                                <span :class="getTaskStateClass(task)">
+                                    <i class="fas fa-circle"></i>
+                                    {{task.state}}
+                                </span>
+                                <small v-if="task.state == 'todo'" class="text-muted"> - {{dateFormat(task.executionDate)}}</small>
+                                <br />
+                                <small class="text-muted">#{{task.taskId}}</small>
+                            </td>
+                            <td>
+                                <span :title="robots && robots[task.name] && robots[task.name].description">
+                                    {{task.name}}
+                                </span>
+                                <br />
+                                <div class="micro-gauge">
+                                    <vue-svg-gauge
+                                        :start-angle="-270"
+                                        :end-angle="90"
+                                        :inner-radius="0"
+                                        :value="task.progress"
+                                        :separator-step="0"
+                                        :min="0"
+                                        :max="100"
+                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                        gauge-color="#f4c009"
+                                        :scale-interval="0">
+                                    </vue-svg-gauge>
+                                </div>
+                                <small>{{task.progress | round(0)}}%</small>
+                                -
+                                <small class="text-muted" v-if="task.description">
+                                    {{task.description}}
+                                </small>
+                                <small class="text-muted" v-else-if="!robots">
+                                    <i class="fas fa-circle-notch fa-spin me-1"></i> Loading...
+                                </small>
+                                <small class="text-muted" v-else-if="robots && robots[task.name]">
+                                    {{robots[task.name].description}}
+                                </small>
+                                <small class="text-muted" v-else>
+                                    <i>No description</i>
+                                </small>
+                            </td>
+                            <td>
+                                <small>{{task.createdFrom}}</small><br />
+                                <small class="text-muted" v-if="task.createdBy">({{task.createdBy}})</small>
+                            </td>
+                            <td>
+                                <small v-if="task.endDate && task.state == 'done'" class="text-success">
+                                    Finished on<br />
+                                    {{dateFormat(task.endDate)}}
+                                </small>
+                                <small v-else>
+                                    Last change: <br />
+                                    {{dateFormat(task.lastModificationDate)}}
+                                </small>
+                            </td>
+                            <td>
+                                <small v-if="task.parentTaskId" class="text-muted">
+                                    <abbr title="Parent task">Task.</abbr>: #{{task.parentTaskId}}<br />
+                                </small>
+                                <small v-if="task.datacenterId" class="text-muted">
+                                    <abbr title="Datacenter">Datac.</abbr>: #{{task.datacenterId}}<br />
+                                </small>
+                                <small v-if="task.userId" class="text-muted">
+                                    User: #{{task.userId}}<br />
+                                </small>
+                                <small v-if="task.orderId" class="text-muted">
+                                    Order: #{{task.orderId}}<br />
+                                </small>
+                                <small v-if="task.vlanId" class="text-muted">
+                                    Vlan: #{{task.vlanId}}<br />
+                                </small>
+                                <small v-if="task.filerId" class="text-muted">
+                                    Filer: #{{task.filerId}}<br />
+                                </small>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <div class="card my-3 text-center">
+        <div class="card mt-3 text-center">
             <div class="card-body p-3">
                 <div class="card-title">
                     <span class="h5">Users</span>
@@ -185,96 +358,197 @@
                         </button>
                     </div>
                 </div>
-                <div v-if="!users" class="my-2">
-                    <i class="fas fa-circle-notch fa-spin me-2"></i> Loading users from OVHcloud API...
-                </div>
-                <template v-else>
-                    <table class="table table-sm table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th scope="col">State</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Contact</th>
-                                <th scope="col">Global accesses</th>
-                                <th scope="col" v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
-                                    {{ datacenter.description || datacenter.name }}
-                                    <span class="text-muted">{{ datacenter.description ? datacenter.name : '#'+datacenterId }}</span>
-                                    accesses
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="user in _.orderBy(_.values(users), ['name'])" :key="user.userId">
-                                <td>
-                                    <span :class="getUserStateClass(user)">
-                                        <i class="fas fa-circle"></i>
-                                        {{user.state}}
-                                    </span>
-                                    <br />
-                                    <small class="text-muted">#{{user.userId}}</small>
-                                </td>
-                                <td>
-                                    {{user.name}}<br />
-                                    <small class="text-muted">{{user.firstName}} {{user.lastName}}</small>
-                                </td>
-                                <td>
-                                    <small v-if="user.email">
-                                        {{user.email}}
-                                        (<abbr title="Technical email alerts">Alerts</abbr> :
-                                        <i class="fas" :class="user.receiveAlerts ? 'fa-check text-success' : 'fa-times text-danger'"></i>)
-                                    </small>
-                                    <br />
-                                    <small v-if="user.phoneNumber">
-                                        {{user.phoneNumber}}
-                                        (<abbr title="Security token validation">Token</abbr> :
-                                        <i class="fas" :class="user.isTokenValidator ? 'fa-check text-success' : 'fa-times text-danger'"></i>)
-                                    </small>
-                                </td>
-                                <td>
-                                    <abbr title="NSX access">NSX</abbr> :
+                <table class="table table-sm table-striped table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">State</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Contact</th>
+                            <th scope="col">Global<br />accesses</th>
+                            <th scope="col" v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
+                                {{ datacenter.description || datacenter.name }}
+                                <span class="text-muted">{{ datacenter.description ? datacenter.name : '#'+datacenterId }}</span>
+                                <br />
+                                accesses
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-if="!users">
+                            <td colspan="4">
+                                <i class="fas fa-circle-notch fa-spin me-1"></i> Loading users from OVHcloud API...
+                            </td>
+                        </tr>
+                        <tr v-else-if="!Object.keys(users).length">
+                            <td colspan="4">
+                                <i>No user found</i>
+                            </td>
+                        </tr>
+                        <tr v-for="user in _.orderBy(_.values(users), ['name'])" :key="user.userId">
+                            <td>
+                                <span :class="getUserStateClass(user)">
+                                    <i class="fas fa-circle"></i>
+                                    {{user.state}}
+                                </span>
+                                <br />
+                                <small class="text-muted">#{{user.userId}}</small>
+                            </td>
+                            <td>
+                                {{user.name}}<br />
+                                <small class="text-muted">{{user.firstName}} {{user.lastName}}</small>
+                            </td>
+                            <td>
+                                <small v-if="user.email">
+                                    {{user.email}}
+                                    (<abbr title="Technical email alerts">Alerts</abbr>:
+                                    <i class="fas" :class="user.receiveAlerts ? 'fa-check text-success' : 'fa-times text-danger'"></i>)
+                                </small>
+                                <br />
+                                <small v-if="user.phoneNumber">
+                                    {{user.phoneNumber}}
+                                    (<abbr title="Security token validation">Token</abbr>:
+                                    <i class="fas" :class="user.isTokenValidator ? 'fa-check text-success' : 'fa-times text-danger'"></i>)
+                                </small>
+                            </td>
+                            <td>
+                                <small>
+                                    <abbr title="NSX access">NSX</abbr>:
                                     <i class="fas" :class="user.nsxRight ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                                    -
+                                    <span v-if="user.objectRights" :title="`Objects rights: ${Object.keys(user.objectRights).length}`">
+                                        <abbr :title="`Objects rights: ${Object.keys(user.objectRights).length}`">Obj.</abbr>:
+                                        <span v-if="Object.keys(user.objectRights).length">
+                                            {{ Object.keys(user.objectRights).length }}
+                                        </span>
+                                        <i class="fas fa-times text-danger" v-else></i>
+                                    </span>
+                                    <span v-else-if="loading">
+                                        <abbr title="Objects rights">Obj.</abbr>:
+                                        <i class="fas fa-circle-notch fa-spin me-1"></i> Loading user object rights<br />from OVHcloud API...
+                                    </span>
+                                </small>
+                                <br />
+                                <small>
+                                    <abbr title="Manage IPs (OVHcloud plugin)">IPs</abbr>:
+                                    <i class="fas" :class="user.canManageNetwork ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                                    -
+                                    <abbr title="Manage IP failovers (OVHcloud plugin)">IPFO</abbr>:
+                                    <i class="fas" :class="user.canManageIpFailOvers ? 'fa-check text-success' : 'fa-times text-danger'"></i>
                                     <!--
-                                        <small>
-                                            -
-                                            <abbr title="Manage rights (OVHcloud plugin)">Rights</abbr> :
-                                            <i class="fas" :class="user.canManageRights ? 'fa-check text-success' : 'fa-times text-danger'"></i>
-                                        </small>
+                                    -
+                                    <abbr title="Manage rights (OVHcloud plugin)">Rights</abbr>:
+                                    <i class="fas" :class="user.canManageRights ? 'fa-check text-success' : 'fa-times text-danger'"></i>
                                     -->
+                                </small>
+                            </td>
+                            <td v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
+                                <span v-if="user.rights && user.rights[datacenterId]">
+                                    <abbr title="Datacenter">DC.</abbr>:
+                                    <span :class="getUserAccessStateClass(user.rights[datacenterId].right)">{{ user.rights[datacenterId].right }}</span>
+                                    -
+                                    <small>
+                                        <abbr title="Add ressources (OVHcloud plugin)">Add res.</abbr>:
+                                        <i class="fas" :class="user.rights[datacenterId].canAddRessource ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                                    </small>
                                     <br />
                                     <small>
-                                        <abbr title="Manage IPs (OVHcloud plugin)">IPs</abbr> :
-                                        <i class="fas" :class="user.canManageNetwork ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                                        <abbr title="VM Network access">VM Net.</abbr>:
+                                        <span :class="getUserAccessStateClass(user.rights[datacenterId].vmNetworkRole)">{{ user.rights[datacenterId].vmNetworkRole }}</span>
                                         -
-                                        <abbr title="Manage IP failovers (OVHcloud plugin)">IPFO</abbr> :
-                                        <i class="fas" :class="user.canManageIpFailOvers ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                                        <abbr title="v(x)Lans access">vLans</abbr>:
+                                        <span :class="getUserAccessStateClass(user.rights[datacenterId].networkRole)">{{ user.rights[datacenterId].networkRole }}</span>
                                     </small>
-                                </td>
-                                <td v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
-                                    <span v-if="user.rights && user.rights[datacenterId]">
-                                        Datacenter :
-                                        <span :class="getUserAccessStateClass(user.rights[datacenterId].right)">{{ user.rights[datacenterId].right }}</span>
-                                        -
-                                        <small>
-                                            <abbr title="Add ressources (OVHcloud plugin)">Add ress.</abbr> :
-                                            <i class="fas" :class="user.rights[datacenterId].canAddRessource ? 'fa-check text-success' : 'fa-times text-danger'"></i>
-                                        </small>
-                                        <br />
-                                        <small>
-                                            <abbr title="VM Network access">VM Network</abbr> :
-                                            <span :class="getUserAccessStateClass(user.rights[datacenterId].vmNetworkRole)">{{ user.rights[datacenterId].vmNetworkRole }}</span>
-                                            -
-                                            <abbr title="v(x)Lans access">v(x)Lans</abbr> :
-                                            <span :class="getUserAccessStateClass(user.rights[datacenterId].networkRole)">{{ user.rights[datacenterId].networkRole }}</span>
-                                        </small>
-                                    </span>
-                                    <span v-else>
-                                        <i class="fas fa-circle-notch fa-spin me-2"></i> Loading user datacenter rights<br />from OVHcloud API...
-                                    </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </template>
+                                </span>
+                                <small v-else-if="loading">
+                                    <i class="fas fa-circle-notch fa-spin me-1"></i> Loading user datacenter rights<br />from OVHcloud API...
+                                </small>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row text-center">
+            <div class="col-12 col-lg-6">
+                <div class="card mt-3 text-center">
+                    <div class="card-body p-3">
+                        <div class="card-title">
+                            <span class="h5" title="IPs allowed to access the PCC">
+                                Allowed networks
+                            </span>
+                            <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{allowedNetworks && Object.keys(allowedNetworks).length}}</small>
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <button class="btn btn-sm badge btn-info" @click="loadAll()">
+                                    <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <table class="table table-sm table-striped table-bordered mb-0">
+                            <tbody>
+                                <tr v-if="!allowedNetworks">
+                                    <td colspan="2">
+                                        <i class="fas fa-circle-notch fa-spin me-1"></i> Loading allowed networks from OVHcloud API...
+                                    </td>
+                                </tr>
+                                <tr v-else-if="!Object.keys(allowedNetworks).length">
+                                    <td colspan="2">
+                                        <i>No allowed network found</i>
+                                    </td>
+                                </tr>
+                                <tr v-for="allowedNetwork in _.orderBy(_.values(allowedNetworks), ['network'])" :key="allowedNetwork.networkAccessId" :title="`${allowedNetwork.network}: ${allowedNetwork.state} #${allowedNetwork.networkAccessId}`">
+                                    <td>
+                                        <i class="fas me-1" :class="allowedNetwork.state == 'allowed' ? 'fa-check text-success': 'fa-clock text-warning'"></i>
+                                        {{allowedNetwork.network}}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{allowedNetwork.description}}</small>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="card mt-3 text-center">
+                    <div class="card-body p-3">
+                        <div class="card-title">
+                            <span class="h5" title="IPs allowed to bypass the two factor authentication (if enabled)">
+                                Two factor authentication trusted IPs
+                            </span>
+                            <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{twoFAWhitelists && Object.keys(twoFAWhitelists).length}}</small>
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <button class="btn btn-sm badge btn-info" @click="loadAll()">
+                                    <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <table class="table table-sm table-striped table-bordered mb-0">
+                            <tbody>
+                                <tr v-if="!twoFAWhitelists">
+                                    <td colspan="2">
+                                        <i class="fas fa-circle-notch fa-spin me-1"></i> Loading two factor authentication trusted IPs from OVHcloud API...
+                                    </td>
+                                </tr>
+                                <tr v-else-if="!Object.keys(twoFAWhitelists).length">
+                                    <td colspan="2">
+                                        <i>No two factor authentication trusted IP found</i>
+                                    </td>
+                                </tr>
+                                <tr v-for="twoFAWhitelist in _.orderBy(_.values(twoFAWhitelists), ['network'])" :key="twoFAWhitelist.id" :title="`${twoFAWhitelist.cidrNetmask}: ${twoFAWhitelist.state} #${twoFAWhitelist.id}`">
+                                    <td>
+                                        <i class="fas me-1" :class="twoFAWhitelist.state == 'enabled' ? 'fa-check text-success': 'fa-clock text-warning'"></i>
+                                        {{twoFAWhitelist.cidrNetmask}}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{twoFAWhitelist.description}}</small>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -299,6 +573,10 @@ export default {
 
     props: {
         pccName: {
+            type: String,
+            required: true,
+        },
+        pccRoute: {
             type: String,
             required: true,
         },
@@ -327,10 +605,17 @@ export default {
     data() {
         return {
             pcc: {},
+            pccVersion: null,
+            options: null,
+            complianceOptions: null,
             datacenters: null,
             users: null,
+            ips: null,
+            allowedNetworks: null,
+            twoFAWhitelists: null,
             tasks: null,
             taskIds: {},
+            robots: null,
             timer: null,
             autoRefresh: false,
         };
@@ -346,6 +631,13 @@ export default {
     },
 
     methods: {
+        flagFromCountry(country) {
+            if(country == "UK") {
+                return "GB";
+            }
+            return country;
+        },
+
         refreshData() {
             if(this.autoRefresh) {
                 this.loadAll();
@@ -369,11 +661,146 @@ export default {
                 this.loadDatacenters();
                 this.loadTasks();
                 this.loadUsers();
+                this.loadIps();
+                this.loadAllowedNetworks();
+                this.loadTwoFAWhitelists();
+                this.loadPccOption('nsx');
+                this.loadPccOption('vrops');
+                this.loadPccOption('hcx');
+                this.loadPccOption('pcidss');
+                this.loadPccOption('hds');
+                this.loadPccOption('hipaa');
+                this.loadPccOption('federation');
+                this.loadPccOption('vmEncryption');
             }
         },
 
         async loadPcc() {
             this.pcc = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}`);
+            if(this.pcc) {
+                this.loadPccUpgrades();
+            }
+        },
+
+        async loadPccUpgrades() {
+            const value = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/vcenterVersion`);
+            let upgrades = [];
+            if(value.currentVersion.build != value.lastMajor.build) {
+                upgrades.push(value.lastMajor.major + value.lastMajor.minor);
+            }
+            if(value.currentVersion.build != value.lastMinor.build) {
+                upgrades.push(value.lastMinor.major + value.lastMinor.minor);
+            }
+            this.$set(this.pcc, 'upgrades', upgrades);
+        },
+
+        async loadPccOption(optionName) {
+            let value = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/${optionName}`);
+            value['name'] = optionName;
+            value['description'] = optionName;
+            value['optionType'] = 'option';
+            if(optionName == 'hds') {
+                value['name'] = 'HDS';
+                value['description'] = 'French healthcare data hosting';
+                value['optionType'] = 'compliance';
+            } else if(optionName == 'hipaa') {
+                value['name'] = 'HIPAA';
+                value['description'] = 'Health Insurance Portability and Accountability Act';
+                value['optionType'] = 'compliance';
+            } else if(optionName == 'pcidss') {
+                value['name'] = 'PCI DSS';
+                value['description'] = 'Payment Card Industry Data Security Standard';
+                value['optionType'] = 'compliance';
+            } else if(optionName == 'nsx') {
+                value['name'] = 'NSX';
+                value['description'] = 'VMware Network Virtualization';
+                value['optionType'] = 'option';
+            } else if(optionName == 'vrops') {
+                value['name'] = 'vROps';
+                value['description'] = 'VMware vRealize Operations';
+                value['optionType'] = 'option';
+            } else if(optionName == 'federation') {
+                value['name'] = 'Federation';
+                value['description'] = 'Active Directory user federation';
+                value['optionType'] = 'option';
+            } else if(optionName == 'vmEncryption') {
+                value['name'] = 'VM encryption';
+                value['description'] = 'Virtual machine encryption';
+                value['optionType'] = 'option';
+            } else if(optionName == 'hcx') {
+                value['name'] = 'HCX';
+                value['description'] = 'VMware Hybrid Cloud Extension';
+                value['optionType'] = 'option';
+            }
+
+            if(value['optionType'] == 'compliance') {
+                if(!this.complianceOptions) {
+                    this.complianceOptions = {};
+                }
+                if(value['state'] != 'disabled') {
+                    this.$set(this.complianceOptions, optionName, {...value});
+                }
+            } else {
+                if(!this.options) {
+                    this.options = {};
+                }
+                this.$set(this.options, optionName, {...value});
+            }
+        },
+
+        async loadIps() {
+            const ipNets = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/ip`);
+            if(!ipNets.length) {
+                this.ips = {};
+            }
+            for(let ipNet of ipNets) {
+                const ipNetEncoded = encodeURIComponent(encodeURIComponent(ipNet)); // Need to double encode slashes because of laravel routing bug with %2F
+                const ip = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/ip/${ipNetEncoded}`); // No batch mode on this call
+                if(!this.ips) {
+                    this.ips = {};
+                }
+                this.$set(this.ips, ipNet, {...ip});
+            }
+        },
+
+        async loadAllowedNetworks() {
+            const allowedNetworkIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/allowedNetwork`);
+            if(!allowedNetworkIds.length) {
+                this.allowedNetworks = {};
+            }
+            let allowedNetworkIdsChunks = this.chunkArray(allowedNetworkIds, 40);
+            for(let allowedNetworkIdsChunk of allowedNetworkIdsChunks) {
+                const allowedNetworks = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/allowedNetwork/${allowedNetworkIdsChunk.join(',')}?batch=,`);
+                if(this.allowedNetworks === null) {
+                    this.allowedNetworks = {};
+                }
+                for (const i in allowedNetworks) {
+                    const allowedNetwork = allowedNetworks[i];
+                    if(!allowedNetwork['error']) {
+                        this.$set(this.allowedNetworks, allowedNetwork['key'], {...allowedNetwork['value']});
+                    }
+                }
+            }
+        },
+
+        async loadTwoFAWhitelists() {
+            const twoFAWhitelistIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/twoFAWhitelist`);
+            if(!twoFAWhitelistIds.length) {
+                this.twoFAWhitelists = {};
+            }
+            let twoFAWhitelistIdsChunks = this.chunkArray(twoFAWhitelistIds, 40);
+            for(let twoFAWhitelistIdsChunk of twoFAWhitelistIdsChunks) {
+                const twoFAWhitelists = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/twoFAWhitelist/${twoFAWhitelistIdsChunk.join(',')}?batch=,`);
+                if(this.twoFAWhitelists === null) {
+                    this.twoFAWhitelists = {};
+                }
+                for (const i in twoFAWhitelists) {
+                    const twoFAWhitelist = twoFAWhitelists[i];
+                    if(!twoFAWhitelist['error']) {
+                        this.$set(this.twoFAWhitelists, twoFAWhitelist['key'], {...twoFAWhitelist['value']});
+                    }
+                }
+            }
         },
 
         async loadUsers() {
@@ -393,6 +820,7 @@ export default {
                         let value = user['value'];
                         if(this.users[value.userId]) {
                             value.rights = this.users[value.userId].rights;
+                            value.objectRights = this.users[value.userId].objectRights;
                         }
                         this.$set(this.users, user['key'], {...value});
                         this.loadUser(user['key']);
@@ -403,6 +831,7 @@ export default {
 
         async loadUser(userId) {
             this.loadUserRights(userId);
+            this.loadUserObjectRights(userId);
         },
 
         async loadUserRights(userId) {
@@ -417,6 +846,20 @@ export default {
                 }
             }
             this.$set(this.users[userId], 'rights', {...rights});
+        },
+
+        async loadUserObjectRights(userId) {
+            const userObjectRightIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/objectRight`);
+            let userObjectRightIdsChunks = this.chunkArray(userObjectRightIds, 40);
+            let objectRights = {};
+            for(let userObjectRightIdsChunk of userObjectRightIdsChunks) {
+                const userRights = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/objectRight/${userObjectRightIdsChunk.join(',')}?batch=,`);
+                for (const i in userRights) {
+                    const userRight = userRights[i]['value'];
+                    objectRights[userRight.datacenterId] = userRight;
+                }
+            }
+            this.$set(this.users[userId], 'objectRights', {...objectRights});
         },
 
         async loadDatacenters() {
@@ -459,6 +902,7 @@ export default {
                     this.$delete(this.taskIds, taskId);
                 }
             }
+            let robotsNames = {};
             let taskIdsChunks = this.chunkArray(Object.values(this.taskIds), 40);
             for(let taskIdsChunk of taskIdsChunks) {
                 const tasks = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task/${taskIdsChunk.join(',')}?batch=,`);
@@ -469,7 +913,26 @@ export default {
                     const task = tasks[i];
                     if(!task['error']) {
                         let value = task['value'];
+                        robotsNames[value.name] = value.name;
                         this.$set(this.tasks, task['key'], {...value});
+                    }
+                }
+            }
+            this.loadRobots(_.values(robotsNames));
+        },
+
+        async loadRobots(robotsNames) {
+            let robotNamesChunks = this.chunkArray(Object.values(robotsNames), 40);
+            for(let robotNamesChunk of robotNamesChunks) {
+                const robots = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/robot/${robotNamesChunk.join(',')}?batch=,`);
+                if(this.robots === null) {
+                    this.robots = {};
+                }
+                for (const i in robots) {
+                    const robot = robots[i];
+                    if(!robot['error']) {
+                        let value = robot['value'];
+                        this.$set(this.robots, robot['key'], {...value});
                     }
                 }
             }
@@ -546,6 +1009,26 @@ export default {
                     resultClass = 'text-danger';
                 } else if(access == 'disabled') {
                     resultClass = 'text-danger';
+                }
+            }
+            return resultClass;
+        },
+
+        getOptionStateClass(option) {
+            var resultClass = 'text-warning';
+            if(option.state) {
+                if(option.state == 'migrating') {
+                    resultClass = 'text-warning';
+                } else if(option.state == 'enabling') {
+                    resultClass = 'text-warning';
+                } else if(option.state == 'enabled') {
+                    resultClass = 'text-success';
+                } else if(option.state == 'error') {
+                    resultClass = 'text-danger';
+                } else if(option.state == 'disabling') {
+                    resultClass = 'text-warning';
+                } else if(option.state == 'disabled') {
+                    resultClass = 'text-black';
                 }
             }
             return resultClass;

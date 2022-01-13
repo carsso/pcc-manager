@@ -5,7 +5,8 @@
     <pcc-datacenter-page
         pcc-name='{{ $pccName }}'
         datacenter-id='{{ $datacenterId }}'
-        ovhapi-route="{{ route('ovhapi') }}">
+        ovhapi-route="{{ route('ovhapi') }}"
+        pcc-route="{{ route('pcc') }}">
     </pcc-datacenter-page>
 </div>
 @endsection

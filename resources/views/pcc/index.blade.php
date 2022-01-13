@@ -4,7 +4,8 @@
 <div class="container">
     <pccs-page
         :pcc-names='@json($pccNames)'
-        ovhapi-route="{{ route('ovhapi') }}">
+        ovhapi-route="{{ route('ovhapi') }}"
+        pcc-route="{{ route('pcc') }}">
     </pccs-page>
     @if(empty($pccNames))
         <div class="card my-3">

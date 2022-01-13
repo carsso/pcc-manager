@@ -16,7 +16,7 @@
                         <h3 class="mb-2">{{ pccName }}</h3>
                         <h4>{{ pcc.description }}</h4>
                         <div v-if="!Object.keys(pcc).length" class="mt-5 mb-3">
-                            <i class="fas fa-circle-notch fa-spin me-2"></i> Loading data from OVHcloud API...
+                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading data from OVHcloud API...
                         </div>
                         <template v-else>
                             <p>
@@ -24,12 +24,12 @@
                             </p>
                             <div class="row">
                                 <div class="col-12 col-lg-8">
-                                    <i class="fas fa-map-marked-alt"></i> Datacenter : {{ pcc.location }}<br />
-                                    Commercial range : {{ pcc.commercialRange }}<br />
-                                    <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major }} {{ pcc.version.minor }}
+                                    <i class="fas fa-map-marked-alt"></i> Datacenter: {{ pcc.location }}<br />
+                                    Commercial range: {{ pcc.commercialRange }}<br />
+                                    <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}
                                 </div>
                                 <div class="col-12 col-lg-4 py-2">
-                                    <a class="btn btn-outline-primary btn-sm" :href="`/pcc/${pccName}`">
+                                    <a class="btn btn-outline-primary btn-sm" :href="`${pccRoute}/${pccName}`">
                                         <i class="fas fa-tasks fa-2x"></i><br />
                                         Pcc / Tasks
                                     </a>
@@ -37,7 +37,7 @@
                             </div>
                             <div v-if="!pcc.hasOwnProperty('datacenters')" class="card mt-4">
                                 <div class="card-body p-4">
-                                    <i class="fas fa-circle-notch fa-spin me-2"></i> Loading datacenters from OVHcloud API...
+                                    <i class="fas fa-circle-notch fa-spin me-1"></i> Loading datacenters from OVHcloud API...
                                 </div>
                             </div>
                             <template v-else>
@@ -56,7 +56,7 @@
                                             </div>
                                         </div>
                                         <div class="col-12 col-lg-4">
-                                            <a class="btn btn-outline-primary btn-sm" :href="`/pcc/${pccName}/datacenter/${datacenterId}`">
+                                            <a class="btn btn-outline-primary btn-sm" :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}`">
                                                 <i class="fas fa-building fa-2x"></i><br />
                                                 Datacenter
                                             </a>
@@ -88,6 +88,10 @@ export default {
     props: {
         pccNames: {
             type: Array,
+            required: true,
+        },
+        pccRoute: {
+            type: String,
             required: true,
         },
         ovhapiRoute: {

@@ -32,6 +32,17 @@
                             <a class="nav-link @route($routeName) text-secondary @else text-white @endroute" href="{{ route($routeName) }}">{{ $text }}</a>
                         </li>
                     @endforeach
+                    @auth 
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarPccsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                PCCs
+                            </a>
+                            <pccs-submenu
+                                ovhapi-route="{{ route('ovhapi') }}"
+                                pcc-route="{{ route('pcc') }}">
+                            </pccs-submenu>
+                        </li>
+                    @endauth
                 </ul>
 
                 <div class="d-flex">
