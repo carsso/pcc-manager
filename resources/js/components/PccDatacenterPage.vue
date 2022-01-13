@@ -367,7 +367,7 @@
                                 </td>
                                 <td :title="`State: ${vm.powerState} - MoRef: ${vm.moRef}`">
                                     {{vm.name}}
-                                    <span class="badge lightgrey" v-if="isOvhVm(vm)" title="This virtual machine is managed by OVH">OVH VM</span>
+                                    <span class="badge bg-secondary" v-if="isOvhVm(vm)" title="This virtual machine is managed by OVH">OVH VM</span>
                                 </td>
                                 <td colspan="3" v-if="vm.powerState == 'deleted'" class="text-center text-secondary">
                                     <i>Virtual machine removed</i>
