@@ -96,12 +96,6 @@
                             </div>
                         </div>
                         <table class="table table-sm table-striped table-bordered mb-0">
-                            <thead>
-                                <tr>
-                                    <th scope="col">State</th>
-                                    <th scope="col" colspan="2">Product options</th>
-                                </tr>
-                            </thead>
                             <tbody>
                                 <tr v-if="!options" class="py-4">
                                     <td colspan="2">
