@@ -307,6 +307,15 @@ export default {
                 .toISOString();
             let dateTo = moment().toISOString();
             let granularity = '2 h 0';
+            if(this.daysFrom > 2) {
+                granularity = '6 h 0';
+            }
+            if(this.daysFrom > 5) {
+                granularity = '10 h 0';
+            }
+            if(this.daysFrom > 10) {
+                granularity = '18 h 0';
+            }
             if(this.daysFrom > 15) {
                 granularity = '1 d 0';
             }
