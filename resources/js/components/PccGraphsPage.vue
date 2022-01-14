@@ -361,7 +361,7 @@ export default {
                 label: label,
                 data: data,
                 fill: false,
-                backgroundColor: "#00ff00",
+                backgroundColor: "#ffd3d3",
                 borderColor: "#f87979",
             };
             return { datasets: [dataset] };
