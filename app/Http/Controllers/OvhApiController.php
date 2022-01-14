@@ -30,32 +30,30 @@ class OvhApiController extends Controller
         $rights = [
             [
                 'method'    => 'GET',
-                'path'      => '/*'
+                'path'      => '/dedicatedCloud*'
             ],
             [
                 'method'    => 'POST',
-                'path'      => '/*'
+                'path'      => '/dedicatedCloud*'
             ],
             [
                 'method'    => 'PUT',
-                'path'      => '/*'
+                'path'      => '/dedicatedCloud*'
             ],
             [
                 'method'    => 'DELETE',
-                'path'      => '/*'
+                'path'      => '/dedicatedCloud*'
             ],
         ];
         */
         $rights = [
             [
                 'method'    => 'GET',
-                'path'      => '/*'
+                'path'      => '/dedicatedCloud*',
             ],
-        ];
-        $rights = [
             [
-                'method'    => 'GET',
-                'path'      => '/dedicatedCloud*'
+                'method'    => 'POST',
+                'path'      => '/dedicatedCloud/*/user/*/metricsToken',
             ],
         ];
         $redirect = route('login.redirect', ['endpoint' => $endpoint]);

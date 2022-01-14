@@ -20,11 +20,31 @@ class PccController extends Controller
 
     public function pcc(Request $request, String $pccName)
     {
+        $ovhApi = $request->user()->ovhApi;
+        $ovhApi->get('/dedicatedCloud/'.$pccName);
         return view('pcc.pcc', compact('pccName'));
     }
 
     public function datacenter(Request $request, String $pccName, String $datacenterId)
     {
+        $ovhApi = $request->user()->ovhApi;
+        $ovhApi->get('/dedicatedCloud/'.$pccName.'/datacenter/'.$datacenterId);
         return view('pcc.datacenter', compact('pccName', 'datacenterId'));
+    }
+
+    public function graphs(Request $request, String $pccName, String $datacenterId, String $entityType, String $entityId)
+    {
+        $ovhApi = $request->user()->ovhApi;
+        try {
+            $entity = $ovhApi->get('/dedicatedCloud/'.$pccName.'/datacenter/'.$datacenterId.'/'.$entityType.'/'.$entityId);
+        } catch (RequestException $e) {
+            try {
+                # trying in global if not found in datacenter
+                $entity = $ovhApi->get('/dedicatedCloud/'.$pccName.'/'.$entityType.'/'.$entityId);
+            } catch (RequestException $e2) {
+                throw $e;
+            }
+        }
+        return view('pcc.graphs', compact('pccName', 'datacenterId', 'entityType', 'entityId', 'entity'));
     }
 }

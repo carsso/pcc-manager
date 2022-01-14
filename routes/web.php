@@ -53,6 +53,10 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/pcc/{pccName}/datacenter/{datacenterId}', [PccController::class, 'datacenter'])
         ->name('pcc.datacenter');
 
+    Route::get('/pcc/{pccName}/datacenter/{datacenterId}/{entityType}/{entityId}/graphs', [PccController::class, 'graphs'])
+        ->where('entityType', 'host|filer|vm')
+        ->name('pcc.graphs');
+
     Route::any('/ovhapi{uri?}', [OvhApiController::class, 'request'])
         ->where('uri', '.*')
         ->name('ovhapi');

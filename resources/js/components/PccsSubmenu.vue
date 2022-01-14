@@ -11,7 +11,7 @@
                 <i class="fas fa-circle-notch fa-spin me-1"></i> Loading PCCs from OVHcloud API...
             </a>
         </li>
-        <template v-for="(pcc, pccName, index) in pccs">
+        <template v-for="(pcc, pccName, index) in _(pccs).toPairs().sortBy(0).fromPairs().value()">
             <li :key="pccName+'-divider'" v-if="index != 0"><hr class="dropdown-divider"></li>
             <li :key="pccName">
                 <a class="dropdown-item" :href="`${pccRoute}/${pccName}`">
@@ -34,7 +34,7 @@
 <script>
 import LoadingScreen from "./LoadingScreen";
 import ErrorsZone from "./ErrorsZone";
-import {useGetLoader} from "./compositions/axios/loadingRequest";
+import {httpRequester} from "./compositions/axios/httpRequester";
 
 export default {
     name: 'PccsSubmenu',
@@ -60,14 +60,16 @@ export default {
             loaded,
             loading,
             errors,
-            load,
-        } = useGetLoader();
+            request,
+            get,
+        } = httpRequester();
 
         return {
             loaded,
             loading,
             errors,
-            load,
+            request,
+            get,
         };
     },
 
@@ -91,7 +93,7 @@ export default {
         },
 
         async loadPccs() {
-            this.pccNames = await this.load(`${this.ovhapiRoute}/dedicatedCloud`);
+            this.pccNames = await this.get(`${this.ovhapiRoute}/dedicatedCloud`);
             for (const pccName of this.pccNames) {
                 this.$set(this.pccs, pccName, {});
             }
@@ -100,7 +102,7 @@ export default {
             }
         },
         async loadPcc(pccName) {
-            let pcc = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${pccName}`);
+            let pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}`);
             this.$set(this.pccs, pccName, {...pcc});
         },
     },

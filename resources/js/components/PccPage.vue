@@ -55,7 +55,7 @@
         </div>
         <template v-else>
             <div class="row text-center">
-                <div class="col-12 col-lg-6 mt-3" v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
+                <div class="col-12 col-lg-6 mt-3" v-for="(datacenter, datacenterId) in _(datacenters).toPairs().sortBy(0).fromPairs().value()" :key="datacenterId">
                     <div class="card">
                         <div class="card-body p-3 row">
                             <div class="col-12 col-lg-8">
@@ -84,103 +84,23 @@
 
         <div class="row text-center">
             <div class="col-12 col-lg-6">
-                <div class="card mt-3 text-center">
-                    <div class="card-body p-3">
-                        <div class="card-title">
-                            <span class="h5">Product options</span>
-                            <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{options && Object.keys(options).length}}</small>
-                            <div class="position-absolute top-0 end-0 m-3">
-                                <button class="btn btn-sm badge btn-info" @click="loadAll()">
-                                    <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <table class="table table-sm table-striped table-bordered mb-0">
-                            <tbody>
-                                <tr v-if="!options" class="py-4">
-                                    <td colspan="2">
-                                        <i class="fas fa-circle-notch fa-spin me-1"></i> Loading from OVHcloud API...
-                                    </td>
-                                </tr>
-                                <tr v-else-if="!Object.keys(options).length">
-                                    <td colspan="2">
-                                        <i>No option enabled</i>
-                                    </td>
-                                </tr>
-                                <tr v-for="option in _.orderBy(_.values(options), ['state', 'name'], ['desc', 'asc'])" :key="option.name">
-                                    <td>
-                                        <span :class="getOptionStateClass(option)">
-                                            <i class="fas fa-circle"></i>
-                                            {{option.state}}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {{option.description}}
-                                        <small class="text-muted">
-                                            ({{option.name}})
-                                        </small>
-                                        <span class="text-muted" v-if="option.version">
-                                            - {{option.version}}
-                                            <template v-if="option.upgrades">
-                                                <small class="text-warning" v-if="option.upgrades.length > 0"><abbr :title="`Available upgrade(s): ${option.upgrades.join(', ')}`">Upgrade available</abbr></small>
-                                            </template>
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <pcc-options-card
+                    title="Product options"
+                    :loading="loading"
+                    :options="options"
+                    :load-all="loadAll"
+                >
+                </pcc-options-card>
             </div>
 
             <div class="col-12 col-lg-6">
-                <div class="card mt-3 text-center">
-                    <div class="card-body p-3">
-                        <div class="card-title">
-                            <span class="h5">Sector-specific compliance options</span>
-                            <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{complianceOptions && Object.keys(complianceOptions).length}}</small>
-                            <div class="position-absolute top-0 end-0 m-3">
-                                <button class="btn btn-sm badge btn-info" @click="loadAll()">
-                                    <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <table class="table table-sm table-striped table-bordered mb-0">
-                            <tbody>
-                                <tr v-if="!complianceOptions">
-                                    <td colspan="2">
-                                        <i class="fas fa-circle-notch fa-spin me-1"></i> Loading from OVHcloud API...
-                                    </td>
-                                </tr>
-                                <tr v-else-if="!Object.keys(complianceOptions).length">
-                                    <td colspan="2">
-                                        <i>No sector-specific compliance option enabled</i>
-                                    </td>
-                                </tr>
-                                <tr v-for="option in _.orderBy(_.values(complianceOptions), ['state', 'name'], ['desc', 'asc'])" :key="option.name">
-                                    <td>
-                                        <span :class="getOptionStateClass(option)">
-                                            <i class="fas fa-circle"></i>
-                                            {{option.state}}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {{option.description}}
-                                        <small class="text-muted">
-                                            ({{option.name}})
-                                        </small>
-                                        <span class="text-muted" v-if="option.version">
-                                            - {{option.version}}
-                                            <template v-if="option.upgrades">
-                                                <small class="text-warning" v-if="option.upgrades.length > 0"><abbr :title="`Available upgrade(s): ${option.upgrades.join(', ')}`">Upgrade available</abbr></small>
-                                            </template>
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <pcc-options-card
+                    title="Sector-specific compliance options"
+                    :loading="loading"
+                    :options="complianceOptions"
+                    :load-all="loadAll"
+                >
+                </pcc-options-card>
                 <div class="card mt-3 text-center">
                     <div class="card-body p-3">
                         <div class="card-title">
@@ -543,6 +463,13 @@
                         </table>
                     </div>
                 </div>
+                <pcc-options-card
+                    title="Security options"
+                    :loading="loading"
+                    :options="securityOptions"
+                    :load-all="loadAll"
+                >
+                </pcc-options-card>
             </div>
         </div>
     </div>
@@ -551,8 +478,8 @@
 <script>
 import LoadingScreen from "./LoadingScreen";
 import ErrorsZone from "./ErrorsZone";
-import {useGetLoader} from "./compositions/axios/loadingRequest";
-import {VueSvgGauge} from 'vue-svg-gauge'
+import {httpRequester} from "./compositions/axios/httpRequester";
+import {VueSvgGauge} from 'vue-svg-gauge';
 import moment from "moment";
 
 
@@ -585,14 +512,16 @@ export default {
             loaded,
             loading,
             errors,
-            load,
-        } = useGetLoader();
+            request,
+            get,
+        } = httpRequester();
 
         return {
             loaded,
             loading,
             errors,
-            load,
+            request,
+            get,
         };
     },
 
@@ -602,6 +531,7 @@ export default {
             pccVersion: null,
             options: null,
             complianceOptions: null,
+            securityOptions: null,
             datacenters: null,
             users: null,
             ips: null,
@@ -656,28 +586,29 @@ export default {
                 this.loadTasks();
                 this.loadUsers();
                 this.loadIps();
-                this.loadAllowedNetworks();
-                this.loadTwoFAWhitelists();
-                this.loadPccOption('nsx');
-                this.loadPccOption('vrops');
-                this.loadPccOption('hcx');
+                this.loadPccSecurityOptionsMatrix();
                 this.loadPccOption('pcidss');
                 this.loadPccOption('hds');
                 this.loadPccOption('hipaa');
+                this.loadPccOption('nsx');
+                this.loadPccOption('vrops');
+                this.loadPccOption('hcx');
                 this.loadPccOption('federation');
                 this.loadPccOption('vmEncryption');
+                this.loadAllowedNetworks();
+                this.loadTwoFAWhitelists();
             }
         },
 
         async loadPcc() {
-            this.pcc = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}`);
+            this.pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}`);
             if(this.pcc) {
                 this.loadPccUpgrades();
             }
         },
 
         async loadPccUpgrades() {
-            const value = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/vcenterVersion`);
+            const value = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/vcenterVersion`);
             let upgrades = [];
             if(value.currentVersion.build != value.lastMajor.build) {
                 upgrades.push(value.lastMajor.major + value.lastMajor.minor);
@@ -688,52 +619,131 @@ export default {
             this.$set(this.pcc, 'upgrades', upgrades);
         },
 
-        async loadPccOption(optionName) {
-            let value = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/${optionName}`);
+        async loadPccSecurityOptionsMatrix() {
+            let compatibilityMatrix = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/securityOptions/compatibilityMatrix`);
+            if(compatibilityMatrix) {
+                for(let option of compatibilityMatrix) {
+                    this.fillOption(option.name, option);
+                }
+            }
+        },
+
+        fillOption(optionName, optionFromApi) {
+            let value = {};
+            if(this.options && this.options[optionName]) {
+                value = this.options[optionName];
+            }
+            if(this.complianceOptions && this.complianceOptions[optionName]) {
+                value = this.complianceOptions[optionName];
+            }
+            if(this.securityOptions && this.securityOptions[optionName]) {
+                value = this.securityOptions[optionName];
+            }
+
+            for(let key in optionFromApi) {
+                let val = optionFromApi[key];
+                value[key] = val;
+            }
+            if(value['state'] === 'delivered') {
+                value['state'] = 'enabled';
+            }
+            if(!('compatible' in value)) {
+                value['compatible'] = true;
+            }
+
             value['name'] = optionName;
-            value['description'] = optionName;
+            value['description'] = value['description'] || optionName;
             value['optionType'] = 'option';
-            if(optionName == 'hds') {
-                value['name'] = 'HDS';
-                value['description'] = 'French healthcare data hosting';
-                value['optionType'] = 'compliance';
-            } else if(optionName == 'hipaa') {
-                value['name'] = 'HIPAA';
-                value['description'] = 'Health Insurance Portability and Accountability Act';
-                value['optionType'] = 'compliance';
-            } else if(optionName == 'pcidss') {
-                value['name'] = 'PCI DSS';
-                value['description'] = 'Payment Card Industry Data Security Standard';
-                value['optionType'] = 'compliance';
-            } else if(optionName == 'nsx') {
-                value['name'] = 'NSX';
-                value['description'] = 'VMware Network Virtualization';
-                value['optionType'] = 'option';
-            } else if(optionName == 'vrops') {
-                value['name'] = 'vROps';
-                value['description'] = 'VMware vRealize Operations';
-                value['optionType'] = 'option';
+            if(optionName == 'accessNetworkFiltered') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'advancedSecurity') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'base') {
+                value['optionType'] = 'security';
             } else if(optionName == 'federation') {
                 value['name'] = 'Federation';
                 value['description'] = 'Active Directory user federation';
                 value['optionType'] = 'option';
-            } else if(optionName == 'vmEncryption') {
-                value['name'] = 'VM encryption';
-                value['description'] = 'Virtual machine encryption';
-                value['optionType'] = 'option';
+            } else if(optionName == 'grsecKernel') {
+                value['optionType'] = 'security';
             } else if(optionName == 'hcx') {
                 value['name'] = 'HCX';
                 value['description'] = 'VMware Hybrid Cloud Extension';
                 value['optionType'] = 'option';
+            } else if(optionName == 'hds') {
+                value['name'] = 'HDS';
+                value['description'] = 'French Healthcare Data Hosting';
+                value['optionType'] = 'compliance';
+            } else if(optionName == 'hids') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'hipaa') {
+                value['name'] = 'HIPAA';
+                value['description'] = 'American Health Insurance Portability and Accountability Act';
+                value['optionType'] = 'compliance';
+            } else if(optionName == 'nids') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'nsx') {
+                value['name'] = 'NSX';
+                value['description'] = 'VMware Network Virtualization';
+                value['optionType'] = 'option';
+            } else if(optionName == 'pcidss') {
+                value['name'] = 'PCI DSS';
+                value['description'] = 'Payment Card Industry Data Security Standard';
+                value['optionType'] = 'compliance';
+            } else if(optionName == 'privateCustomerVlan') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'privateGw') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'sendLogToCustomer') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'sessionTimeout') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'sftp') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'snc') {
+                value['name'] = 'SecNumCloud';
+                value['description'] = 'French SecNumCloud ANSSI Security Visa';
+                value['optionType'] = 'compliance';
+            } else if(optionName == 'spla') {
+                value['name'] = 'SPLA';
+                value['description'] = 'Windows licensing management';
+                value['optionType'] = 'option';
+            } else if(optionName == 'sslV3') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'tls1.2') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'tokenValidation') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'twoFa') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'twoFaFail2ban') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'vmEncryption') {
+                value['name'] = 'VM encryption';
+                value['description'] = 'Virtual machine encryption';
+                value['optionType'] = 'option';
+            } else if(optionName == 'vrliForwarder') {
+                value['optionType'] = 'security';
+            } else if(optionName == 'vrops') {
+                value['name'] = 'vROps';
+                value['description'] = 'VMware vRealize Operations';
+                value['optionType'] = 'option';
+            } else if(optionName == 'waf') {
+                value['optionType'] = 'security';
             }
 
             if(value['optionType'] == 'compliance') {
                 if(!this.complianceOptions) {
                     this.complianceOptions = {};
                 }
-                if(value['state'] != 'disabled') {
+                if(value['state'] != 'disabled' || 1) {
                     this.$set(this.complianceOptions, optionName, {...value});
                 }
+            } else if(value['optionType'] == 'security') {
+                if(!this.securityOptions) {
+                    this.securityOptions = {};
+                }
+                this.$set(this.securityOptions, optionName, {...value});
             } else {
                 if(!this.options) {
                     this.options = {};
@@ -742,14 +752,19 @@ export default {
             }
         },
 
+        async loadPccOption(optionName) {
+            let value = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/${optionName}`);
+            this.fillOption(optionName, value);
+        },
+
         async loadIps() {
-            const ipNets = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/ip`);
+            const ipNets = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/ip`);
             if(!ipNets.length) {
                 this.ips = {};
             }
             for(let ipNet of ipNets) {
                 const ipNetEncoded = encodeURIComponent(encodeURIComponent(ipNet)); // Need to double encode slashes because of laravel routing bug with %2F
-                const ip = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/ip/${ipNetEncoded}`); // No batch mode on this call
+                const ip = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/ip/${ipNetEncoded}`); // No batch mode on this call
                 if(!this.ips) {
                     this.ips = {};
                 }
@@ -758,13 +773,13 @@ export default {
         },
 
         async loadAllowedNetworks() {
-            const allowedNetworkIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/allowedNetwork`);
+            const allowedNetworkIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/allowedNetwork`);
             if(!allowedNetworkIds.length) {
                 this.allowedNetworks = {};
             }
             let allowedNetworkIdsChunks = this.chunkArray(allowedNetworkIds, 40);
             for(let allowedNetworkIdsChunk of allowedNetworkIdsChunks) {
-                const allowedNetworks = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/allowedNetwork/${allowedNetworkIdsChunk.join(',')}?batch=,`);
+                const allowedNetworks = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/allowedNetwork/${allowedNetworkIdsChunk.join(',')}?batch=,`);
                 if(this.allowedNetworks === null) {
                     this.allowedNetworks = {};
                 }
@@ -778,13 +793,13 @@ export default {
         },
 
         async loadTwoFAWhitelists() {
-            const twoFAWhitelistIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/twoFAWhitelist`);
+            const twoFAWhitelistIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/twoFAWhitelist`);
             if(!twoFAWhitelistIds.length) {
                 this.twoFAWhitelists = {};
             }
             let twoFAWhitelistIdsChunks = this.chunkArray(twoFAWhitelistIds, 40);
             for(let twoFAWhitelistIdsChunk of twoFAWhitelistIdsChunks) {
-                const twoFAWhitelists = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/twoFAWhitelist/${twoFAWhitelistIdsChunk.join(',')}?batch=,`);
+                const twoFAWhitelists = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/twoFAWhitelist/${twoFAWhitelistIdsChunk.join(',')}?batch=,`);
                 if(this.twoFAWhitelists === null) {
                     this.twoFAWhitelists = {};
                 }
@@ -798,13 +813,13 @@ export default {
         },
 
         async loadUsers() {
-            const userIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user`);
+            const userIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user`);
             if(!userIds.length) {
                 this.users = {};
             }
             let userIdsChunks = this.chunkArray(userIds, 40);
             for(let userIdsChunk of userIdsChunks) {
-                const users = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userIdsChunk.join(',')}?batch=,`);
+                const users = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userIdsChunk.join(',')}?batch=,`);
                 if(this.users === null) {
                     this.users = {};
                 }
@@ -829,11 +844,11 @@ export default {
         },
 
         async loadUserRights(userId) {
-            const userRightIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/right`);
+            const userRightIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/right`);
             let userRightIdsChunks = this.chunkArray(userRightIds, 40);
             let rights = {};
             for(let userRightIdsChunk of userRightIdsChunks) {
-                const userRights = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/right/${userRightIdsChunk.join(',')}?batch=,`);
+                const userRights = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/right/${userRightIdsChunk.join(',')}?batch=,`);
                 for (const i in userRights) {
                     const userRight = userRights[i]['value'];
                     rights[userRight.datacenterId] = userRight;
@@ -843,11 +858,11 @@ export default {
         },
 
         async loadUserObjectRights(userId) {
-            const userObjectRightIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/objectRight`);
+            const userObjectRightIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/objectRight`);
             let userObjectRightIdsChunks = this.chunkArray(userObjectRightIds, 40);
             let objectRights = {};
             for(let userObjectRightIdsChunk of userObjectRightIdsChunks) {
-                const userRights = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/objectRight/${userObjectRightIdsChunk.join(',')}?batch=,`);
+                const userRights = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/objectRight/${userObjectRightIdsChunk.join(',')}?batch=,`);
                 for (const i in userRights) {
                     const userRight = userRights[i]['value'];
                     objectRights[userRight.datacenterId] = userRight;
@@ -857,13 +872,13 @@ export default {
         },
 
         async loadDatacenters() {
-            const datacenterIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter`);
+            const datacenterIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter`);
             if(!datacenterIds.length) {
                 this.datacenters = {};
             }
             let datacenterIdsChunks = this.chunkArray(datacenterIds, 40);
             for(let datacenterIdsChunk of datacenterIdsChunks) {
-                const datacenters = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${datacenterIdsChunk.join(',')}?batch=,`);
+                const datacenters = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${datacenterIdsChunk.join(',')}?batch=,`);
                 if(this.datacenters === null) {
                     this.datacenters = {};
                 }
@@ -878,7 +893,7 @@ export default {
 
         async loadTasks() {
             for (const state of ['todo', 'doing', 'error', 'fixing', 'toCancel', 'toCreate', 'unknown', 'waitingForChilds', 'waitingTodo']) {
-                const stateTaskIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task?state=${state}`);
+                const stateTaskIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task?state=${state}`);
                 for(const taskId of stateTaskIds) {
                     if(this.taskIds.hasOwnProperty(taskId)) {
                         continue;
@@ -899,7 +914,7 @@ export default {
             let robotsNames = {};
             let taskIdsChunks = this.chunkArray(Object.values(this.taskIds), 40);
             for(let taskIdsChunk of taskIdsChunks) {
-                const tasks = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task/${taskIdsChunk.join(',')}?batch=,`);
+                const tasks = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task/${taskIdsChunk.join(',')}?batch=,`);
                 if(this.tasks === null) {
                     this.tasks = {};
                 }
@@ -918,7 +933,7 @@ export default {
         async loadRobots(robotsNames) {
             let robotNamesChunks = this.chunkArray(Object.values(robotsNames), 40);
             for(let robotNamesChunk of robotNamesChunks) {
-                const robots = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/robot/${robotNamesChunk.join(',')}?batch=,`);
+                const robots = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/robot/${robotNamesChunk.join(',')}?batch=,`);
                 if(this.robots === null) {
                     this.robots = {};
                 }
@@ -1003,26 +1018,6 @@ export default {
                     resultClass = 'text-danger';
                 } else if(access == 'disabled') {
                     resultClass = 'text-danger';
-                }
-            }
-            return resultClass;
-        },
-
-        getOptionStateClass(option) {
-            var resultClass = 'text-warning';
-            if(option.state) {
-                if(option.state == 'migrating') {
-                    resultClass = 'text-warning';
-                } else if(option.state == 'enabling') {
-                    resultClass = 'text-warning';
-                } else if(option.state == 'enabled') {
-                    resultClass = 'text-success';
-                } else if(option.state == 'error') {
-                    resultClass = 'text-danger';
-                } else if(option.state == 'disabling') {
-                    resultClass = 'text-warning';
-                } else if(option.state == 'disabled') {
-                    resultClass = 'text-black';
                 }
             }
             return resultClass;

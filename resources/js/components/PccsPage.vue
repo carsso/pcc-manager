@@ -7,7 +7,7 @@
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
         <div class="row text-center">
-            <div class="col-12 col-lg-6 mb-3" v-for="(pcc, pccName) in pccs" :key="pccName">
+            <div class="col-12 col-lg-6 mb-3" v-for="(pcc, pccName) in _(pccs).toPairs().sortBy(0).fromPairs().value()" :key="pccName">
                 <div class="card">
                     <div class="card-body p-4">
                         <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
@@ -41,7 +41,7 @@
                                 </div>
                             </div>
                             <template v-else>
-                                <div class="card mt-4" v-for="(datacenter, datacenterId) in pcc.datacenters" :key="datacenterId">
+                                <div class="card mt-4" v-for="(datacenter, datacenterId) in _(pcc.datacenters).toPairs().sortBy(0).fromPairs().value()" :key="datacenterId">
                                     <div class="card-body p-3 row">
                                         <div class="col-12 col-lg-8">
                                             <div class="mb-1">
@@ -75,7 +75,7 @@
 <script>
 import LoadingScreen from "./LoadingScreen";
 import ErrorsZone from "./ErrorsZone";
-import {useGetLoader} from "./compositions/axios/loadingRequest";
+import {httpRequester} from "./compositions/axios/httpRequester";
 
 export default {
     name: 'PccsPage',
@@ -105,14 +105,16 @@ export default {
             loaded,
             loading,
             errors,
-            load,
-        } = useGetLoader();
+            request,
+            get,
+        } = httpRequester();
 
         return {
             loaded,
             loading,
             errors,
-            load,
+            request,
+            get,
         };
     },
 
@@ -143,7 +145,7 @@ export default {
             }
         },
         async loadPcc(pccName) {
-            let pcc = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${pccName}`);
+            let pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}`);
             let pccDatacenters = {};
             if(this.pccs && this.pccs[pccName] && this.pccs[pccName]['datacenters']) {
                 pccDatacenters = this.pccs[pccName]['datacenters'];
@@ -151,9 +153,9 @@ export default {
             }
             this.$set(this.pccs, pccName, {...pcc});
             if (pcc) {
-                const datacenterIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${pccName}/datacenter`);
+                const datacenterIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}/datacenter`);
                 if (datacenterIds) {
-                    const datacenters = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${pccName}/datacenter/${datacenterIds.join(',')}?batch=,`);
+                    const datacenters = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}/datacenter/${datacenterIds.join(',')}?batch=,`);
                     pcc['datacenters'] = pccDatacenters;
                     for (const datacenterId in datacenters) {
                         const datacenter = datacenters[datacenterId];

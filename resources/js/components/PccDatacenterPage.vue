@@ -133,6 +133,9 @@
                                             <small class="text-muted">#{{filerId}}</small>
                                         </td>
                                         <td :title="`State: ${filer.state} - Profile: ${filer.profile} - Node: ${filer.master.split(/\./)[0]} ${filer.activeNode}`">
+                                            <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/filer/${filerId}/graphs`">
+                                                <i class="far fa-chart-bar"></i>
+                                            </a>
                                             {{filer.name || 'pcc-00'+filerId }}
                                             <i v-if="filer.global" class="fas fa-globe text-info" title="Global"></i><br />
                                             <small class="text-muted">
@@ -252,6 +255,9 @@
                                             <small class="text-muted">#{{hostId}}</small>
                                         </td>
                                         <td :title="`Rack: ${host.rack} - State: ${host.state} - Connexion state: ${host.connectionState} - In maintenance: ${(host.inMaintenance)?'yes':'no'}`">
+                                            <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/host/${hostId}/graphs`">
+                                                <i class="far fa-chart-bar"></i>
+                                            </a>
                                             {{host.name || 'host'+hostId }}<br />
                                             <small class="text-muted">Rack: {{host.rack}}</small>
                                         </td>
@@ -366,6 +372,9 @@
                                     <small class="text-muted">#{{vm.vmId}}</small>
                                 </td>
                                 <td :title="`State: ${vm.powerState} - MoRef: ${vm.moRef}`">
+                                    <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/vm/${vm.vmId}/graphs`">
+                                        <i class="far fa-chart-bar"></i>
+                                    </a>
                                     {{vm.name}}
                                     <span class="badge bg-secondary" v-if="isOvhVm(vm)" title="This virtual machine is managed by OVH">OVH VM</span>
                                 </td>
@@ -487,7 +496,7 @@
 <script>
 import LoadingScreen from "./LoadingScreen";
 import ErrorsZone from "./ErrorsZone";
-import {useGetLoader} from "./compositions/axios/loadingRequest";
+import {httpRequester} from "./compositions/axios/httpRequester";
 import {VueSvgGauge} from 'vue-svg-gauge'
 
 export default {
@@ -523,14 +532,16 @@ export default {
             loaded,
             loading,
             errors,
-            load,
-        } = useGetLoader();
+            request,
+            get,
+        } = httpRequester();
 
         return {
             loaded,
             loading,
             errors,
-            load,
+            request,
+            get,
         };
     },
 
@@ -560,21 +571,21 @@ export default {
         },
 
         async loadPcc() {
-            this.pcc = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}`);
+            this.pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}`);
         },
 
         async loadDatacenter() {
-            this.datacenter = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}`);
+            this.datacenter = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}`);
         },
 
         async loadHosts() {
-            const hostIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/host`);
+            const hostIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/host`);
             if(!hostIds.length) {
                 this.hosts = {};
             }
             let hostIdsChunks = this.chunkArray(hostIds, 40);
             for(let hostIdsChunk of hostIdsChunks) {
-                const hosts = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/host/${hostIdsChunk.join(',')}?batch=,`);
+                const hosts = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/host/${hostIdsChunk.join(',')}?batch=,`);
                 if(this.hosts === null) {
                     this.hosts = {};
                 }
@@ -588,14 +599,14 @@ export default {
         },
 
         async loadFilers() {
-            const filerIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/filer`);
+            const filerIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/filer`);
             if(!filerIds.length) {
                 this.filers = {};
             }
             let filerIdsChunks = this.chunkArray(filerIds, 40);
             this.loadGlobalFilers();
             for(let filerIdsChunk of filerIdsChunks) {
-                const filers = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/filer/${filerIdsChunk.join(',')}?batch=,`);
+                const filers = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/filer/${filerIdsChunk.join(',')}?batch=,`);
                 if(this.filers === null) {
                     this.filers = {};
                 }
@@ -610,10 +621,10 @@ export default {
         },
 
         async loadGlobalFilers() {
-            const filerIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/filer`);
+            const filerIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/filer`);
             let filerIdsChunks = this.chunkArray(filerIds, 40);
             for(let filerIdsChunk of filerIdsChunks) {
-                const filers = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/filer/${filerIdsChunk.join(',')}?batch=,`);
+                const filers = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/filer/${filerIdsChunk.join(',')}?batch=,`);
                 if(this.filers === null) {
                     this.filers = {};
                 }
@@ -628,13 +639,13 @@ export default {
         },
 
         async loadVms() {
-            const vmIds = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/vm`);
+            const vmIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/vm`);
             if(!vmIds.length) {
                 this.vms = {};
             }
             let vmIdsChunks = this.chunkArray(vmIds, 40);
             for(let vmIdsChunk of vmIdsChunks) {
-                const vms = await this.load(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/vm/${vmIdsChunk.join(',')}?batch=,`);
+                const vms = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/vm/${vmIdsChunk.join(',')}?batch=,`);
                 if(this.vms === null) {
                     this.vms = {};
                 }

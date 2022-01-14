@@ -15,7 +15,7 @@
 <script>
 import LoadingScreen from "./LoadingScreen";
 import ErrorsZone from "./ErrorsZone";
-import {useGetLoader} from "./compositions/axios/loadingRequest";
+import {httpRequester} from "./compositions/axios/httpRequester";
 
 export default {
     name: 'DarkmodeToggler',
@@ -37,20 +37,22 @@ export default {
             loaded,
             loading,
             errors,
-            load,
-        } = useGetLoader();
+            request,
+            get,
+        } = httpRequester();
 
         return {
             loaded,
             loading,
             errors,
-            load,
+            request,
+            get,
         };
     },
 
     methods: {
         async switchMode() {
-            let response = await this.load(`${this.route}/darkmode/${this.$currentDarkmode ? '0' : '1'}`);
+            let response = await this.get(`${this.route}/darkmode/${this.$currentDarkmode ? '0' : '1'}`);
             if(response && !this.errors) {
                 this.$currentDarkmode = response.darkmode;
             }
