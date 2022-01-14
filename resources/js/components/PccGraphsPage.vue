@@ -202,6 +202,8 @@ export default {
         },
 
         changeDaysFrom(days) {
+            if(this.loading) return;
+            if(this.daysFrom == days) return;
             this.daysFrom = days;
             this.loadGraphsData();
         },
