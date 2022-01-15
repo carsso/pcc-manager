@@ -8,47 +8,87 @@
         </transition>
         <div class="card my-2">
             <div class="card-body p-3">
-                <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
-                    <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
+                <button
+                    class="
+                        btn btn-sm
+                        badge
+                        btn-info
+                        position-absolute
+                        top-0
+                        end-0
+                        m-3
+                    "
+                    @click="loadAll()"
+                >
+                    <i
+                        class="fas fa-sync-alt"
+                        :class="loading ? 'fa-spin' : ''"
+                    ></i>
                 </button>
                 <div class="row text-center">
                     <div class="col-4">
                         <h3 class="mb-1">
-                            <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}`">
+                            <a
+                                :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}`"
+                            >
                                 <i class="far fa-arrow-alt-circle-left"></i>
                             </a>
                             {{ pccName }}
                         </h3>
                         <h4 class="mb-1">{{ pcc.description }}</h4>
                         <div>
-                            <a target="_blank" :href="pcc.webInterfaceUrl">{{ pcc.webInterfaceUrl }}</a>
+                            <a target="_blank" :href="pcc.webInterfaceUrl">{{
+                                pcc.webInterfaceUrl
+                            }}</a>
                         </div>
                     </div>
                     <div class="col-4 py-2">
                         <div v-if="!Object.keys(pcc).length" class="my-3">
-                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading pcc from OVHcloud API...
+                            <i class="fas fa-circle-notch fa-spin me-1"></i>
+                            Loading pcc from OVHcloud API...
                         </div>
                         <div v-else>
-                            <i class="fas fa-map-marked-alt"></i> Datacenter: {{ pcc.location }}<br />
+                            <i class="fas fa-map-marked-alt"></i> Datacenter:
+                            {{ pcc.location }}<br />
                             Commercial range: {{ pcc.commercialRange }}<br />
-                            <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}
+                            <i class="fas fa-laptop-code"></i>
+                            {{ pcc.managementInterface.toUpperCase() }}
+                            {{ pcc.version.major + pcc.version.minor }}
                         </div>
                     </div>
                     <div class="col-4 py-3">
-                        <div v-if="!Object.keys(datacenter).length" class="my-2">
-                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading from OVHcloud API...
+                        <div
+                            v-if="!Object.keys(datacenter).length"
+                            class="my-2"
+                        >
+                            <i class="fas fa-circle-notch fa-spin me-1"></i>
+                            Loading from OVHcloud API...
                         </div>
                         <template v-else>
                             <div class="mb-1">
-                                <span class="text-capitalize">{{ entityType }}</span>
+                                <span class="text-capitalize">{{
+                                    entityType
+                                }}</span>
                                 <span class="h4">
                                     {{ entity.name }}
                                 </span>
-                                <span class="text-muted">{{ '#'+entityId }}</span>
+                                <span class="text-muted">{{
+                                    "#" + entityId
+                                }}</span>
                             </div>
                             <div class="mb-1">
-                                <span class="h5">Datacenter {{ datacenter.description || datacenter.name }}</span>
-                                <span class="text-muted">{{ datacenter.description ? datacenter.name : '#'+datacenterId }}</span>
+                                <span class="h5"
+                                    >Datacenter
+                                    {{
+                                        datacenter.description ||
+                                        datacenter.name
+                                    }}</span
+                                >
+                                <span class="text-muted">{{
+                                    datacenter.description
+                                        ? datacenter.name
+                                        : "#" + datacenterId
+                                }}</span>
                             </div>
                         </template>
                     </div>
@@ -60,7 +100,13 @@
             <div class="card-body p-3 text-center">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <template v-for="(text, btnDaysFrom) in daysButtons">
-                        <button type="button" class="btn btn-primary" :class="daysFrom == btnDaysFrom ? 'active' : ''" @click="changeDaysFrom(btnDaysFrom)" :key="text">
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            :class="daysFrom == btnDaysFrom ? 'active' : ''"
+                            @click="changeDaysFrom(btnDaysFrom)"
+                            :key="text"
+                        >
                             {{ text }}
                         </button>
                     </template>
@@ -68,27 +114,39 @@
             </div>
         </div>
 
-        <div v-if="!graphsData" class="card mt-3">
+        <div v-if="!graphs" class="card mt-3">
             <div class="card-body p-4 text-center">
-                <i class="fas fa-circle-notch fa-spin me-1"></i> Loading graphs from OVHcloud API & Metrics API...
+                <i class="fas fa-circle-notch fa-spin me-1"></i> Loading graphs
+                from OVHcloud API & Metrics API...
             </div>
         </div>
         <div class="row text-center" v-else>
             <div
                 class="col-12 col-lg-6"
-                v-for="(graphData, metric) in _(graphsData).toPairs().sortBy(0).fromPairs().value()"
-                :key="metric"
+                v-for="(graph, graphName) in _(graphs)
+                    .toPairs()
+                    .sortBy(0)
+                    .fromPairs()
+                    .value()"
+                :key="graphName"
             >
                 <div class="card mt-3">
                     <div class="card-body p-4">
                         <div class="position-absolute top-0 end-0 m-3">
-                            <button class="btn btn-sm badge btn-info" @click="loadAll()">
-                                <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
+                            <button
+                                class="btn btn-sm badge btn-info"
+                                @click="loadAll()"
+                            >
+                                <i
+                                    class="fas fa-sync-alt"
+                                    :class="loading ? 'fa-spin' : ''"
+                                ></i>
                             </button>
                         </div>
+                        {{ graphName }}
                         <line-chart
-                            :chart-data="graphData"
-                            :options="options"
+                            :chart-data="graph.data"
+                            :options="graph.options"
                             :height="300"
                         ></line-chart>
                     </div>
@@ -158,32 +216,577 @@ export default {
     },
 
     data() {
+        let key = this.entityType;
+        let value = this.entity.name;
+        let graphs = {};
+        if (this.entityType == "filer") {
+            key = "datastore";
+            graphs = {
+                "Diskspace used": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.filer.datastore.diskspace.used",
+                                label: "Diskspace used",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+                "Diskspace used %": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.filer.datastore.diskspace.used.perc",
+                                label: "Diskspace used %",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+            };
+        } else if (this.entityType == "host") {
+            graphs = {
+                "CPU usage %": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.host.cpu.usage.perc",
+                                label: "CPU usage %",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+                /*
+                "Memory TPS": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.host.mem.tps",
+                                label: "Memory TPS",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+                */
+                "Memory usage %": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.host.mem.usage.perc",
+                                label: "Memory usage %",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+            };
+            for (const nic of ["vmnic0","vmnic3","vmnic2","vmnic1"]) {
+                graphs["Network bandwidth " + nic] = {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.host.net.packetsrx",
+                                _filter: {
+                                    nicname: nic,
+                                },
+                                label: "Packets received",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d5ffd3",
+                                borderColor: "#7af879",
+                                yAxisID: "pps",
+                            },
+                            {
+                                data: [],
+                                _metricName: "vscope.host.net.packetstx",
+                                _filter: {
+                                    nicname: nic,
+                                },
+                                label: "Packets sent",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#ffd3d3",
+                                borderColor: "#f87979",
+                                yAxisID: "pps",
+                            },
+                            {
+                                data: [],
+                                _metricName: "vscope.host.net.rx",
+                                _filter: {
+                                    nicname: nic,
+                                },
+                                label: "Bytes received",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                                yAxisID: "kbps",
+                            },
+                            {
+                                data: [],
+                                _metricName: "vscope.host.net.tx",
+                                _filter: {
+                                    nicname: nic,
+                                },
+                                label: "Bytes sent",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#fffad3",
+                                borderColor: "#f8d779",
+                                yAxisID: "kbps",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                            yAxes: [
+                                {
+                                    id: "kbps",
+                                    type: "linear",
+                                    position: "left",
+                                    text: "test",
+                                },
+                                {
+                                    id: "pps",
+                                    type: "linear",
+                                    position: "right",
+                                    text: "test",
+                                },
+                            ],
+                        },
+                    },
+                };
+            }
+        } else if (this.entityType == "vm") {
+            value = this.entity.moRef;
+            graphs = {
+                "CPU usage %": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.cpu.usage.perc",
+                                label: "CPU usage %",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+                "Memory usage %": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.mem.usage.perc",
+                                label: "Memory usage %",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+                "CPU ready": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.cpu.ready",
+                                label: "CPU ready",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+                /*
+                "Memory TPS": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.mem.tps",
+                                label: "Memory TPS",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+                */
+                "Disk throughput": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.disk.bandwidth.read",
+                                label: "Disk read throughput",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d5ffd3",
+                                borderColor: "#7af879",
+                                yAxisID: "kbps",
+                            },
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.disk.bandwidth.write",
+                                label: "Disk write throughput",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#ffd3d3",
+                                borderColor: "#f87979",
+                                yAxisID: "kbps",
+                            },
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.disk.io.read",
+                                label: "Disk read IOPS",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                                yAxisID: "iops",
+                            },
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.disk.io.write",
+                                label: "Disk write IOPS",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#fffad3",
+                                borderColor: "#f8d779",
+                                yAxisID: "iops",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                            yAxes: [
+                                {
+                                    id: "kbps",
+                                    type: "linear",
+                                    position: "left",
+                                },
+                                {
+                                    id: "iops",
+                                    type: "linear",
+                                    position: "right",
+                                },
+                            ],
+                        },
+                    },
+                },
+                "Disk latency": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.disk.latency.read",
+                                label: "Disk read latency",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                            },
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.disk.latency.write",
+                                label: "Disk write latency",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#fffad3",
+                                borderColor: "#f8d779",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+                "Network bandwidth": {
+                    data: {
+                        datasets: [
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.net.packetsrx",
+                                label: "Packets received",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d5ffd3",
+                                borderColor: "#7af879",
+                                yAxisID: "pps",
+                            },
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.net.packetstx",
+                                label: "Packets sent",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#ffd3d3",
+                                borderColor: "#f87979",
+                                yAxisID: "pps",
+                            },
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.net.rx",
+                                label: "Bytes received",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#d3d8ff",
+                                borderColor: "#7994f8",
+                                yAxisID: "kbps",
+                            },
+                            {
+                                data: [],
+                                _metricName: "vscope.vm.net.tx",
+                                label: "Bytes sent",
+                                fill: false,
+                                pointRadius: 2,
+                                backgroundColor: "#fffad3",
+                                borderColor: "#f8d779",
+                                yAxisID: "kbps",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                    },
+                                },
+                            ],
+                            yAxes: [
+                                {
+                                    id: "kbps",
+                                    type: "linear",
+                                    position: "left",
+                                    text: "test",
+                                },
+                                {
+                                    id: "pps",
+                                    type: "linear",
+                                    position: "right",
+                                    text: "test",
+                                },
+                            ],
+                        },
+                    },
+                },
+            };
+        }
+
         return {
+            entityMetrics: {
+                key: key,
+                value: value,
+            },
+            graphs: graphs,
             pcc: {},
             datacenter: {},
             user: null,
             metricsToken: null,
             daysFrom: 1,
             daysButtons: {
-                1: 'today',
-                2: 'yesterday',
-                7: 'last week',
-                30: 'last month',
-                182: 'last 6 months',
-                365: 'last year'
-            },
-            graphsData: null,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    xAxes: [{
-                        type: 'time',
-                        time: {
-                            unit: 'day',
-                        }
-                    }]
-                }
+                1: "today",
+                2: "yesterday",
+                7: "last week",
+                30: "last month",
+                182: "last 6 months",
+                365: "last year",
             },
         };
     },
@@ -194,7 +797,7 @@ export default {
 
     methods: {
         async loadAll(force = false) {
-            if(force || !this.loading) {
+            if (force || !this.loading) {
                 this.loadPcc();
                 this.loadDatacenter();
                 this.loadUser();
@@ -202,8 +805,8 @@ export default {
         },
 
         changeDaysFrom(days) {
-            if(this.loading) return;
-            if(this.daysFrom == days) return;
+            if (this.loading) return;
+            if (this.daysFrom == days) return;
             this.daysFrom = days;
             this.loadGraphsData();
         },
@@ -255,88 +858,37 @@ export default {
                 return;
             }
 
-            let metrics = {};
-            let title = 'Unknown';
-            let key = this.entityType;
-            let value = this.entity.name;
-            if (this.entityType == "filer") {
-                key = "datastore";
-                metrics = {
-                    "vscope.filer.datastore.diskspace.used" : "Diskspace used",
-                    "vscope.filer.datastore.diskspace.used.perc" : "Diskspace used %",
-                };
-            } else if (this.entityType == "host") {
-                metrics = {
-                    "vscope.host.cpu.usage.perc" : "CPU usage %",
-                    "vscope.host.mem.tps" : "Memory throughput",
-                    "vscope.host.mem.usage.perc" : "Memory usage %",
-                    "vscope.host.net.packetsrx" : "Packets received",
-                    "vscope.host.net.packetstx" : "Packets sent",
-                    "vscope.host.net.rx" : "Bytes received",
-                    "vscope.host.net.tx" : "Bytes sent",
-                };
-            } else if (this.entityType == "vm") {
-                value = this.entity.moRef;
-                metrics = {
-                    "vscope.vm.cpu.ready" : "CPU ready",
-                    "vscope.vm.cpu.usage.perc" : "CPU usage %",
-                    "vscope.vm.disk.bandwidth.read" : "Disk read throughput",
-                    "vscope.vm.disk.bandwidth.write" : "Disk write throughput",
-                    "vscope.vm.disk.io.read" : "Disk read IOPS",
-                    "vscope.vm.disk.io.write" : "Disk write IOPS",
-                    "vscope.vm.disk.latency.read" : "Disk read latency",
-                    "vscope.vm.disk.latency.write" : "Disk write latency",
-                    "vscope.vm.mem.tps" : "Memory throughput",
-                    "vscope.vm.mem.usage.perc" : "Memory usage %",
-                    "vscope.vm.net.packetsrx" : "Packets received",
-                    "vscope.vm.net.packetstx" : "Packets sent",
-                    "vscope.vm.net.rx" : "Bytes received",
-                    "vscope.vm.net.tx" : "Bytes sent",
-                };
-            }
-
-            for (const metric in metrics) {
-                let title = metrics[metric];
-                this.loadGraphData(metric, key, value, title);
+            for (const graphName in this.graphs) {
+                for (const dataset of this.graphs[graphName].data.datasets) {
+                    this.loadGraphData(graphName, dataset._metricName, dataset._filter);
+                }
             }
         },
 
-        async loadGraphData(metric, key, value, title) {
+        async loadGraphData(graphName, metricName, filter) {
+            if (!this.datacenter || !this.entity || !this.metricsToken) {
+                return;
+            }
+
             let dateFrom = moment()
                 .subtract(this.daysFrom, "days")
                 .toISOString();
             let dateTo = moment().toISOString();
-            let granularity = '2 h 0';
-            if(this.daysFrom > 2) {
-                granularity = '6 h 0';
-            }
-            if(this.daysFrom > 5) {
-                granularity = '10 h 0';
-            }
-            if(this.daysFrom > 10) {
-                granularity = '18 h 0';
-            }
-            if(this.daysFrom > 15) {
-                granularity = '1 d 0';
-            }
-            if(this.daysFrom > 90) {
-                granularity = '1 w 0';
-            }
-            if(this.daysFrom > 300) {
-                granularity = '2 w 0';
-            }
-            if(this.daysFrom > 600) {
-                granularity = '30 d 0';
-            }
+
+            let wantedPoints = 50;
+            let minutes = this.daysFrom * 24 * 60;
+            let pointMinutesInterval = Math.ceil(minutes / wantedPoints);
+            let granularity = pointMinutesInterval + " m 0";
+
             const params = `
                 [
                     "${this.metricsToken.token}"
-                    "${metric}" { "${key}" "${value}" }
+                    "${metricName}" { "${this.entityMetrics.key}" "${this.entityMetrics.value}" }
                     "${dateFrom}" "${dateTo}"
                 ] FETCH 'gts' STORE
                 [ $gts bucketizer.max "${dateTo}" TOTIMESTAMP ${granularity} ] BUCKETIZE
             `;
-            const data = await this.request({
+            const warp10Data = await this.request({
                 method: "post",
                 url: `${this.metricsToken.warpEndpoint}/api/v0/exec`,
                 data: params,
@@ -347,33 +899,41 @@ export default {
                     },
                 ],
             });
-            const graphData = this.getGraphData(data, title);
-            if(!this.graphsData) {
-                this.graphsData = {};
-            }
-            this.$set(this.graphsData, metric, graphData);
-        },
 
-        getGraphData(warp10Data, title) {
-            let data = [];
-            let label = "";
-            if(warp10Data && warp10Data[0] && warp10Data[0][0]) {
-                label = title;
-                for (const v of warp10Data[0][0].v) {
-                    data.push({
-                        x: new Date(v[0]/1000),
-                        y: v[1],
-                    });
+            let datas = {};
+            for (const i of warp10Data) {
+                for (const j of i) {
+                    let metricName = j.c;
+                    for (const v of j.v) {
+                        let exclude = false;
+                        if(filter) {
+                            for (const filterName in filter) {
+                                if (j.l[filterName] && j.l[filterName] != filter[filterName]) {
+                                    exclude = true;
+                                }
+                            }
+                        }
+                        if(!exclude) {
+                            if(!datas[metricName]) {
+                                datas[metricName] = [];
+                            }
+                            datas[metricName].push({
+                                x: new Date(v[0] / 1000),
+                                y: v[1],
+                            });
+                        }
+                    }
                 }
             }
-            let dataset = {
-                label: label,
-                data: data,
-                fill: false,
-                backgroundColor: "#ffd3d3",
-                borderColor: "#f87979",
-            };
-            return { datasets: [dataset] };
+            if (this.graphs[graphName] && this.graphs[graphName].data.datasets && datas[metricName]) {
+                let data = this.graphs[graphName].data;
+                for (const i in data.datasets) {
+                    if (data.datasets[i]._metricName == metricName) {
+                        data.datasets[i].data = datas[metricName];
+                        this.$set(this.graphs[graphName], 'data', {...data});
+                    }
+                }
+            }
         },
 
         chunkArray(myArray, chunk_size) {
