@@ -1036,7 +1036,7 @@ export default {
                 } else if(option.state == 'error') {
                     resultClass = 'text-danger';
                 } else if(option.state == 'disabled') {
-                    resultClass = 'text-black';
+                    resultClass = 'text-danger';
                 }
             }
             return resultClass;

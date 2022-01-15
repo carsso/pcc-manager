@@ -92,7 +92,7 @@ export default {
                 } else if(option.state == 'disabling') {
                     resultClass = 'text-warning';
                 } else if(option.state == 'disabled') {
-                    resultClass = 'text-black';
+                    resultClass = 'text-danger';
                 }
             }
             return resultClass;

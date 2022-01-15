@@ -979,7 +979,7 @@ export default {
                 } else if(task.state == 'error') {
                     resultClass = 'text-danger';
                 } else if(task.state == 'unknown') {
-                    resultClass = 'text-black';
+                    resultClass = 'text-danger';
                 } else {
                     resultClass = 'text-danger';
                 }
