@@ -35,7 +35,7 @@ class OvhApiUserProvider implements UserProvider
         );
 
         try {
-            $client->get('/auth/currentCredential');
+            $currentCredential = $client->get('/auth/currentCredential');
         } catch (RequestException $e) {
             return null;
         }
@@ -45,6 +45,7 @@ class OvhApiUserProvider implements UserProvider
         return new OvhApiUser([
             'id' => $consumerKey,
             'consumerKey' => $consumerKey,
+            'currentCredential' => $currentCredential,
             'endpoint' => $endpoint,
             'remember_token' => Str::random(60),
             'ovhApi' => $client,

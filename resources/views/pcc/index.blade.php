@@ -9,9 +9,14 @@
     </pccs-page>
     @if(strtoupper(config('app.env')) != 'PRODUCTION')
         <div class="alert alert-danger">
-            <strong>DEV logged-in user session info</strong><br />
+            <strong>DEV debug logged-in user session info - DO NOT SHARE WITH ANYBODY YOU DON'T TRUST</strong><br />
             Endpoint: {{ Auth::user()->endpoint }}<br />
             Consumer key: {{ Auth::user()->consumerKey }}<br />
+            Auto-login link:
+            {{ route('login.token', ['endpoint' => Auth::user()->endpoint, 'token' => Auth::user()->consumerKey]) }}<br />
+            <hr />
+            OVHcloud API credential:<br />
+            <pre><code>@json(Auth::user()->currentCredential, JSON_PRETTY_PRINT)</code></pre>
         </div>
     @endif
     @if(empty($pccNames))
