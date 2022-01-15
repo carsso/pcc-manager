@@ -227,7 +227,8 @@ export default {
                         datasets: [
                             {
                                 data: [],
-                                _metricName: "vscope.filer.datastore.diskspace.used",
+                                _metricName:
+                                    "vscope.filer.datastore.diskspace.used",
                                 label: "Diskspace used",
                                 fill: false,
                                 pointRadius: 2,
@@ -248,6 +249,17 @@ export default {
                                     },
                                 },
                             ],
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Usage (GB)'
+                                    },
+                                },
+                            ],
                         },
                     },
                 },
@@ -256,7 +268,8 @@ export default {
                         datasets: [
                             {
                                 data: [],
-                                _metricName: "vscope.filer.datastore.diskspace.used.perc",
+                                _metricName:
+                                    "vscope.filer.datastore.diskspace.used.perc",
                                 label: "Diskspace used %",
                                 fill: false,
                                 pointRadius: 2,
@@ -274,6 +287,18 @@ export default {
                                     type: "time",
                                     time: {
                                         unit: "day",
+                                    },
+                                },
+                            ],
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                        suggestedMax: 100,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Usage percent (%)'
                                     },
                                 },
                             ],
@@ -309,6 +334,18 @@ export default {
                                     },
                                 },
                             ],
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                        suggestedMax: 100,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Usage percent (%)'
+                                    },
+                                },
+                            ],
                         },
                     },
                 },
@@ -338,6 +375,17 @@ export default {
                                         unit: "day",
                                     },
                                 },
+                            ],
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'TPS'
+                                    },
+                                }
                             ],
                         },
                     },
@@ -369,11 +417,23 @@ export default {
                                     },
                                 },
                             ],
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                        suggestedMax: 100,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Usage percent (%)'
+                                    },
+                                },
+                            ],
                         },
                     },
                 },
             };
-            for (const nic of ["vmnic0","vmnic3","vmnic2","vmnic1"]) {
+            for (const nic of ["vmnic0", "vmnic3", "vmnic2", "vmnic1"]) {
                 graphs["Network bandwidth " + nic] = {
                     data: {
                         datasets: [
@@ -448,13 +508,25 @@ export default {
                                     id: "kbps",
                                     type: "linear",
                                     position: "left",
-                                    text: "test",
+                                    ticks: {
+                                        beginAtZero: true,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'KBytes/s'
+                                    },
                                 },
                                 {
                                     id: "pps",
                                     type: "linear",
                                     position: "right",
-                                    text: "test",
+                                    ticks: {
+                                        beginAtZero: true,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Packets/s'
+                                    },
                                 },
                             ],
                         },
@@ -490,6 +562,18 @@ export default {
                                     },
                                 },
                             ],
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                        suggestedMax: 100,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Usage percent (%)'
+                                    },
+                                },
+                            ],
                         },
                     },
                 },
@@ -516,6 +600,18 @@ export default {
                                     type: "time",
                                     time: {
                                         unit: "day",
+                                    },
+                                },
+                            ],
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                        suggestedMax: 100,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Usage percent (%)'
                                     },
                                 },
                             ],
@@ -548,6 +644,17 @@ export default {
                                     },
                                 },
                             ],
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Miliseconds (CPU Ready)'
+                                    },
+                                },
+                            ],
                         },
                     },
                 },
@@ -575,6 +682,17 @@ export default {
                                     type: "time",
                                     time: {
                                         unit: "day",
+                                    },
+                                },
+                            ],
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'TPS'
                                     },
                                 },
                             ],
@@ -644,11 +762,25 @@ export default {
                                     id: "kbps",
                                     type: "linear",
                                     position: "left",
+                                    ticks: {
+                                        beginAtZero: true,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'KBytes/s'
+                                    },
                                 },
                                 {
                                     id: "iops",
                                     type: "linear",
                                     position: "right",
+                                    ticks: {
+                                        beginAtZero: true,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Operations/s'
+                                    },
                                 },
                             ],
                         },
@@ -686,6 +818,17 @@ export default {
                                     type: "time",
                                     time: {
                                         unit: "day",
+                                    },
+                                },
+                            ],
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Miliseconds'
                                     },
                                 },
                             ],
@@ -754,13 +897,25 @@ export default {
                                     id: "kbps",
                                     type: "linear",
                                     position: "left",
-                                    text: "test",
+                                    ticks: {
+                                        beginAtZero: true,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'KBytes/s'
+                                    },
                                 },
                                 {
                                     id: "pps",
                                     type: "linear",
                                     position: "right",
-                                    text: "test",
+                                    ticks: {
+                                        beginAtZero: true,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Packets/s'
+                                    },
                                 },
                             ],
                         },
@@ -860,7 +1015,11 @@ export default {
 
             for (const graphName in this.graphs) {
                 for (const dataset of this.graphs[graphName].data.datasets) {
-                    this.loadGraphData(graphName, dataset._metricName, dataset._filter);
+                    this.loadGraphData(
+                        graphName,
+                        dataset._metricName,
+                        dataset._filter
+                    );
                 }
             }
         },
@@ -906,15 +1065,18 @@ export default {
                     let metricName = j.c;
                     for (const v of j.v) {
                         let exclude = false;
-                        if(filter) {
+                        if (filter) {
                             for (const filterName in filter) {
-                                if (j.l[filterName] && j.l[filterName] != filter[filterName]) {
+                                if (
+                                    j.l[filterName] &&
+                                    j.l[filterName] != filter[filterName]
+                                ) {
                                     exclude = true;
                                 }
                             }
                         }
-                        if(!exclude) {
-                            if(!datas[metricName]) {
+                        if (!exclude) {
+                            if (!datas[metricName]) {
                                 datas[metricName] = [];
                             }
                             datas[metricName].push({
@@ -925,12 +1087,16 @@ export default {
                     }
                 }
             }
-            if (this.graphs[graphName] && this.graphs[graphName].data.datasets && datas[metricName]) {
+            if (
+                this.graphs[graphName] &&
+                this.graphs[graphName].data.datasets &&
+                datas[metricName]
+            ) {
                 let data = this.graphs[graphName].data;
                 for (const i in data.datasets) {
                     if (data.datasets[i]._metricName == metricName) {
                         data.datasets[i].data = datas[metricName];
-                        this.$set(this.graphs[graphName], 'data', {...data});
+                        this.$set(this.graphs[graphName], "data", { ...data });
                     }
                 }
             }
