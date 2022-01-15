@@ -168,7 +168,7 @@
                                         <vue-svg-gauge
                                             :start-angle="-110"
                                             :end-angle="110"
-                                            :value="gaugesValues('datastores-provisionned') | round(0)"
+                                            :value="gaugesValues('datastores-provisioned') | round(0)"
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
@@ -178,8 +178,8 @@
                                             :scale-interval="0">
                                             <div class="inner-text">
                                                 <span>
-                                                    <div>Space</div><div>provisionned :</div>
-                                                    <div class="h4">{{ gaugesValues('datastores-provisionned') | round(0) }} %</div>
+                                                    <div>Space</div><div>provisioned :</div>
+                                                    <div class="h4">{{ gaugesValues('datastores-provisioned') | round(0) }} %</div>
                                                 </span>
                                             </div>
                                         </vue-svg-gauge>
@@ -221,7 +221,7 @@
                                         </td>
                                         <td>{{filer.vmTotal}}</td>
                                         <td>
-                                            <template v-if="filer.size.unit">
+                                            <span v-if="filer.size.unit" title="Space used">
                                                 <div class="micro-gauge">
                                                     <vue-svg-gauge
                                                         :start-angle="-270"
@@ -238,7 +238,26 @@
                                                     </vue-svg-gauge>
                                                 </div>
                                                 {{filer.spaceUsed | round(0)}} <small>of</small> {{(filer.spaceUsed + filer.spaceFree) | round(0)}} <small>{{filer.size.unit}}</small>
-                                            </template>
+                                            </span>
+                                            <br />
+                                            <span v-if="filer.size.unit" title="Space provisioned">
+                                                <div class="micro-gauge">
+                                                    <vue-svg-gauge
+                                                        :start-angle="-270"
+                                                        :end-angle="90"
+                                                        :inner-radius="0"
+                                                        :value="filer.spaceProvisionned | round(0)"
+                                                        :separator-step="0"
+                                                        :min="0"
+                                                        :max="(filer.spaceUsed + filer.spaceFree) | round(0)"
+                                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
+                                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                                        gauge-color="#f4c009"
+                                                        :scale-interval="0">
+                                                    </vue-svg-gauge>
+                                                </div>
+                                                {{filer.spaceProvisionned | round(0)}} <small>{{filer.size.unit}} <small>provisioned</small></small>
+                                            </span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -779,7 +798,7 @@ export default {
                         'used': 0,
                         'value': 0
                     },
-                    'datastores-provisionned': {
+                    'datastores-provisioned': {
                         'max': 0,
                         'used': 0,
                         'value': 0
@@ -805,9 +824,9 @@ export default {
                     result['datastores-usage']['used'] = result['datastores-usage']['used'] + datastore.spaceUsed;
                     result['datastores-usage']['value'] = result['datastores-usage']['used'] * (100 / result['datastores-usage']['max']);
 
-                    result['datastores-provisionned']['max'] = result['datastores-provisionned']['max'] + datastore.spaceUsed + datastore.spaceFree;
-                    result['datastores-provisionned']['used'] = result['datastores-provisionned']['used'] + datastore.spaceProvisionned;
-                    result['datastores-provisionned']['value'] = result['datastores-provisionned']['used'] * (100 / result['datastores-provisionned']['max']);
+                    result['datastores-provisioned']['max'] = result['datastores-provisioned']['max'] + datastore.spaceUsed + datastore.spaceFree;
+                    result['datastores-provisioned']['used'] = result['datastores-provisioned']['used'] + datastore.spaceProvisionned;
+                    result['datastores-provisioned']['value'] = result['datastores-provisioned']['used'] * (100 / result['datastores-provisioned']['max']);
                 }
             }
 
