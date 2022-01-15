@@ -7,6 +7,13 @@
         ovhapi-route="{{ route('ovhapi') }}"
         pcc-route="{{ route('pcc') }}">
     </pccs-page>
+    @if(strtoupper(config('app.env')) != 'PRODUCTION')
+        <div class="alert alert-danger">
+            <strong>DEV logged-in user session info</strong><br />
+            Endpoint: {{ Auth::user()->endpoint }}<br />
+            Consumer key: {{ Auth::user()->consumerKey }}<br />
+        </div>
+    @endif
     @if(empty($pccNames))
         <div class="card my-3">
             <div class="card-body py-5">
