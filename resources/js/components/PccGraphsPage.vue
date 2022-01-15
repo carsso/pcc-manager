@@ -222,14 +222,14 @@ export default {
         if (this.entityType == "filer") {
             key = "datastore";
             graphs = {
-                "Diskspace used": {
+                "Disk space used": {
                     data: {
                         datasets: [
                             {
                                 data: [],
                                 _metricName:
                                     "vscope.filer.datastore.diskspace.used",
-                                label: "Diskspace used",
+                                label: "Disk space used",
                                 fill: false,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
@@ -263,14 +263,14 @@ export default {
                         },
                     },
                 },
-                "Diskspace used %": {
+                "Disk space used %": {
                     data: {
                         datasets: [
                             {
                                 data: [],
                                 _metricName:
                                     "vscope.filer.datastore.diskspace.used.perc",
-                                label: "Diskspace used %",
+                                label: "Disk space used %",
                                 fill: false,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
