@@ -893,7 +893,7 @@ export default {
 
         async loadTasks() {
             // More optimized method (faster) : load all task ids at once and then remove the ones that are not needed
-            let taskIds = [];
+            let taskIds = {};
             const stateTaskIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task`);
             for(const taskId of stateTaskIds) {
                 if(!taskIds.hasOwnProperty(taskId)) {
@@ -908,7 +908,7 @@ export default {
                     }
                 }
             }
-            for(const taskId of taskIds) {
+            for(const taskId in taskIds) {
                 if(this.taskIds.hasOwnProperty(taskId)) {
                     continue;
                 }
