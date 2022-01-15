@@ -146,9 +146,9 @@
                     <span class="h5">Active tasks</span>
                     <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{tasks && Object.keys(tasks).length}}</small>
                     <div class="position-absolute top-0 end-0 m-3">
-                        <button class="btn btn-sm badge" :class="autoRefresh ? 'btn-danger' : 'btn-primary'" @click="autoRefresh = !autoRefresh">
-                            <i class="fas" :class="autoRefresh ? 'fa-times' : 'fa-check'"></i>
-                            {{ autoRefresh ? 'Disable' : 'Enable' }} auto refresh (30s)
+                        <button class="btn btn-sm badge" :class="autoRefreshTasks ? 'btn-danger' : 'btn-primary'" @click="autoRefreshTasks = !autoRefreshTasks">
+                            <i class="fas" :class="autoRefreshTasks ? 'fa-times' : 'fa-check'"></i>
+                            {{ autoRefreshTasks ? 'Disable' : 'Enable' }} tasks auto refresh (30s)
                         </button>
                         <button class="btn btn-sm badge btn-info" @click="loadAll()">
                             <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
@@ -541,13 +541,13 @@ export default {
             taskIds: {},
             robots: null,
             timer: null,
-            autoRefresh: false,
+            autoRefreshTasks: false,
         };
     },
 
     mounted() {
         this.loadAll();
-        this.timer = setInterval(this.refreshData, 30*1000);
+        this.timer = setInterval(this.refreshTasks, 30*1000);
     },
 
     beforeDestroy () {
@@ -562,9 +562,9 @@ export default {
             return country;
         },
 
-        refreshData() {
-            if(this.autoRefresh) {
-                this.loadAll();
+        refreshTasks() {
+            if(this.autoRefreshTasks) {
+                this.loadTasks();
             }
         },
 
@@ -892,6 +892,31 @@ export default {
         },
 
         async loadTasks() {
+            // More optimized method (faster) : load all task ids at once and then remove the ones that are not needed
+            let taskIds = [];
+            const stateTaskIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task`);
+            for(const taskId of stateTaskIds) {
+                if(!taskIds.hasOwnProperty(taskId)) {
+                    taskIds[taskId] = taskId;
+                }
+            }
+            for (const state of ['done', 'canceled']) {
+                const stateTaskIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task?state=${state}`);
+                for(const taskId of stateTaskIds) {
+                    if(taskIds.hasOwnProperty(taskId)) {
+                        delete taskIds[taskId];
+                    }
+                }
+            }
+            for(const taskId of taskIds) {
+                if(this.taskIds.hasOwnProperty(taskId)) {
+                    continue;
+                }
+                this.$set(this.taskIds, taskId, taskId);
+            }
+
+            // Less optimized method (slower) : load task ids in each state individually
+            /*
             for (const state of ['todo', 'doing', 'error', 'fixing', 'toCancel', 'toCreate', 'unknown', 'waitingForChilds', 'waitingTodo']) {
                 const stateTaskIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task?state=${state}`);
                 for(const taskId of stateTaskIds) {
@@ -901,6 +926,8 @@ export default {
                     this.$set(this.taskIds, taskId, taskId);
                 }
             }
+            */
+
             if(!Object.values(this.taskIds).length) {
                 this.tasks = {};
             }
