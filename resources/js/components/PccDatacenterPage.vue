@@ -56,6 +56,75 @@
             </div>
         </div>
 
+        <div class="card my-2">
+            <div class="card-body p-3">
+                <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
+                    <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
+                </button>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div v-if="!Object.keys(backup).length" class="my-2">
+                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading backup from OVHcloud API...
+                        </div>
+                        <template v-else>
+                            Veeam Backup Managed
+                            <br />
+                            <span :class="getOptionStateClass(backup)">
+                                <i class="fas fa-circle"></i>
+                                {{backup.state}}
+                            </span>
+                            <span class="text-muted" v-if="backup.backupOffer">
+                                -
+                                Offer: {{backup.backupOffer}}
+                                <span v-if="backup.replicationZone">
+                                    -
+                                    <i class="fas fa-map-marked-alt"></i>
+                                    <abbr title="Replication datacenter">Replication</abbr> : {{backup.replicationZone}}
+                                </span>
+                                <br />
+                                Backup hour: {{backup.scheduleHour}}
+                                -
+                                Encryption: <i class="fas" :class="backup.encryption ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                            </span>
+                        </template>
+                    </div>
+                    <div class="col-6">
+                        <div v-if="!Object.keys(disasterRecovery).length" class="my-2">
+                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading disaster recovery from OVHcloud API...
+                        </div>
+                        <template v-else>
+                            Zerto Disaster Recovery Plan
+                            <br />
+                            <span :class="getOptionStateClass(disasterRecovery)">
+                                <i class="fas fa-circle"></i>
+                                {{disasterRecovery.state}}
+                            </span>
+                            <span class="text-muted" v-if="disasterRecovery.drpType">
+                                {{disasterRecovery.systemVersion}}
+                                -
+                                Type: {{disasterRecovery.drpType}}
+                                -
+                                Role: {{disasterRecovery.localSiteInformation ? disasterRecovery.localSiteInformation.role : 'unknown'}}
+                                <br />
+                                <template v-if="disasterRecovery.remoteSiteInformation">
+                                    <span v-if="disasterRecovery.drpType == 'ovh'">
+                                        Remote PCC: {{disasterRecovery.remoteSiteInformation.serviceName}}
+                                        -
+                                        <abbr title="Remote datacenter">Remote DC</abbr> {{disasterRecovery.remoteSiteInformation.datacenterName}} (#{{disasterRecovery.remoteSiteInformation.datacenterId}})
+                                    </span>
+                                    <span v-else>
+                                        Remote Public IP: {{disasterRecovery.remoteSiteInformation.remoteEndpointPublicIp}}
+                                        -
+                                        Remote Internal IP: {{disasterRecovery.remoteSiteInformation.remoteEndpointInternalIp}}
+                                    </span>
+                                </template>
+                            </span>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row text-center">
             <div class="col-12 col-lg-6">
                 <div class="card my-2">
@@ -376,7 +445,10 @@
                                         <i class="far fa-chart-bar"></i>
                                     </a>
                                     {{vm.name}}
-                                    <span class="badge bg-secondary" v-if="isOvhVm(vm)" title="This virtual machine is managed by OVH">OVH VM</span>
+                                    <small class="badge bg-secondary" v-if="isOvhVm(vm)" title="This virtual machine is managed by OVHcloud">
+                                        <i class="fas fa-user-cog"></i>
+                                        OVHcloud
+                                    </small>
                                 </td>
                                 <td colspan="3" v-if="vm.powerState == 'deleted'" class="text-center text-secondary">
                                     <i>Virtual machine removed</i>
@@ -549,6 +621,8 @@ export default {
         return {
             pcc: {},
             datacenter: {},
+            backup: {},
+            disasterRecovery: {},
             hosts: null,
             filers: null,
             vms: null,
@@ -564,6 +638,8 @@ export default {
             if(force || !this.loading) {
                 this.loadPcc();
                 this.loadDatacenter();
+                this.loadBackup();
+                this.loadDisasterRecovery();
                 this.loadHosts();
                 this.loadFilers();
                 this.loadVms();
@@ -576,6 +652,14 @@ export default {
 
         async loadDatacenter() {
             this.datacenter = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}`);
+        },
+
+        async loadBackup() {
+            this.backup = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backup`);
+        },
+
+        async loadDisasterRecovery() {
+            this.disasterRecovery = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/disasterRecovery/zerto/status`);
         },
 
         async loadHosts() {
@@ -919,6 +1003,22 @@ export default {
                 }
             } else {
                 resultClass = 'fa-times';
+            }
+            return resultClass;
+        },
+
+        getOptionStateClass(option) {
+            var resultClass = 'text-warning';
+            if(option.state) {
+                if(option.state == 'delivered') {
+                    resultClass = 'text-success';
+                } else if(option.state == 'enabled') {
+                    resultClass = 'text-success';
+                } else if(option.state == 'error') {
+                    resultClass = 'text-danger';
+                } else if(option.state == 'disabled') {
+                    resultClass = 'text-black';
+                }
             }
             return resultClass;
         },

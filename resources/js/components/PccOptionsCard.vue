@@ -31,7 +31,8 @@
                             <span :class="getOptionStateClass(option)" v-else>
                                 <i class="fas fa-circle"></i>
                                 {{option.state}}
-                            </span>                                    </td>
+                            </span>
+                        </td>
                         <td>
                             {{option.description}}
                             <small class="text-muted">
