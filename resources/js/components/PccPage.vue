@@ -143,10 +143,16 @@
         <div class="card mt-3 text-center">
             <div class="card-body p-3">
                 <div class="card-title">
-                    <span class="h5">Active tasks</span>
-                    <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{tasks && Object.keys(tasks).length}}</small>
+                    <span class="h5">{{ recentTasks ? 'Active & recent' : 'Active' }} tasks</span>
+                    <div class="position-absolute top-0 start-0 m-3">
+                        <small class="badge rounded-pill bg-primary">{{tasks && Object.keys(tasks).length}}</small>
+                        <button class="btn btn-sm badge" :class="recentTasks ? 'btn-outline-danger text-danger' : 'btn-outline-primary text-primary'" @click="toggleRecentTasks">
+                            <i class="fas" :class="recentTasks ? 'fa-eye-slash' : 'fa-eye'"></i>
+                            {{ recentTasks ? 'Hide' : 'Display' }} recent
+                        </button>
+                    </div>
                     <div class="position-absolute top-0 end-0 m-3">
-                        <button class="btn btn-sm badge" :class="autoRefreshTasks ? 'btn-danger' : 'btn-primary'" @click="autoRefreshTasks = !autoRefreshTasks">
+                        <button class="btn btn-sm badge" :class="autoRefreshTasks ? 'btn-danger' : 'btn-primary'" @click="toggleAutoRefreshTasks">
                             <i class="fas" :class="autoRefreshTasks ? 'fa-times' : 'fa-check'"></i>
                             {{ autoRefreshTasks ? 'Disable' : 'Enable' }} tasks auto refresh (30s)
                         </button>
@@ -215,7 +221,13 @@
                                     <i class="fas fa-circle-notch fa-spin me-1"></i> Loading...
                                 </small>
                                 <small class="text-muted" v-else-if="robots && robots[task.name]">
-                                    {{robots[task.name].description}}
+                                    <template v-if="robots[task.name].description">
+                                        {{ robots[task.name].description }}
+                                    </template>
+                                    <i v-else>No description</i>
+                                </small>
+                                <small class="text-muted" v-else-if="loading">
+                                    <i class="fas fa-circle-notch fa-spin me-1"></i> Loading...
                                 </small>
                                 <small class="text-muted" v-else>
                                     <i>No description</i>
@@ -308,7 +320,11 @@
                                 <small class="text-muted">#{{user.userId}}</small>
                             </td>
                             <td>
-                                {{user.name}}<br />
+                                <span v-if="user.login != user.name && user.login.includes('@')" title="This is an Active Directory federation user">
+                                    <i class="far fa-address-book text-info"></i>
+                                </span>
+                                {{user.login}}
+                                <br />
                                 <small class="text-muted">{{user.firstName}} {{user.lastName}}</small>
                             </td>
                             <td>
@@ -542,6 +558,7 @@ export default {
             robots: null,
             timer: null,
             autoRefreshTasks: false,
+            recentTasks: false,
         };
     },
 
@@ -560,6 +577,16 @@ export default {
                 return "GB";
             }
             return country;
+        },
+
+        toggleAutoRefreshTasks() {
+            this.autoRefreshTasks = !this.autoRefreshTasks;
+            this.loadTasks();
+        },
+
+        toggleRecentTasks() {
+            this.recentTasks = !this.recentTasks;
+            this.loadTasks();
         },
 
         refreshTasks() {
@@ -892,18 +919,26 @@ export default {
         },
 
         async loadTasks() {
-            // More optimized method (faster) : load all task ids at once and then remove the ones that are not needed
             let taskIds = {};
+            let recentTaskIds = {};
             const stateTaskIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task`);
             for(const taskId of stateTaskIds) {
                 if(!taskIds.hasOwnProperty(taskId)) {
                     taskIds[taskId] = taskId;
                 }
             }
+            for(const taskId of stateTaskIds.slice(-10)) {
+                if(!recentTaskIds.hasOwnProperty(taskId)) {
+                    recentTaskIds[taskId] = taskId;
+                }
+            }
             for (const state of ['done', 'canceled']) {
                 const stateTaskIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task?state=${state}`);
                 for(const taskId of stateTaskIds) {
                     if(taskIds.hasOwnProperty(taskId)) {
+                        if(this.recentTasks && recentTaskIds.hasOwnProperty(taskId)) {
+                            continue;
+                        }
                         delete taskIds[taskId];
                     }
                 }
@@ -915,24 +950,14 @@ export default {
                 this.$set(this.taskIds, taskId, taskId);
             }
 
-            // Less optimized method (slower) : load task ids in each state individually
-            /*
-            for (const state of ['todo', 'doing', 'error', 'fixing', 'toCancel', 'toCreate', 'unknown', 'waitingForChilds', 'waitingTodo']) {
-                const stateTaskIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task?state=${state}`);
-                for(const taskId of stateTaskIds) {
-                    if(this.taskIds.hasOwnProperty(taskId)) {
-                        continue;
-                    }
-                    this.$set(this.taskIds, taskId, taskId);
-                }
-            }
-            */
-
             if(!Object.values(this.taskIds).length) {
                 this.tasks = {};
             }
             for (const taskId in this.tasks) {
                 const task = this.tasks[taskId];
+                if(this.recentTasks && recentTaskIds.hasOwnProperty(taskId)) {
+                    continue;
+                }
                 if(task.state == 'done' || task.state == 'canceled') {
                     this.$delete(this.tasks, taskId);
                     this.$delete(this.taskIds, taskId);
@@ -958,10 +983,16 @@ export default {
         },
 
         async loadRobots(robotsNames) {
+            const availableRobotsNames = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/robot`);
             let robotNamesChunks = this.chunkArray(Object.values(robotsNames), 40);
             for(let robotNamesChunk of robotNamesChunks) {
+                for(let robotName of robotNamesChunk) {
+                    if(!availableRobotsNames.includes(robotName)) {
+                        delete robotNamesChunk[robotName];
+                    }
+                }
                 const robots = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/robot/${robotNamesChunk.join(',')}?batch=,`);
-                if(this.robots === null) {
+                if(!this.robots) {
                     this.robots = {};
                 }
                 for (const i in robots) {

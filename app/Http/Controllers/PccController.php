@@ -21,14 +21,36 @@ class PccController extends Controller
     public function pcc(Request $request, String $pccName)
     {
         $ovhApi = $request->user()->ovhApi;
-        $ovhApi->get('/dedicatedCloud/'.$pccName);
+        try {
+            $ovhApi->get('/dedicatedCloud/'.$pccName);
+        } catch (RequestException $exception) {
+            $response = $exception->getResponse();
+            if ($response != null) {
+                $statusCode = $response->getStatusCode();
+                if($statusCode == 404) {
+                    abort(404);
+                }
+            }
+            throw $exception;
+        }
         return view('pcc.pcc', compact('pccName'));
     }
 
     public function datacenter(Request $request, String $pccName, String $datacenterId)
     {
         $ovhApi = $request->user()->ovhApi;
-        $ovhApi->get('/dedicatedCloud/'.$pccName.'/datacenter/'.$datacenterId);
+        try {
+            $ovhApi->get('/dedicatedCloud/'.$pccName.'/datacenter/'.$datacenterId);
+        } catch (RequestException $exception) {
+            $response = $exception->getResponse();
+            if ($response != null) {
+                $statusCode = $response->getStatusCode();
+                if($statusCode == 404) {
+                    abort(404);
+                }
+            }
+            throw $exception;
+        }
         return view('pcc.datacenter', compact('pccName', 'datacenterId'));
     }
 
@@ -42,6 +64,13 @@ class PccController extends Controller
                 # trying in global if not found in datacenter
                 $entity = $ovhApi->get('/dedicatedCloud/'.$pccName.'/'.$entityType.'/'.$entityId);
             } catch (RequestException $e2) {
+                $response = $e->getResponse();
+                if ($response != null) {
+                    $statusCode = $response->getStatusCode();
+                    if($statusCode == 404) {
+                        abort(404);
+                    }
+                }
                 throw $e;
             }
         }

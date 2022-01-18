@@ -977,7 +977,24 @@ export default {
         },
 
         isOvhVm(virtualmachine) {
+            // Veeam backup server : backupServer1234
             if(virtualmachine.name.match(/^backupServer[0-9]+$/)) {
+                return true;
+            }
+            // Veeam backup proxy : backupProxy1234
+            if(virtualmachine.name.match(/^backupProxy[0-9]+$/)) {
+                return true;
+            }
+            // Veeam backup proxy (new) : veeamproxy-1234-1.rbx2b.pcc.ovh.net
+            if(virtualmachine.name.match(/^veeamproxy-[0-9]+-[0-9]+\.[a-z]{3}[0-9][a-z]\.pcc\.ovh\.[a-z]+$/)) {
+                return true;
+            }
+            // Zerto VRA : Z-VRA-172.19.62.1
+            if(virtualmachine.name.match(/^Z-VRA-172\.[0-9]+\.[0-9]+\.[0-9]+$/)) {
+                return true;
+            }
+            // Zerto vRouter : rbx2b-1234-vr
+            if(virtualmachine.name.match(/^[0-9]+\.[a-z]{3}[0-9][a-z]-[0-9]+-vr$/)) {
                 return true;
             }
             return false;
