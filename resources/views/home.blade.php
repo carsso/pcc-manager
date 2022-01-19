@@ -10,9 +10,16 @@
     </h1>
     <div class="d-flex">
         <div>
-            <p>
-                {{ config('app.name') }} is an OVHcloud PCC infrastructures realtime visualization web interface.
-            </p>
+            {{ config('app.name') }} is an OVHcloud PCC (Private Cloud / Hosted Private Cloud) realtime visualization web interface.
+            <br />
+            <small class="text-muted">
+                Inspired by the great OVHcloud vScope
+                <a href="https://www.ovhcloud.com/en/enterprise/products/hosted-private-cloud/vscope/" target="_blank" class="small">
+                    <i class="fas fa-external-link-alt"></i>
+                </a>
+                interface.
+                Not affiliated with OVHcloud.
+            </small>
         </div>
     </div>
 
@@ -26,6 +33,9 @@
             </div>
         </div>
         <div class="col-12 col-sm-6 col-md-7 col-lg-8">
+            <div>
+                @include('includes.compatible-products')
+            </div>
             <div class="card my-3">
                 <div class="card-body">
                     <h3 class="mb-3">Login with your OVHcloud account</h3>
@@ -62,8 +72,5 @@
             @endif
         </div>
     </div>
-</div>
-<div class="container">
-    @include('includes.compatible-products')
 </div>
 @endsection

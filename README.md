@@ -1,10 +1,27 @@
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT)
+
 # OVHcloud PCC web interface
 
-Web interface displaying realtime OVHcloud PCC infrastructure data (virtual machines, hosts and datastores health & resource usage).
+Web interface displaying realtime OVHcloud PCC (Private Cloud / Hosted Private Cloud) infrastructure data (virtual machines, hosts and datastores health & resource usage).
 
-Not affiliated with OVHcloud.
+Test it live on [pcc-manager.com](https://pcc-manager.com)
 
-Written in PHP/Laravel and VueJS. _Depends on the [OVHcloud API wrapper](https://github.com/ovh/php-ovh)_
+_Inspired by the great OVHcloud vScope <sup>
+[link](https://www.ovhcloud.com/en/enterprise/products/hosted-private-cloud/vscope/)</sup> interface. Not affiliated with OVHcloud._
+
+Written in PHP/Laravel and VueJS. _Depends on the [OVHcloud API PHP wrapper](https://github.com/ovh/php-ovh)_
+
+### Products compatibility
+
+#### Compatible OVHcloud products :
+- Dedicated Cloud
+- Private Cloud
+- SDDC
+- Hosted Private Cloud Premier <sup>powered by VMware</sup>
+- Hosted Private Cloud <sup>powered by VMware
+[link](https://www.ovhcloud.com/en/enterprise/products/hosted-private-cloud/)</sup>
+- Managed Bare Metal Essentials <sup>powered by VMware
+[link](https://www.ovhcloud.com/en/managed-bare-metal/)</sup>
 
 ### Screenshots:
 

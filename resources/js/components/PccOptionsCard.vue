@@ -52,6 +52,9 @@
                                                 <i class="fas fa-circle"></i>
                                                 {{suboption.state}}
                                             </span>
+                                            <small class="text-muted">
+                                                #{{suboption.id}}
+                                            </small>
                                         </td>
                                         <td :title="getSuboptionTitle(suboption)">
                                             <template v-if="suboption.domainName">

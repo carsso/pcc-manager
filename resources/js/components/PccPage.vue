@@ -352,9 +352,9 @@
                                         </span>
                                         <i class="fas fa-times text-danger" v-else></i>
                                     </span>
-                                    <span v-else-if="loading">
+                                    <span v-else-if="loading" title="Loading user object rights from OVHcloud API...">
                                         <abbr title="Objects rights">Obj.</abbr>:
-                                        <i class="fas fa-circle-notch fa-spin me-1"></i> Loading user object rights<br />from OVHcloud API...
+                                        <i class="fas fa-circle-notch fa-spin me-1"></i>
                                     </span>
                                 </small>
                                 <br />
