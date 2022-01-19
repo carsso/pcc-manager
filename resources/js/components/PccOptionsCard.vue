@@ -44,6 +44,29 @@
                                     <small class="text-warning" v-if="option.upgrades.length > 0"><abbr :title="`Available upgrade(s): ${option.upgrades.join(', ')}`">Upgrade available</abbr></small>
                                 </template>
                             </span>
+                            <table class="table table-sm table-striped table-bordered mb-0" v-if="option.suboptions">
+                                <tbody>
+                                    <tr v-for="suboption in _.orderBy(_.values(option.suboptions), ['compatible', 'state', 'name'], ['desc', 'desc', 'asc'])" :key="suboption.id">
+                                        <td>
+                                            <span :class="getOptionStateClass(suboption)">
+                                                <i class="fas fa-circle"></i>
+                                                {{suboption.state}}
+                                            </span>
+                                        </td>
+                                        <td :title="getSuboptionTitle(suboption)">
+                                            <template v-if="suboption.domainName">
+                                                {{suboption.domainName}}
+                                                <small class="text-muted">
+                                                    {{suboption.port?`${suboption.ip}:${suboption.port}`:suboption.ip}}
+                                                </small>
+                                            </template>
+                                            <template v-else>
+                                                {{suboption.port?`${suboption.ip}:${suboption.port}`:suboption.ip}}
+                                            </template>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </td>
                     </tr>
                 </tbody>
@@ -81,21 +104,38 @@ export default {
         getOptionStateClass(option) {
             var resultClass = 'text-warning';
             if(option.state) {
-                if(option.state == 'migrating') {
-                    resultClass = 'text-warning';
-                } else if(option.state == 'enabling') {
-                    resultClass = 'text-warning';
-                } else if(option.state == 'enabled') {
+                if(option.state == 'enabled') {
+                    resultClass = 'text-success';
+                } else if(option.state == 'delivered') {
                     resultClass = 'text-success';
                 } else if(option.state == 'error') {
                     resultClass = 'text-danger';
-                } else if(option.state == 'disabling') {
-                    resultClass = 'text-warning';
                 } else if(option.state == 'disabled') {
                     resultClass = 'text-danger';
                 }
             }
             return resultClass;
+        },
+        getSuboptionTitle(suboption) {
+            let titleParts = [];
+            let keys = {
+                description: 'Description',
+                domainName: 'Domain name',
+                domainAlias: 'Domain alias',
+                username: 'Username',
+                ip: 'IP',
+                kmsTcpPort: 'KMS TCP port',
+                ldapTcpPort: 'LDAP TCP port',
+                baseDnForUsers: 'Base DN for users',
+                baseDnForGroups: 'Base DN for groups',
+                sslThumbprint: 'SSL thumbprint',
+            };
+            for (let key in keys) {
+                if(suboption[key]) {
+                    titleParts.push(`${keys[key]}: ${suboption[key]}`);
+                }
+            }
+            return titleParts.join("\n");
         },
     },
 }

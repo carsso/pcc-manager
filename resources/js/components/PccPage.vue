@@ -500,7 +500,7 @@ import moment from "moment";
 
 
 export default {
-    name: 'PccDatacenterPage',
+    name: 'PccPage',
 
     components: {
         LoadingScreen,
@@ -620,8 +620,8 @@ export default {
                 this.loadPccOption('nsx');
                 this.loadPccOption('vrops');
                 this.loadPccOption('hcx');
-                this.loadPccOption('federation');
-                this.loadPccOption('vmEncryption');
+                this.loadPccOption('federation', 'activeDirectory');
+                this.loadPccOption('vmEncryption', 'kms');
                 this.loadAllowedNetworks();
                 this.loadTwoFAWhitelists();
             }
@@ -779,8 +779,36 @@ export default {
             }
         },
 
-        async loadPccOption(optionName) {
+        async loadPccOption(optionName, suboptionName) {
             let value = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/${optionName}`);
+            if(suboptionName) {
+                value['suboptions'] = {};
+                const suboptionIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/${optionName}/${suboptionName}`);
+                if(!suboptionIds.length) {
+                    this.suboptions = {};
+                }
+                let suboptionIdsChunks = this.chunkArray(suboptionIds, 40);
+                for(let suboptionIdsChunk of suboptionIdsChunks) {
+                    const suboptions = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/${optionName}/${suboptionName}/${suboptionIdsChunk.join(',')}?batch=,`);
+                    if(this.suboptions === null) {
+                        this.suboptions = {};
+                    }
+                    for (const i in suboptions) {
+                        const suboption = suboptions[i];
+                        if(!suboption['error']) {
+                            let suboptionValue = suboption['value'];
+                            suboptionValue['type'] = suboptionName;
+                            suboptionValue['id'] = suboptionValue[suboptionName+'Id'];
+                            for(const k in suboptionValue) {
+                                if(k.includes('Port')) {
+                                    suboptionValue['port'] = suboptionValue[k];
+                                }
+                            }
+                            value['suboptions'][suboption['key']] = suboptionValue;
+                        }
+                    }
+                }
+            }
             this.fillOption(optionName, value);
         },
 
