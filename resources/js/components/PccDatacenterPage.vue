@@ -455,7 +455,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="vm in _.orderBy(_.values(vms), ['name'])" :key="vm.vmId">
+                            <tr v-for="vm in _.orderBy(_.values(vms), ['isOvhVm', vm => vm.name.toLowerCase()], ['asc', 'asc'])" :key="vm.vmId">
                                 <td :title="`State: ${vm.powerState} - MoRef: ${vm.moRef}`">
                                     <i class="fas fa-circle" :class="getVirtualMachineStateClass(vm)"></i><br />
                                     <small class="text-muted">#{{vm.vmId}}</small>
@@ -466,7 +466,7 @@
                                     </a>
                                     {{vm.name}}
                                     <br />
-                                    <small class="text-secondary" v-if="isOvhVm(vm)" title="This virtual machine is managed by OVHcloud">
+                                    <small class="text-secondary" v-if="vm.isOvhVm" title="This virtual machine is managed by OVHcloud">
                                         <i class="fas fa-user-cog"></i>
                                         OVHcloud
                                     </small>
@@ -769,6 +769,7 @@ export default {
                             }
                             value['filers'][i]['capacity'] = capacity;
                         }
+                        value['isOvhVm'] = this.isOvhVm(value);
                         this.$set(this.vms, vm['key'], {...value});
                     }
                 }
@@ -972,7 +973,7 @@ export default {
                     result['icon'] = 'fa-times';
                 }
             }
-            if(this.isOvhVm(virtualmachine)) {
+            if(virtualmachine.isOvhVm) {
                 result['class'] = 'bg-secondary';
             }
             return result[type];
@@ -1013,7 +1014,7 @@ export default {
             } else {
                 resultClass = 'bg-success';
             }
-            if(this.isOvhVm(virtualmachine)) {
+            if(virtualmachine.isOvhVm) {
                 resultClass = 'bg-secondary';
             }
             return resultClass;
@@ -1036,7 +1037,7 @@ export default {
             } else {
                 resultClass = 'bg-danger';
             }
-            if(this.isOvhVm(virtualmachine)) {
+            if(virtualmachine.isOvhVm) {
                 resultClass = 'bg-secondary';
             }
             return resultClass;
