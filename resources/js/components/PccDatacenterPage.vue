@@ -100,7 +100,7 @@
                                 {{disasterRecovery.state}}
                             </span>
                             <span class="text-muted" v-if="disasterRecovery.drpType">
-                                {{disasterRecovery.systemVersion}}
+                                {{disasterRecovery.systemVersion}} {{disasterRecovery.localSiteInformation ? disasterRecovery.localSiteInformation.zertoVersion : ''}}
                                 -
                                 Type: {{disasterRecovery.drpType}}
                                 -
@@ -108,14 +108,15 @@
                                 <br />
                                 <template v-if="disasterRecovery.remoteSiteInformation">
                                     <span v-if="disasterRecovery.drpType == 'ovh'">
-                                        Remote PCC: {{disasterRecovery.remoteSiteInformation.serviceName}}
+                                        Remote: {{disasterRecovery.remoteSiteInformation.serviceName}}
                                         -
-                                        <abbr title="Remote datacenter">Remote DC</abbr> {{disasterRecovery.remoteSiteInformation.datacenterName}} (#{{disasterRecovery.remoteSiteInformation.datacenterId}})
+                                        {{disasterRecovery.remoteSiteInformation.datacenterName}}
+                                        <a :href="`${pccRoute}/${disasterRecovery.remoteSiteInformation.serviceName}/datacenter/${disasterRecovery.remoteSiteInformation.datacenterId}`">
+                                            <i class="far fa-arrow-alt-circle-right"></i>
+                                        </a>
                                     </span>
                                     <span v-else>
-                                        Remote Public IP: {{disasterRecovery.remoteSiteInformation.remoteEndpointPublicIp}}
-                                        -
-                                        Remote Internal IP: {{disasterRecovery.remoteSiteInformation.remoteEndpointInternalIp}}
+                                        Remote public IP: {{disasterRecovery.remoteSiteInformation.remoteEndpointPublicIp}}
                                     </span>
                                 </template>
                             </span>
@@ -464,7 +465,8 @@
                                         <i class="far fa-chart-bar"></i>
                                     </a>
                                     {{vm.name}}
-                                    <small class="badge bg-secondary" v-if="isOvhVm(vm)" title="This virtual machine is managed by OVHcloud">
+                                    <br />
+                                    <small class="text-secondary" v-if="isOvhVm(vm)" title="This virtual machine is managed by OVHcloud">
                                         <i class="fas fa-user-cog"></i>
                                         OVHcloud
                                     </small>
@@ -498,7 +500,7 @@
                                     </template>
                                 </td>
                                 <td v-if="vm.powerState != 'deleted'">
-                                    <span class="badge" :class="(vm.snapshotNum)?'bg-danger':'bg-success'">{{vm.snapshotNum}}</span>
+                                    <span class="badge" :class="getVirtualMachineSnapClass(vm)">{{vm.snapshotNum}}</span>
                                 </td>
                                 <td :title="`VMWare Tools: ${vm.vmwareTools} - ${vm.vmwareToolsVersion}`" v-if="vm.powerState != 'deleted'">
                                     <span class="badge" :class="getVirtualMachineVmwareToolsData('class', vm)">
@@ -989,6 +991,10 @@ export default {
             if(virtualmachine.name.match(/^veeamproxy-[0-9]+-[0-9]+\.[a-z]{3}[0-9][a-z]\.pcc\.ovh\.[a-z]+$/)) {
                 return true;
             }
+            // Zerto l2L : l2lendpoint1234.rbx2b.pcc.ovh.net
+            if(virtualmachine.name.match(/^l2lendpoint[0-9]+\.[a-z]{3}[0-9][a-z]\.pcc\.ovh\.[a-z]+$/)) {
+                return true;
+            }
             // Zerto VRA : Z-VRA-172.19.62.1
             if(virtualmachine.name.match(/^Z-VRA-172\.[0-9]+\.[0-9]+\.[0-9]+$/)) {
                 return true;
@@ -998,6 +1004,19 @@ export default {
                 return true;
             }
             return false;
+        },
+
+        getVirtualMachineSnapClass(virtualmachine) {
+            var resultClass = '';
+            if(virtualmachine.snapshotNum) {
+                resultClass = 'bg-danger';
+            } else {
+                resultClass = 'bg-success';
+            }
+            if(this.isOvhVm(virtualmachine)) {
+                resultClass = 'bg-secondary';
+            }
+            return resultClass;
         },
 
         getVirtualMachineBackupClass(virtualmachine) {
