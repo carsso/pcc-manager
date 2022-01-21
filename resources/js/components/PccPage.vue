@@ -610,20 +610,20 @@ export default {
             if(force || !this.loading) {
                 this.loadPcc();
                 this.loadDatacenters();
-                this.loadTasks();
-                this.loadUsers();
-                this.loadIps();
-                this.loadPccSecurityOptionsMatrix();
-                this.loadPccOption('pcidss');
-                this.loadPccOption('hds');
-                this.loadPccOption('hipaa');
+                this.loadPccOption('federation', 'activeDirectory');
+                this.loadPccOption('vmEncryption', 'kms');
                 this.loadPccOption('nsx');
                 this.loadPccOption('vrops');
                 this.loadPccOption('hcx');
-                this.loadPccOption('federation', 'activeDirectory');
-                this.loadPccOption('vmEncryption', 'kms');
+                this.loadPccOption('pcidss');
+                this.loadPccOption('hds');
+                this.loadPccOption('hipaa');
+                this.loadIps();
+                this.loadTasks();
+                this.loadUsers();
                 this.loadAllowedNetworks();
                 this.loadTwoFAWhitelists();
+                this.loadPccSecurityOptionsMatrix();
             }
         },
 
