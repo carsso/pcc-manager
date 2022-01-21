@@ -980,6 +980,10 @@ export default {
         },
 
         isOvhVm(virtualmachine) {
+            // Private gateway : private-gateway-1234.rbx2b.pcc.ovh.net
+            if(virtualmachine.name.match(/^private-gateway-[0-9]+\.[a-z]{3}[0-9][a-z]\.pcc\.ovh\.[a-z]+$/)) {
+                return true;
+            }
             // Veeam backup server : backupServer1234
             if(virtualmachine.name.match(/^backupServer[0-9]+$/)) {
                 return true;
