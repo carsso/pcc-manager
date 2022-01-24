@@ -247,8 +247,8 @@
                                 </small>
                             </td>
                             <td>
-                                <small>{{ task.createdFrom }}</small
-                                ><br />
+                                <small>{{ task.createdFrom }}</small>
+                                <br />
                                 <small class="text-muted" v-if="task.createdBy">({{ task.createdBy }})</small>
                             </td>
                             <td>

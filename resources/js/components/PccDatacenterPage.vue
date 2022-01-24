@@ -263,8 +263,8 @@
                                             </small>
                                         </td>
                                         <td>
-                                            <small>{{ filer.profile.replace("pcc-datastore-", "") }}</small
-                                            ><br />
+                                            <small>{{ filer.profile.replace("pcc-datastore-", "") }}</small>
+                                            <br />
                                             <small class="text-muted">
                                                 <i class="fas fa-coins text-warning"></i>
                                                 {{ filer.billingType }}
@@ -413,8 +413,8 @@
                                             <small class="text-muted">Rack: {{ host.rack }}</small>
                                         </td>
                                         <td>
-                                            <small>{{ host.profile }}</small
-                                            ><br />
+                                            <small>{{ host.profile }}</small>
+                                            <br />
                                             <small class="text-muted">
                                                 <i class="fas fa-coins text-warning"></i>
                                                 {{ host.billingType }}
@@ -443,9 +443,9 @@
                                                     >
                                                     </vue-svg-gauge>
                                                 </div>
-                                                <small
-                                                    >CPU: {{ (host.cpuUsed / 1000) | round(1) }} <small>of</small> {{ (host.cpuMax / 1000) | round(0) }} <small>{{ host.cpu.unit }}</small></small
-                                                >
+                                                <small>
+                                                    CPU: {{ (host.cpuUsed / 1000) | round(1) }} <small>of</small> {{ (host.cpuMax / 1000) | round(0) }} <small>{{ host.cpu.unit }}</small>
+                                                </small>
                                             </template>
                                             <br />
                                             <template v-if="host.memoryUsed">
@@ -465,9 +465,9 @@
                                                     >
                                                     </vue-svg-gauge>
                                                 </div>
-                                                <small
-                                                    >RAM: {{ (host.memoryUsed / 1024) | round(0) }} <small>of</small> {{ host.ram.value | round(0) }} <small>{{ host.ram.unit }}</small></small
-                                                >
+                                                <small>
+                                                    RAM: {{ (host.memoryUsed / 1024) | round(0) }} <small>of</small> {{ host.ram.value | round(0) }} <small>{{ host.ram.unit }}</small>
+                                                </small>
                                             </template>
                                         </td>
                                     </tr>
@@ -538,8 +538,8 @@
                                     <i>Virtual machine removed</i>
                                 </td>
                                 <td v-if="vm.powerState != 'deleted'">
-                                    <small title="Host" class="text-muted">{{ vm.hostName }}</small
-                                    ><br />
+                                    <small title="Host" class="text-muted">{{ vm.hostName }}</small>
+                                    <br />
                                     <template v-if="vm.filers">
                                         <div v-for="filer in vm.filers" :key="filer.id" class="inline" :title="`Filer ${filer.name.substring(0, 13) == 'storageLocal_' ? 'local' : filer.name}: ${round(filer.committed / 1024, 1)} of ${round(filer.capacity / 1024, 0)} GB`">
                                             <template v-if="filer.capacity">
@@ -644,13 +644,13 @@
                                     </small>
                                 </td>
                                 <td v-if="vm.powerState != 'deleted'" :title="`Network TX/RX: ${round(vm.netTx / 100, 1)} MBps / ${round(vm.netRx / 100, 1)} MBps - Disk IOs R/W: ${round(vm.readPerSecond, 0)} IOps / ${round(vm.writePerSecond, 0)} IOps`">
-                                    <small><i class="fas fa-caret-up"></i> {{ (vm.netTx / 100) | round(1) }} / {{ (vm.netRx / 100) | round(1) }} <i class="fas fa-caret-down"></i> <small>MBps</small></small
-                                    ><br />
+                                    <small><i class="fas fa-caret-up"></i> {{ (vm.netTx / 100) | round(1) }} / {{ (vm.netRx / 100) | round(1) }} <i class="fas fa-caret-down"></i> <small>MBps</small></small>
+                                    <br />
                                     <small><i class="fas fa-caret-up"></i> {{ vm.readPerSecond | round(0) }} / {{ vm.writePerSecond | round(0) }} <i class="fas fa-caret-down"></i> <small>IOps</small></small>
                                 </td>
                                 <td v-if="vm.powerState != 'deleted'" :title="`Disk R/W: ${round(vm.readRate / 100, 1)} MBps / ${round(vm.writeRate / 100, 1)} MBps - Disk latency R/W: ${round(vm.readLatency, 0)} ms / ${round(vm.writeLatency, 0)} ms`">
-                                    <small><i class="fas fa-caret-up"></i> {{ (vm.readRate / 100) | round(1) }} / {{ (vm.writeRate / 100) | round(1) }} <i class="fas fa-caret-down"></i> <small>MBps</small></small
-                                    ><br />
+                                    <small><i class="fas fa-caret-up"></i> {{ (vm.readRate / 100) | round(1) }} / {{ (vm.writeRate / 100) | round(1) }} <i class="fas fa-caret-down"></i> <small>MBps</small></small>
+                                    <br />
                                     <small><i class="fas fa-caret-up"></i> {{ vm.readLatency | round(0) }} / {{ vm.writeLatency | round(0) }} <i class="fas fa-caret-down"></i> <small>ms</small></small>
                                 </td>
                             </tr>
