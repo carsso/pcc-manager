@@ -1,7 +1,7 @@
 <template>
     <div class="darkmode-toggler">
         <transition name="loading-screen">
-            <LoadingScreen v-if="loading"/>
+            <LoadingScreen v-if="loading" />
         </transition>
         <transition name="errors-zone">
             <errors-zone :errors="errors" v-if="errors" />
@@ -15,10 +15,10 @@
 <script>
 import LoadingScreen from "./LoadingScreen";
 import ErrorsZone from "./ErrorsZone";
-import {httpRequester} from "./compositions/axios/httpRequester";
+import { httpRequester } from "./compositions/axios/httpRequester";
 
 export default {
-    name: 'DarkmodeToggler',
+    name: "DarkmodeToggler",
 
     components: {
         LoadingScreen,
@@ -33,13 +33,7 @@ export default {
     },
 
     setup() {
-        const {
-            loaded,
-            loading,
-            errors,
-            request,
-            get,
-        } = httpRequester();
+        const { loaded, loading, errors, request, get } = httpRequester();
 
         return {
             loaded,
@@ -52,17 +46,17 @@ export default {
 
     methods: {
         async switchMode() {
-            let response = await this.get(`${this.route}/darkmode/${this.$currentDarkmode ? '0' : '1'}`);
-            if(response && !this.errors) {
+            let response = await this.get(`${this.route}/darkmode/${this.$currentDarkmode ? "0" : "1"}`);
+            if (response && !this.errors) {
                 this.$currentDarkmode = response.darkmode;
             }
         },
     },
-}
+};
 </script>
 
 <style lang="scss" scoped>
-    .darkmode-toggler {
-        display: inline;
-    }
+.darkmode-toggler {
+    display: inline;
+}
 </style>

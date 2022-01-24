@@ -6,91 +6,65 @@
         <transition name="errors-zone">
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
-        <div class="card my-2">
-            <div class="card-body p-3">
-                <button
-                    class="
-                        btn btn-sm
-                        badge
-                        btn-info
-                        position-absolute
-                        top-0
-                        end-0
-                        m-3
-                    "
-                    @click="loadAll()"
-                >
-                    <i
-                        class="fas fa-sync-alt"
-                        :class="loading ? 'fa-spin' : ''"
-                    ></i>
-                </button>
-                <div class="row text-center">
-                    <div class="col-4">
-                        <h3 class="mb-1">
-                            <a
-                                :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}`"
-                            >
-                                <i class="far fa-arrow-alt-circle-left"></i>
-                            </a>
-                            {{ pccName }}
-                        </h3>
-                        <h4 class="mb-1">{{ pcc.description }}</h4>
-                        <div>
-                            <a target="_blank" :href="pcc.webInterfaceUrl">{{
-                                pcc.webInterfaceUrl
-                            }}</a>
+        <div class="row text-center">
+            <div class="col-8">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
+                            <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
+                        </button>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <h3 class="mb-1">
+                                    <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}`">
+                                        <i class="far fa-arrow-alt-circle-left"></i>
+                                    </a>
+                                    {{ pccName }}
+                                </h3>
+                                <h4 class="mb-1">{{ pcc.description }}</h4>
+                                <div>
+                                    <a target="_blank" :href="pcc.webInterfaceUrl">{{ pcc.webInterfaceUrl }}</a>
+                                </div>
+                            </div>
+                            <div v-if="!Object.keys(pcc).length" class="col-6 py-4"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading pcc from OVHcloud API...</div>
+                            <div v-else class="col-6">
+                                <i class="fas fa-map-marked-alt"></i> Datacenter: {{ pcc.location }}<br />
+                                Commercial range: {{ pcc.commercialRange }}<br />
+                                <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}<br />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-4 py-2">
-                        <div v-if="!Object.keys(pcc).length" class="my-3">
-                            <i class="fas fa-circle-notch fa-spin me-1"></i>
-                            Loading pcc from OVHcloud API...
-                        </div>
-                        <div v-else>
-                            <i class="fas fa-map-marked-alt"></i> Datacenter:
-                            {{ pcc.location }}<br />
-                            Commercial range: {{ pcc.commercialRange }}<br />
-                            <i class="fas fa-laptop-code"></i>
-                            {{ pcc.managementInterface.toUpperCase() }}
-                            {{ pcc.version.major + pcc.version.minor }}
-                        </div>
-                    </div>
-                    <div class="col-4 py-3">
-                        <div
-                            v-if="!Object.keys(datacenter).length"
-                            class="my-2"
-                        >
-                            <i class="fas fa-circle-notch fa-spin me-1"></i>
-                            Loading from OVHcloud API...
-                        </div>
-                        <template v-else>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
+                            <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
+                        </button>
+                        <div v-if="!Object.keys(datacenter).length" class="py-1">
                             <div class="mb-1">
-                                <span class="text-capitalize">{{
-                                    entityType
-                                }}</span>
+                                <span class="text-capitalize">{{ entityType }}</span>
                                 <span class="h4">
                                     {{ entity.name }}
                                 </span>
-                                <span class="text-muted">{{
-                                    "#" + entityId
-                                }}</span>
+                                <span class="text-muted">{{ "#" + entityId }}</span>
+                            </div>
+                            <div class="py-2"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading datacenter from OVHcloud API...</div>
+                        </div>
+                        <div v-else class="py-1">
+                            <div class="mb-1">
+                                <span class="text-capitalize">{{ entityType }}</span>
+                                <span class="h4">
+                                    {{ entity.name }}
+                                </span>
+                                <span class="text-muted">{{ "#" + entityId }}</span>
                             </div>
                             <div class="mb-1">
-                                <span class="h5"
-                                    >Datacenter
-                                    {{
-                                        datacenter.description ||
-                                        datacenter.name
-                                    }}</span
-                                >
-                                <span class="text-muted">{{
-                                    datacenter.description
-                                        ? datacenter.name
-                                        : "#" + datacenterId
-                                }}</span>
+                                <span class="h5">Datacenter {{ datacenter.description || datacenter.name }}</span>
+                                <span class="text-muted">{{ datacenter.description ? datacenter.name : "#" + datacenterId }}</span>
                             </div>
-                        </template>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -100,13 +74,7 @@
             <div class="card-body p-3 text-center">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <template v-for="(text, btnDaysFrom) in daysButtons">
-                        <button
-                            type="button"
-                            class="btn btn-primary"
-                            :class="daysFrom == btnDaysFrom ? 'active' : ''"
-                            @click="changeDaysFrom(btnDaysFrom)"
-                            :key="text"
-                        >
+                        <button type="button" class="btn btn-primary" :class="daysFrom == btnDaysFrom ? 'active' : ''" @click="changeDaysFrom(btnDaysFrom)" :key="text">
                             {{ text }}
                         </button>
                     </template>
@@ -115,40 +83,19 @@
         </div>
 
         <div v-if="!graphs" class="card mt-3">
-            <div class="card-body p-4 text-center">
-                <i class="fas fa-circle-notch fa-spin me-1"></i> Loading graphs
-                from OVHcloud API & Metrics API...
-            </div>
+            <div class="card-body p-4 text-center"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading graphs from OVHcloud API & Metrics API...</div>
         </div>
         <div class="row text-center" v-else>
-            <div
-                class="col-12 col-lg-6"
-                v-for="(graph, graphName) in _(graphs)
-                    .toPairs()
-                    .sortBy(0)
-                    .fromPairs()
-                    .value()"
-                :key="graphName"
-            >
+            <div class="col-12 col-lg-6" v-for="(graph, graphName) in _(graphs).toPairs().sortBy(0).fromPairs().value()" :key="graphName">
                 <div class="card mt-3">
                     <div class="card-body p-4">
                         <div class="position-absolute top-0 end-0 m-3">
-                            <button
-                                class="btn btn-sm badge btn-info"
-                                @click="loadAll()"
-                            >
-                                <i
-                                    class="fas fa-sync-alt"
-                                    :class="loading ? 'fa-spin' : ''"
-                                ></i>
+                            <button class="btn btn-sm badge btn-info" @click="loadAll()">
+                                <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
                             </button>
                         </div>
                         {{ graphName }}
-                        <line-chart
-                            :chart-data="graph.data"
-                            :options="graph.options"
-                            :height="300"
-                        ></line-chart>
+                        <line-chart :chart-data="graph.data" :options="graph.options" :height="300"></line-chart>
                     </div>
                 </div>
             </div>
@@ -227,8 +174,7 @@ export default {
                         datasets: [
                             {
                                 data: [],
-                                _metricName:
-                                    "vscope.filer.datastore.diskspace.used",
+                                _metricName: "vscope.filer.datastore.diskspace.used",
                                 label: "Disk space used",
                                 fill: false,
                                 pointRadius: 2,
@@ -256,7 +202,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Usage (GB)'
+                                        labelString: "Usage (GB)",
                                     },
                                 },
                             ],
@@ -268,8 +214,7 @@ export default {
                         datasets: [
                             {
                                 data: [],
-                                _metricName:
-                                    "vscope.filer.datastore.diskspace.used.perc",
+                                _metricName: "vscope.filer.datastore.diskspace.used.perc",
                                 label: "Disk space used %",
                                 fill: false,
                                 pointRadius: 2,
@@ -298,7 +243,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Usage percent (%)'
+                                        labelString: "Usage percent (%)",
                                     },
                                 },
                             ],
@@ -342,7 +287,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Usage percent (%)'
+                                        labelString: "Usage percent (%)",
                                     },
                                 },
                             ],
@@ -425,7 +370,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Usage percent (%)'
+                                        labelString: "Usage percent (%)",
                                     },
                                 },
                             ],
@@ -513,7 +458,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'KBytes/s'
+                                        labelString: "KBytes/s",
                                     },
                                 },
                                 {
@@ -525,7 +470,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Packets/s'
+                                        labelString: "Packets/s",
                                     },
                                 },
                             ],
@@ -570,7 +515,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Usage percent (%)'
+                                        labelString: "Usage percent (%)",
                                     },
                                 },
                             ],
@@ -611,7 +556,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Usage percent (%)'
+                                        labelString: "Usage percent (%)",
                                     },
                                 },
                             ],
@@ -651,7 +596,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Miliseconds (CPU Ready)'
+                                        labelString: "Miliseconds (CPU Ready)",
                                     },
                                 },
                             ],
@@ -767,7 +712,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'KBytes/s'
+                                        labelString: "KBytes/s",
                                     },
                                 },
                                 {
@@ -779,7 +724,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Operations/s'
+                                        labelString: "Operations/s",
                                     },
                                 },
                             ],
@@ -828,7 +773,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Miliseconds'
+                                        labelString: "Miliseconds",
                                     },
                                 },
                             ],
@@ -902,7 +847,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'KBytes/s'
+                                        labelString: "KBytes/s",
                                     },
                                 },
                                 {
@@ -914,7 +859,7 @@ export default {
                                     },
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Packets/s'
+                                        labelString: "Packets/s",
                                     },
                                 },
                             ],
@@ -967,29 +912,19 @@ export default {
         },
 
         async loadPcc() {
-            this.pcc = await this.get(
-                `${this.ovhapiRoute}/dedicatedCloud/${this.pccName}`
-            );
+            this.pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}`);
         },
 
         async loadDatacenter() {
-            this.datacenter = await this.get(
-                `${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}`
-            );
+            this.datacenter = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}`);
             this.loadGraphsData();
         },
 
         async loadUser() {
-            const userIds = await this.get(
-                `${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user?name=admin`
-            );
+            const userIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user?name=admin`);
             let userIdsChunks = this.chunkArray(userIds, 40);
             for (let userIdsChunk of userIdsChunks) {
-                const users = await this.get(
-                    `${this.ovhapiRoute}/dedicatedCloud/${
-                        this.pccName
-                    }/user/${userIdsChunk.join(",")}?batch=,`
-                );
+                const users = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userIdsChunk.join(",")}?batch=,`);
                 for (const i in users) {
                     const user = users[i];
                     if (!user["error"]) {
@@ -1015,11 +950,7 @@ export default {
 
             for (const graphName in this.graphs) {
                 for (const dataset of this.graphs[graphName].data.datasets) {
-                    this.loadGraphData(
-                        graphName,
-                        dataset._metricName,
-                        dataset._filter
-                    );
+                    this.loadGraphData(graphName, dataset._metricName, dataset._filter);
                 }
             }
         },
@@ -1029,9 +960,7 @@ export default {
                 return;
             }
 
-            let dateFrom = moment()
-                .subtract(this.daysFrom, "days")
-                .toISOString();
+            let dateFrom = moment().subtract(this.daysFrom, "days").toISOString();
             let dateTo = moment().toISOString();
 
             let wantedPoints = 50;
@@ -1067,10 +996,7 @@ export default {
                         let exclude = false;
                         if (filter) {
                             for (const filterName in filter) {
-                                if (
-                                    j.l[filterName] &&
-                                    j.l[filterName] != filter[filterName]
-                                ) {
+                                if (j.l[filterName] && j.l[filterName] != filter[filterName]) {
                                     exclude = true;
                                 }
                             }
@@ -1087,11 +1013,7 @@ export default {
                     }
                 }
             }
-            if (
-                this.graphs[graphName] &&
-                this.graphs[graphName].data.datasets &&
-                datas[metricName]
-            ) {
+            if (this.graphs[graphName] && this.graphs[graphName].data.datasets && datas[metricName]) {
                 let data = this.graphs[graphName].data;
                 for (const i in data.datasets) {
                     if (data.datasets[i]._metricName == metricName) {
@@ -1119,14 +1041,11 @@ export default {
                 decimals = 0;
             }
 
-            value =
-                Math.round(value * Math.pow(10, decimals)) /
-                Math.pow(10, decimals);
+            value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
             return value;
         },
     },
 };
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

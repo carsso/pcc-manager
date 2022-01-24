@@ -16,7 +16,25 @@ use GuzzleHttp\Exception\RequestException;
 
 class OvhApiController extends Controller
 {
-    public function login(Request $request, String $endpoint)
+    public function loginReadOnly(Request $request, String $endpoint)
+    {
+        return $this->login($request, $endpoint, 'read-only');
+    }
+
+    private function _rightsDefinitions(Array $paths, Array $methods) {
+        $rights = [];
+        foreach ($paths as $path) {
+            foreach ($methods as $method) {
+                $rights[] = [
+                    'method' => $method,
+                    'path'   => $path,
+                ];
+            }
+        }
+        return $rights;
+    }
+
+    public function login(Request $request, String $endpoint, String $rightsType = 'read-write')
     {
         $this->checkEndpoint($endpoint);
 
@@ -26,36 +44,32 @@ class OvhApiController extends Controller
             $endpoint,
         );
 
-        /*
-        $rights = [
-            [
-                'method'    => 'GET',
-                'path'      => '/dedicatedCloud*'
-            ],
-            [
-                'method'    => 'POST',
-                'path'      => '/dedicatedCloud*'
-            ],
-            [
-                'method'    => 'PUT',
-                'path'      => '/dedicatedCloud*'
-            ],
-            [
-                'method'    => 'DELETE',
-                'path'      => '/dedicatedCloud*'
-            ],
+        $paths = [
+            '/dedicatedCloud*',
+            '/me*',
+            '/order*',
+            '/service*',
+            '/services*',
+            '/vrack*',
         ];
-        */
-        $rights = [
-            [
-                'method'    => 'GET',
-                'path'      => '/dedicatedCloud*',
-            ],
-            [
-                'method'    => 'POST',
-                'path'      => '/dedicatedCloud/*/user/*/metricsToken',
-            ],
+
+        $readOnly = $this->_rightsDefinitions($paths, ['GET']);
+        $readOnly[] = [ // Exception for metrics token
+            'method' => 'POST',
+            'path'   => '/dedicatedCloud/*/user/*/metricsToken',
         ];
+
+        $readWrite = $this->_rightsDefinitions($paths, ['GET', 'POST', 'PUT', 'DELETE']);
+
+        $rightsDefinitions = [
+            'read-only' => $readOnly,
+            'read-write' => $readOnly, // For now force read-only
+        ];
+        if(!isset($rightsDefinitions[$rightsType]) || !is_array($rightsDefinitions[$rightsType])) {
+            abort(404, 'Unknown rights type: '.$rightsType);
+        }
+
+        $rights = $rightsDefinitions[$rightsType];
         $redirect = route('login.redirect', ['endpoint' => $endpoint]);
         $credentials = $ovhApi->requestCredentials($rights, $redirect);
         session(['loginConsumerKey' => $credentials['consumerKey']]);

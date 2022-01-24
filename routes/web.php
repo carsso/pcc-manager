@@ -24,12 +24,16 @@ Route::get('/', [HomeController::class, 'index'])
 Route::get('/legal', [HomeController::class, 'legal'])
     ->name('legal');
 
+Route::get('/logout', [OvhApiController::class, 'logout'])
+    ->name('logout');
+
 Route::get('/login/{endpoint}', [OvhApiController::class, 'login'])
     ->middleware('guest')
     ->name('login');
 
-Route::get('/logout', [OvhApiController::class, 'logout'])
-    ->name('logout');
+Route::get('/login/{endpoint}/read-only', [OvhApiController::class, 'loginReadOnly'])
+    ->middleware('guest')
+    ->name('login.read-only');
 
 Route::get('/login/{endpoint}/token/{token}', [OvhApiController::class, 'token'])
     ->middleware('guest')

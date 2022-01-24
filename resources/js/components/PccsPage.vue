@@ -1,7 +1,7 @@
 <template>
     <div class="pccs-page">
         <transition name="loading-screen">
-            <LoadingScreen v-if="loading"/>
+            <LoadingScreen v-if="loading" />
         </transition>
         <transition name="errors-zone">
             <errors-zone :errors="errors" v-if="errors" />
@@ -15,9 +15,7 @@
                         </button>
                         <h3 class="mb-2">{{ pccName }}</h3>
                         <h4>{{ pcc.description }}</h4>
-                        <div v-if="!Object.keys(pcc).length" class="mt-5 mb-3">
-                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading data from OVHcloud API...
-                        </div>
+                        <div v-if="!Object.keys(pcc).length" class="mt-5 mb-3"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading data from OVHcloud API...</div>
                         <template v-else>
                             <p>
                                 <a target="_blank" :href="pcc.webInterfaceUrl">{{ pcc.webInterfaceUrl }}</a>
@@ -36,9 +34,7 @@
                                 </div>
                             </div>
                             <div v-if="!pcc.hasOwnProperty('datacenters')" class="card mt-4">
-                                <div class="card-body p-4">
-                                    <i class="fas fa-circle-notch fa-spin me-1"></i> Loading datacenters from OVHcloud API...
-                                </div>
+                                <div class="card-body p-4"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading datacenters from OVHcloud API...</div>
                             </div>
                             <template v-else>
                                 <div class="card mt-4" v-for="(datacenter, datacenterId) in _(pcc.datacenters).toPairs().sortBy(0).fromPairs().value()" :key="datacenterId">
@@ -48,7 +44,7 @@
                                                 <span class="h4">
                                                     {{ datacenter.description || datacenter.name }}
                                                 </span>
-                                                <span class="text-muted">{{ datacenter.description ? datacenter.name : '#'+datacenterId }}</span>
+                                                <span class="text-muted">{{ datacenter.description ? datacenter.name : "#" + datacenterId }}</span>
                                             </div>
                                             <div>
                                                 <span>{{ datacenter.commercialName }}</span>
@@ -75,10 +71,10 @@
 <script>
 import LoadingScreen from "./LoadingScreen";
 import ErrorsZone from "./ErrorsZone";
-import {httpRequester} from "./compositions/axios/httpRequester";
+import { httpRequester } from "./compositions/axios/httpRequester";
 
 export default {
-    name: 'PccsPage',
+    name: "PccsPage",
 
     components: {
         LoadingScreen,
@@ -101,13 +97,7 @@ export default {
     },
 
     setup() {
-        const {
-            loaded,
-            loading,
-            errors,
-            request,
-            get,
-        } = httpRequester();
+        const { loaded, loading, errors, request, get } = httpRequester();
 
         return {
             loaded,
@@ -124,7 +114,6 @@ export default {
         };
     },
 
-
     mounted() {
         for (const pccName of this.pccNames) {
             this.$set(this.pccs, pccName, {});
@@ -134,7 +123,7 @@ export default {
 
     methods: {
         async loadAll(force = false) {
-            if(force || !this.loading) {
+            if (force || !this.loading) {
                 this.loadPccs();
             }
         },
@@ -147,29 +136,28 @@ export default {
         async loadPcc(pccName) {
             let pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}`);
             let pccDatacenters = {};
-            if(this.pccs && this.pccs[pccName] && this.pccs[pccName]['datacenters']) {
-                pccDatacenters = this.pccs[pccName]['datacenters'];
-                pcc['datacenters'] = pccDatacenters;
+            if (this.pccs && this.pccs[pccName] && this.pccs[pccName]["datacenters"]) {
+                pccDatacenters = this.pccs[pccName]["datacenters"];
+                pcc["datacenters"] = pccDatacenters;
             }
-            this.$set(this.pccs, pccName, {...pcc});
+            this.$set(this.pccs, pccName, { ...pcc });
             if (pcc) {
                 const datacenterIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}/datacenter`);
                 if (datacenterIds) {
-                    const datacenters = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}/datacenter/${datacenterIds.join(',')}?batch=,`);
-                    pcc['datacenters'] = pccDatacenters;
+                    const datacenters = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}/datacenter/${datacenterIds.join(",")}?batch=,`);
+                    pcc["datacenters"] = pccDatacenters;
                     for (const datacenterId in datacenters) {
                         const datacenter = datacenters[datacenterId];
-                        if(!datacenter['error']) {
-                            pcc['datacenters'][datacenter['key']] = datacenter['value'];
+                        if (!datacenter["error"]) {
+                            pcc["datacenters"][datacenter["key"]] = datacenter["value"];
                         }
                     }
-                    this.$set(this.pccs, pccName, {...pcc});
+                    this.$set(this.pccs, pccName, { ...pcc });
                 }
             }
         },
     },
-}
+};
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

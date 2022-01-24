@@ -1,6 +1,7 @@
-import {reactive, toRefs,} from '@vue/composition-api';
+import { reactive, toRefs, } from '@vue/composition-api';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
+import Vue from 'vue';
 
 export function httpRequester() {
     const _loading = {};
@@ -10,26 +11,37 @@ export function httpRequester() {
         errors: null,
     })
 
-    const get = (url) => { return request({'url': url}) };
+    const get = (url) => { return request({ 'url': url }) };
     const request = async (config) => {
         state.loading = true;
         state.loaded = false;
-        state.errors = null;
 
+        let hasError = false;
         let response = null;
         let hash = CryptoJS.SHA256(JSON.stringify(config));
         _loading[hash] = true;
         try {
             response = await axios.request(config);
             state.loaded = true;
-        } catch(error) {
-            state.errors = getErrorsFromAxiosException(error);
+            if (state.errors) {
+                delete state.errors[hash];
+            }
+        } catch (err) {
+            if (state.errors === null) {
+                state.errors = {};
+            }
+
+            Vue.set(state.errors, hash, getErrorsFromAxiosException(err));
+            hasError = true;
         }
         delete _loading[hash];
-        if(Object.keys(_loading).length === 0) {
+        if (Object.keys(_loading).length === 0) {
             state.loading = false;
         }
 
+        if (hasError) {
+            return;
+        }
         if (response) {
             if (response.hasOwnProperty('data')) {
                 return response.data;
@@ -42,50 +54,49 @@ export function httpRequester() {
     return { ...toRefs(state), request, get };
 }
 
-export default function getErrorsFromAxiosException(error)
-{
-    let errors = null;
-    if (error.response) {
+export default function getErrorsFromAxiosException(err) {
+    let error = err;
+    if (err.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        console.log(error.response);
-        if (error.response.status === 500) {
-            errors = { message: 'Erreur 500' };
-            if (error.response.data.message) {
-                errors = { message: error.response.data.message };
+        console.log(err.response);
+        if (err.response.status === 500) {
+            error.message = 'Erreur 500';
+            if (err.response.data.message) {
+                error.message = err.response.data.message;
             }
-        } else if (error.response.status === 422) {
-            errors = error.response.data;
-        } else if (error.response.message) {
-            errors = { message: error.response.message };
-        } else if (error.response.data.message) {
-            errors = { message: error.response.data.message };
-        } else if (error.response.status) {
+        } else if (err.response.status === 422) {
+            error.message = err.response.data;
+        } else if (err.response.message) {
+            error.message = err.response.message;
+        } else if (err.response.data.message) {
+            error.message = err.response.data.message;
+        } else if (err.response.status) {
             let message = '';
-            switch (error.response.status) {
+            switch (err.response.status) {
                 case 401: message = 'Authentication rquired'; break;
                 case 403: message = 'Access refused'; break;
                 case 404: message = 'Page not found'; break;
                 case 405: message = 'Method not allowed'; break;
                 case 419: message = 'Invalid CSRF token'; break;
                 default:
-                    message = 'Error ' + error.response.status;
+                    message = 'Error ' + err.response.status;
             }
-            errors = { message: message };
+            error.message = message;
         } else {
-            errors = { message: 'Loading error' };
+            error.message = 'Loading error';
         }
-    } else if (error.request) {
+    } else if (err.request) {
         // The request was made but no response was received
-        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // `err.request` is an instance of XMLHttpRequest in the browser and an instance of
         // http.ClientRequest in node.js
-        console.error('Error', error.request);
-        errors = { message: "Request failed !" };
+        console.error('Error', err.request);
+        error.message = 'Request failed !';
     } else {
         // Something happened in setting up the request that triggered an Error
-        console.error('Error', error.message);
-        errors = { message: error.message };
+        console.error('Error', err.message);
+        error.message = err.message;
     }
-    console.error(error.config);
-    return errors;
+    console.error(err.config);
+    return error;
 };

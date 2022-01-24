@@ -1,30 +1,23 @@
 <template>
     <ul class="pccs-submenu dropdown-menu" aria-labelledby="navbarPccsDropdown">
         <transition name="loading-screen">
-            <LoadingScreen v-if="loading"/>
+            <LoadingScreen v-if="loading" />
         </transition>
         <transition name="errors-zone">
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
         <li v-if="!Object.keys(pccs).length" class="my-3">
-            <a class="dropdown-item disabled">
-                <i class="fas fa-circle-notch fa-spin me-1"></i> Loading PCCs from OVHcloud API...
-            </a>
+            <a class="dropdown-item disabled"> <i class="fas fa-circle-notch fa-spin me-1"></i> Loading PCCs from OVHcloud API... </a>
         </li>
         <template v-for="(pcc, pccName, index) in _(pccs).toPairs().sortBy(0).fromPairs().value()">
-            <li :key="pccName+'-divider'" v-if="index != 0"><hr class="dropdown-divider"></li>
+            <li :key="pccName + '-divider'" v-if="index != 0"><hr class="dropdown-divider" /></li>
             <li :key="pccName">
                 <a class="dropdown-item" :href="`${pccRoute}/${pccName}`">
                     {{ pccName }}
                     <small class="text-muted">
-                        <template v-if="pcc.serviceName">
-                            ({{ pcc.description || pcc.serviceName }})
-                        </template>
-                        <template v-else>
-                            (<i class="fas fa-circle-notch fa-spin me-1"></i> Loading from OVHcloud API...)
-                        </template>
+                        <template v-if="pcc.serviceName"> ({{ pcc.description || pcc.serviceName }}) </template>
+                        <template v-else> (<i class="fas fa-circle-notch fa-spin me-1"></i> Loading from OVHcloud API...) </template>
                     </small>
-                    
                 </a>
             </li>
         </template>
@@ -34,10 +27,10 @@
 <script>
 import LoadingScreen from "./LoadingScreen";
 import ErrorsZone from "./ErrorsZone";
-import {httpRequester} from "./compositions/axios/httpRequester";
+import { httpRequester } from "./compositions/axios/httpRequester";
 
 export default {
-    name: 'PccsSubmenu',
+    name: "PccsSubmenu",
 
     components: {
         LoadingScreen,
@@ -56,13 +49,7 @@ export default {
     },
 
     setup() {
-        const {
-            loaded,
-            loading,
-            errors,
-            request,
-            get,
-        } = httpRequester();
+        const { loaded, loading, errors, request, get } = httpRequester();
 
         return {
             loaded,
@@ -80,14 +67,13 @@ export default {
         };
     },
 
-
     mounted() {
         this.loadAll(true);
     },
 
     methods: {
         async loadAll(force = false) {
-            if(force || !this.loading) {
+            if (force || !this.loading) {
                 this.loadPccs();
             }
         },
@@ -103,11 +89,10 @@ export default {
         },
         async loadPcc(pccName) {
             let pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}`);
-            this.$set(this.pccs, pccName, {...pcc});
+            this.$set(this.pccs, pccName, { ...pcc });
         },
     },
-}
+};
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

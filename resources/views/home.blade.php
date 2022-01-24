@@ -39,17 +39,56 @@
             <div class="card my-3">
                 <div class="card-body">
                     <h3 class="mb-3">Login with your OVHcloud account</h3>
-                    @foreach(config('ovh') as $endpoint => $config)
-                        @if(config('ovh.'.$endpoint.'.application_secret'))
-                            <a class="btn btn-outline-primary m-2 py-2" href="{{ route('login', ['endpoint' => $endpoint]) }}">
-                                <span class="fi fi-{{ config('ovh.'.$endpoint.'.flag') }} display-6 mb-2"></span><br />
-                                {{ config('ovh.'.$endpoint.'.name') }}<br />
-                                <small>{{ config('ovh.'.$endpoint.'.domain') }}</small>
-                            </a>
-                        @endif
-                    @endforeach
+                    <div class="d-flex justify-content-center">
+                        @foreach(config('ovh') as $endpoint => $config)
+                            @if(config('ovh.'.$endpoint.'.application_secret'))
+                                <div class="m-2">
+                                    <a class="btn btn-outline-primary py-2 d-block" href="{{ route('login', ['endpoint' => $endpoint]) }}">
+                                        <span class="fi fi-{{ config('ovh.'.$endpoint.'.flag') }} display-6 mb-2"></span><br />
+                                        {{ config('ovh.'.$endpoint.'.name') }}<br />
+                                        <small>{{ config('ovh.'.$endpoint.'.domain') }}</small>
+                                    </a>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                    <div>
+                        <a href="#" class="small text-muted" data-bs-toggle="modal" data-bs-target="#loginModalRO">
+                            <small>Login with read-only access</small>
+                        </a>
+                    </div>
+                    <div class="modal fade" id="loginModalRO" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Login with your OVHcloud account (read-only access)</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Here you can login with your OVHcloud account, but we will request only <strong>read-only access</strong> to the OVHcloud API.
+                                    <div class="alert alert-warning p-1 py-2 my-1">
+                                        <i class="fas fa-exclamation-triangle"></i> Some features will be disabled or might not work as expected
+                                    </div>
+                                    <div class="d-flex justify-content-center">
+                                        @foreach(config('ovh') as $endpoint => $config)
+                                            @if(config('ovh.'.$endpoint.'.application_secret'))
+                                                <div class="m-2">
+                                                    <a class="btn btn-outline-danger py-2 d-block" href="{{ route('login.read-only', ['endpoint' => $endpoint]) }}">
+                                                        <span class="fi fi-{{ config('ovh.'.$endpoint.'.flag') }} display-6 mb-2"></span><br />
+                                                        {{ config('ovh.'.$endpoint.'.name') }}<br />
+                                                        <small>{{ config('ovh.'.$endpoint.'.domain') }}</small>
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
             @if($hasDemoAccounts)
                 <div class="card my-3">
                     <div class="card-body">

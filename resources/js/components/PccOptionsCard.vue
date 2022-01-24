@@ -2,8 +2,8 @@
     <div class="pcc-options-card card mt-3 text-center">
         <div class="card-body p-3">
             <div class="card-title">
-                <span class="h5">{{title}}</span>
-                <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{options && Object.keys(options).length}}</small>
+                <span class="h5">{{ title }}</span>
+                <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{ options && Object.keys(options).length }}</small>
                 <div class="position-absolute top-0 end-0 m-3">
                     <button class="btn btn-sm badge btn-info" @click="loadAll()">
                         <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
@@ -13,9 +13,7 @@
             <table class="table table-sm table-striped table-bordered mb-0">
                 <tbody>
                     <tr v-if="!options">
-                        <td colspan="2">
-                            <i class="fas fa-circle-notch fa-spin me-1"></i> Loading from OVHcloud API...
-                        </td>
+                        <td colspan="2"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading from OVHcloud API...</td>
                     </tr>
                     <tr v-else-if="!Object.keys(options).length">
                         <td colspan="2">
@@ -30,16 +28,14 @@
                             </span>
                             <span :class="getOptionStateClass(option)" v-else>
                                 <i class="fas fa-circle"></i>
-                                {{option.state}}
+                                {{ option.state }}
                             </span>
                         </td>
                         <td>
-                            {{option.description}}
-                            <small class="text-muted">
-                                ({{option.name}})
-                            </small>
+                            {{ option.description }}
+                            <small class="text-muted"> ({{ option.name }}) </small>
                             <span class="text-muted" v-if="option.version">
-                                - {{option.version}}
+                                - {{ option.version }}
                                 <template v-if="option.upgrades">
                                     <small class="text-warning" v-if="option.upgrades.length > 0"><abbr :title="`Available upgrade(s): ${option.upgrades.join(', ')}`">Upgrade available</abbr></small>
                                 </template>
@@ -50,21 +46,19 @@
                                         <td>
                                             <span :class="getOptionStateClass(suboption)">
                                                 <i class="fas fa-circle"></i>
-                                                {{suboption.state}}
+                                                {{ suboption.state }}
                                             </span>
-                                            <small class="text-muted">
-                                                #{{suboption.id}}
-                                            </small>
+                                            <small class="text-muted"> #{{ suboption.id }} </small>
                                         </td>
                                         <td :title="getSuboptionTitle(suboption)">
                                             <template v-if="suboption.domainName">
-                                                {{suboption.domainName}}
+                                                {{ suboption.domainName }}
                                                 <small class="text-muted">
-                                                    {{suboption.port?`${suboption.ip}:${suboption.port}`:suboption.ip}}
+                                                    {{ suboption.port ? `${suboption.ip}:${suboption.port}` : suboption.ip }}
                                                 </small>
                                             </template>
                                             <template v-else>
-                                                {{suboption.port?`${suboption.ip}:${suboption.port}`:suboption.ip}}
+                                                {{ suboption.port ? `${suboption.ip}:${suboption.port}` : suboption.ip }}
                                             </template>
                                         </td>
                                     </tr>
@@ -79,9 +73,8 @@
 </template>
 
 <script>
-
 export default {
-    name: 'PccOptionsCard',
+    name: "PccOptionsCard",
 
     props: {
         options: {
@@ -102,19 +95,18 @@ export default {
         },
     },
 
-
     methods: {
         getOptionStateClass(option) {
-            var resultClass = 'text-warning';
-            if(option.state) {
-                if(option.state == 'enabled') {
-                    resultClass = 'text-success';
-                } else if(option.state == 'delivered') {
-                    resultClass = 'text-success';
-                } else if(option.state == 'error') {
-                    resultClass = 'text-danger';
-                } else if(option.state == 'disabled') {
-                    resultClass = 'text-danger';
+            var resultClass = "text-warning";
+            if (option.state) {
+                if (option.state == "enabled") {
+                    resultClass = "text-success";
+                } else if (option.state == "delivered") {
+                    resultClass = "text-success";
+                } else if (option.state == "error") {
+                    resultClass = "text-danger";
+                } else if (option.state == "disabled") {
+                    resultClass = "text-danger";
                 }
             }
             return resultClass;
@@ -122,27 +114,26 @@ export default {
         getSuboptionTitle(suboption) {
             let titleParts = [];
             let keys = {
-                description: 'Description',
-                domainName: 'Domain name',
-                domainAlias: 'Domain alias',
-                username: 'Username',
-                ip: 'IP',
-                kmsTcpPort: 'KMS TCP port',
-                ldapTcpPort: 'LDAP TCP port',
-                baseDnForUsers: 'Base DN for users',
-                baseDnForGroups: 'Base DN for groups',
-                sslThumbprint: 'SSL thumbprint',
+                description: "Description",
+                domainName: "Domain name",
+                domainAlias: "Domain alias",
+                username: "Username",
+                ip: "IP",
+                kmsTcpPort: "KMS TCP port",
+                ldapTcpPort: "LDAP TCP port",
+                baseDnForUsers: "Base DN for users",
+                baseDnForGroups: "Base DN for groups",
+                sslThumbprint: "SSL thumbprint",
             };
             for (let key in keys) {
-                if(suboption[key]) {
+                if (suboption[key]) {
                     titleParts.push(`${keys[key]}: ${suboption[key]}`);
                 }
             }
             return titleParts.join("\n");
         },
     },
-}
+};
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
