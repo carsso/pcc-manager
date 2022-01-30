@@ -6,13 +6,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $hasDemoAccounts = false;
-        foreach(config('ovh') as $endpoint => $config) {
-            if(config('ovh.'.$endpoint.'.application_secret') && config('ovh.'.$endpoint.'.demo_accounts')) {
-                $hasDemoAccounts = true;
-            }
-        }
-        return view('home', compact('hasDemoAccounts'));
+        return view('home');
     }
 
     public function legal()

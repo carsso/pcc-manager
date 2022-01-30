@@ -41,7 +41,7 @@
                     <h3 class="mb-3">Login with your OVHcloud account</h3>
                     <div class="d-flex justify-content-center">
                         @foreach(config('ovh') as $endpoint => $config)
-                            @if(config('ovh.'.$endpoint.'.application_secret'))
+                            @if(config('ovh.'.$endpoint.'.application_secret') || config('ovh.'.$endpoint.'.client_secret'))
                                 <div class="m-2">
                                     <a class="btn btn-outline-primary py-2 d-block" href="{{ route('login', ['endpoint' => $endpoint]) }}">
                                         <span class="fi fi-{{ config('ovh.'.$endpoint.'.flag') }} display-6 mb-2"></span><br />
@@ -71,7 +71,7 @@
                                     </div>
                                     <div class="d-flex justify-content-center">
                                         @foreach(config('ovh') as $endpoint => $config)
-                                            @if(config('ovh.'.$endpoint.'.application_secret'))
+                                            @if(config('ovh.'.$endpoint.'.application_secret') || config('ovh.'.$endpoint.'.client_secret'))
                                                 <div class="m-2">
                                                     <a class="btn btn-outline-danger py-2 d-block" href="{{ route('login.read-only', ['endpoint' => $endpoint]) }}">
                                                         <span class="fi fi-{{ config('ovh.'.$endpoint.'.flag') }} display-6 mb-2"></span><br />
@@ -88,27 +88,6 @@
                     </div>
                 </div>
             </div>
-
-            @if($hasDemoAccounts)
-                <div class="card my-3">
-                    <div class="card-body">
-                        <h3 class="mb-3">Test with a demo account</h3>
-                        @foreach(config('ovh') as $endpoint => $config)
-                            @if(config('ovh.'.$endpoint.'.application_secret'))
-                                @foreach(config('ovh.'.$endpoint.'.demo_accounts') as $demoAccount)
-                                    <p>
-                                        {{ $demoAccount['name'] }}<br />
-                                        <small>{{ $demoAccount['description'] }}</small><br />
-                                        <a class="btn btn-outline-warning btn-sm" href="{{ route('login.token', ['endpoint' => $endpoint, 'token' => $demoAccount['token']]) }}">
-                                            Log-in with this account ({{ config('ovh.'.$endpoint.'.name') }})
-                                        </a>
-                                    </p>
-                                @endforeach
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
-            @endif
         </div>
     </div>
 </div>

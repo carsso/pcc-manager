@@ -2,118 +2,61 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use Ovh\Api as OvhApi;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\OvhApi;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\Session;
 use GuzzleHttp\Exception\RequestException;
 
 class OvhApiController extends Controller
 {
-    public function loginReadOnly(Request $request, String $endpoint)
+    public function loginReadOnly(String $endpoint)
     {
-        return $this->login($request, $endpoint, 'read-only');
+        return $this->login($endpoint, 'read-only');
     }
 
-    private function _rightsDefinitions(Array $paths, Array $methods) {
-        $rights = [];
-        foreach ($paths as $path) {
-            foreach ($methods as $method) {
-                $rights[] = [
-                    'method' => $method,
-                    'path'   => $path,
-                ];
-            }
-        }
-        return $rights;
+    public function login(String $endpoint, String $rightsType = 'read-write')
+    {
+        $ovhApi = new OvhApi($endpoint);
+        $loginUrl = $ovhApi->prepareLogin($rightsType == 'read-only' ? true : false);
+        session(['state' => $ovhApi->getState()]);
+        return redirect($loginUrl);
     }
 
-    public function login(Request $request, String $endpoint, String $rightsType = 'read-write')
+    public function redirect(Request $request, String $endpoint)
     {
-        $this->checkEndpoint($endpoint);
-
-        $ovhApi = new OvhApi(
-            config('ovh.'.$endpoint.'.application_key'),
-            config('ovh.'.$endpoint.'.application_secret'),
-            $endpoint,
-        );
-
-        $paths = [
-            '/dedicatedCloud*',
-            '/me*',
-            '/order*',
-            '/service*',
-            '/services*',
-            '/vrack*',
-        ];
-
-        $readOnly = $this->_rightsDefinitions($paths, ['GET']);
-        $readOnly[] = [ // Exception for metrics token
-            'method' => 'POST',
-            'path'   => '/dedicatedCloud/*/user/*/metricsToken',
-        ];
-
-        $readWrite = $this->_rightsDefinitions($paths, ['GET', 'POST', 'PUT', 'DELETE']);
-
-        $rightsDefinitions = [
-            'read-only' => $readOnly,
-            'read-write' => $readOnly, // For now force read-only
-        ];
-        if(!isset($rightsDefinitions[$rightsType]) || !is_array($rightsDefinitions[$rightsType])) {
-            abort(404, 'Unknown rights type: '.$rightsType);
-        }
-
-        $rights = $rightsDefinitions[$rightsType];
-        $redirect = route('login.redirect', ['endpoint' => $endpoint]);
-        $credentials = $ovhApi->requestCredentials($rights, $redirect);
-        session(['loginConsumerKey' => $credentials['consumerKey']]);
-
-        return redirect($credentials['validationUrl']);
-    }
-
-    protected function checkEndpoint(String $endpoint)
-    {
-        if(!config('ovh.'.$endpoint)) {
-            abort(404, 'Endpoint '.$endpoint.' not found');
-        }
-        if(!config('ovh.'.$endpoint.'.application_key')) {
-            abort(404, 'Endpoint '.$endpoint.' application key not found');
-        }
-        if(!config('ovh.'.$endpoint.'.application_secret')) {
-            abort(404, 'Endpoint '.$endpoint.' application secret not found');
-        }
-
-        return true;
-    }
-
-    public function redirect(String $endpoint)
-    {
-        if($consumerKey = session('loginConsumerKey'))
-        {
-            return $this->tryLogin($endpoint, $consumerKey);
+        $code = $request->get('code');
+        if($state = $request->get('state')) {
+            return $this->tryLogin($endpoint, $code, $state);
+        } elseif($state = session('state')) {
+            return $this->tryLogin($endpoint, $code, $state);
         }
         return redirect()->route('pcc');
     }
 
     public function token(String $endpoint, String $token)
     {
-        return $this->tryLogin($endpoint, $token);
-    }
-
-    private function tryLogin(String $endpoint, String $consumerKey)
-    {
-        $this->checkEndpoint($endpoint);
+        OvhApi::checkEndpoint($endpoint);
 
         session()->invalidate();
         session()->regenerateToken();
         
-        if (Auth::attempt(['consumerKey' => $consumerKey, 'endpoint' => $endpoint])) {
+        if (Auth::attempt(['token' => $token, 'endpoint' => $endpoint])) {
+            return redirect()->route('pcc');
+        }
+
+        return $this->backWithError('Invalid credentials');
+    }
+
+    private function tryLogin(String $endpoint, ?String $code = null, ?String $state = null)
+    {
+        OvhApi::checkEndpoint($endpoint);
+
+        session()->invalidate();
+        session()->regenerateToken();
+        
+        if (Auth::attempt(['code' => $code, 'state' => $state, 'endpoint' => $endpoint])) {
             return redirect()->route('pcc');
         }
 
@@ -159,7 +102,7 @@ class OvhApiController extends Controller
             $content = json_decode($json, true);
         }
 
-        $method = strtolower($request->getMethod());
+        $method = $request->getMethod();
         $headers = null;
         if($batch) {
             $headers = ['X-OVH-BATCH' => $batch];
