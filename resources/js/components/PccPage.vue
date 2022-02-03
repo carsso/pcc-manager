@@ -320,10 +320,20 @@
                                 <small class="text-muted">#{{ user.userId }}</small>
                             </td>
                             <td>
-                                <span v-if="user.login != user.name && user.login.includes('@')" title="This is an Active Directory federation user">
-                                    <i class="far fa-address-book text-info"></i>
+                                <template v-if="user.activeDirectoryId">
+                                    <span v-if="user.activeDirectoryType == 'group'" :title="`This is an Active Directory federation group from Active Directory #${user.activeDirectoryId}`">
+                                        <i class="far fa-address-book text-info"></i>
+                                        <i class="fas fa-users"></i>
+                                        {{ user.name }} <span class="text-muted">({{ user.login.split('@')[1] }})</span>
+                                    </span>
+                                    <span v-else :title="`This is an Active Directory federation user from Active Directory #${user.activeDirectoryId}`">
+                                        <i class="far fa-address-book text-info"></i>
+                                        {{ user.name }}<span class="text-muted">@{{ user.login.split('@')[1] }}</span>
+                                    </span>
+                                </template>
+                                <span v-else>
+                                    {{ user.login }}
                                 </span>
-                                {{ user.login }}
                                 <br />
                                 <small class="text-muted">{{ user.firstName }} {{ user.lastName }}</small>
                             </td>
@@ -783,6 +793,9 @@ export default {
                                 if (k.includes("Port")) {
                                     suboptionValue["port"] = suboptionValue[k];
                                 }
+                                if (k.includes("Hostname")) {
+                                    suboptionValue["hostname"] = suboptionValue[k];
+                                }
                             }
                             value["suboptions"][suboption["key"]] = suboptionValue;
                         }
@@ -886,7 +899,9 @@ export default {
                 const userRights = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/right/${userRightIdsChunk.join(",")}?batch=,`);
                 for (const i in userRights) {
                     const userRight = userRights[i]["value"];
-                    rights[userRight.datacenterId] = userRight;
+                    if(userRight) {
+                        rights[userRight.datacenterId] = userRight;
+                    }
                 }
             }
             this.$set(this.users[userId], "rights", { ...rights });
@@ -900,7 +915,9 @@ export default {
                 const userRights = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/objectRight/${userObjectRightIdsChunk.join(",")}?batch=,`);
                 for (const i in userRights) {
                     const userRight = userRights[i]["value"];
-                    objectRights[userRight.datacenterId] = userRight;
+                    if(userRight) {
+                        objectRights[userRight.datacenterId] = userRight;
+                    }
                 }
             }
             this.$set(this.users[userId], "objectRights", { ...objectRights });

@@ -54,11 +54,45 @@
                                             <template v-if="suboption.domainName">
                                                 {{ suboption.domainName }}
                                                 <small class="text-muted">
-                                                    {{ suboption.port ? `${suboption.ip}:${suboption.port}` : suboption.ip }}
+                                                    <template v-if="suboption.hostname">
+                                                        <template v-if="suboption.port">
+                                                            {{suboption.hostname}}:{{suboption.port}}
+                                                        </template>
+                                                        <template v-else>
+                                                            {{suboption.hostname}}
+                                                        </template>
+                                                        ({{suboption.ip}})
+                                                    </template>
+                                                    <template v-else>
+                                                        <template v-if="suboption.port">
+                                                            {{suboption.ip}}:{{suboption.port}}
+                                                        </template>
+                                                        <template v-else>
+                                                            {{suboption.ip}}
+                                                        </template>
+                                                    </template>
+                                                    {{ suboption.noSsl ? '(no SSL/TLS)' : '' }}
                                                 </small>
                                             </template>
                                             <template v-else>
-                                                {{ suboption.port ? `${suboption.ip}:${suboption.port}` : suboption.ip }}
+                                                <template v-if="suboption.hostname">
+                                                    <template v-if="suboption.port">
+                                                        {{suboption.hostname}}:{{suboption.port}}
+                                                    </template>
+                                                    <template v-else>
+                                                        {{suboption.hostname}}
+                                                    </template>
+                                                    ({{suboption.ip}})
+                                                </template>
+                                                <template v-else>
+                                                    <template v-if="suboption.port">
+                                                        {{suboption.ip}}:{{suboption.port}}
+                                                    </template>
+                                                    <template v-else>
+                                                        {{suboption.ip}}
+                                                    </template>
+                                                </template>
+                                                {{ suboption.noSsl ? '(no SSL/TLS)' : '' }}
                                             </template>
                                         </td>
                                     </tr>
