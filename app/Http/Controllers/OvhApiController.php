@@ -28,6 +28,10 @@ class OvhApiController extends Controller
     {
         $code = $request->get('code');
         if($state = $request->get('state')) {
+            if(!$code) {
+                $error = $request->get('error');
+                return redirect()->route('home')->withFlashError($error ? 'A login error has occured: ' . $error : 'A login error has occured')->withInput();
+            }
             return $this->tryLogin($endpoint, $code, $state);
         } elseif($state = session('state')) {
             return $this->tryLogin($endpoint, $code, $state);

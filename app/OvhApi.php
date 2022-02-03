@@ -45,10 +45,15 @@ class OvhApi
                 'redirectUri'       => $this->redirectUrl,
             ]);
             if($this->token) {
-                if($this->token->hasExpired()) {
+                if($this->token->hasExpired() && $this->token->getRefreshToken()) {
+                    $refreshToken = $this->token->getRefreshToken();
                     $this->token = $this->oauth2Provider->getAccessToken('refresh_token', [
-                        'refresh_token' => $this->token->getRefreshToken()
+                        'refresh_token' => $refreshToken
                     ]);
+                    # Reinject refresh token in new AccessToken
+                    $rawToken = $this->getToken(true);
+                    $rawToken['refresh_token'] = $refreshToken;
+                    $this->token = new AccessToken($rawToken);
                 }
             }
         } else {
