@@ -39,7 +39,7 @@ Route::get('/login/{endpoint}/token/{token}', [OvhApiController::class, 'token']
     ->middleware('guest')
     ->name('login.token');
 
-Route::any('/login/{endpoint}/redirect', [OvhApiController::class, 'redirect'])
+Route::get('/login/{endpoint}/redirect', [OvhApiController::class, 'redirect'])
     ->middleware('guest')
     ->name('login.redirect');
 
