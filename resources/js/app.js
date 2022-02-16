@@ -3,6 +3,17 @@ import { createApp } from "vue";
 require('./bootstrap');
 
 const app = createApp({
+    data() {
+        return {
+            currentDarkmode: document.documentElement.dataset.bsColorScheme === 'dark',
+        }
+    },
+    watch: {
+        currentDarkmode(newValue) {
+            document.documentElement.dataset.bsColorScheme = newValue ? 'dark' : 'light';
+        }
+    },
+
 	methods: {
         round(value, decimals) {
             if (!value) {
@@ -21,7 +32,6 @@ const app = createApp({
 
 window.Vue = app;
 
-app.config.globalProperties.$currentDarkmode = (document.documentElement.dataset.bsColorScheme == 'dark');
 app.config.globalProperties.window = window;
 
 /**

@@ -188,8 +188,8 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
-                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                             :gauge-color="[
                                                 { offset: 0, color: '#0b8c5a' },
                                                 { offset: 50, color: '#f4c009' },
@@ -216,8 +216,8 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
-                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                             :gauge-color="[
                                                 { offset: 0, color: '#0b8c5a' },
                                                 { offset: 50, color: '#f4c009' },
@@ -282,8 +282,8 @@
                                                         :separator-step="0"
                                                         :min="0"
                                                         :max="round(filer.spaceUsed + filer.spaceFree, 0)"
-                                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                                        :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0"
                                                     >
@@ -302,8 +302,8 @@
                                                         :separator-step="0"
                                                         :min="0"
                                                         :max="round(filer.spaceUsed + filer.spaceFree, 0)"
-                                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                                        :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0"
                                                     >
@@ -341,8 +341,8 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
-                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                             :gauge-color="[
                                                 { offset: 0, color: '#0b8c5a' },
                                                 { offset: 50, color: '#f4c009' },
@@ -369,8 +369,8 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
-                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                             :gauge-color="[
                                                 { offset: 0, color: '#0b8c5a' },
                                                 { offset: 50, color: '#f4c009' },
@@ -436,8 +436,8 @@
                                                         :separator-step="0"
                                                         :min="0"
                                                         :max="host.cpuMax / 1000"
-                                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                                        :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0"
                                                     >
@@ -458,8 +458,8 @@
                                                         :separator-step="0"
                                                         :min="0"
                                                         :max="host.ram.value"
-                                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                                        :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0"
                                                     >
@@ -552,8 +552,8 @@
                                                         :separator-step="0"
                                                         :min="0"
                                                         :max="filer.capacity / 1024"
-                                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                                        :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0"
                                                     >
@@ -608,8 +608,8 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="vm.memoryMax / 1024"
-                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                             gauge-color="#f4c009"
                                             :scale-interval="0"
                                         >
@@ -629,8 +629,8 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="vm.cpuMax / 1000"
-                                            :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                            :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
+                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                             gauge-color="#f4c009"
                                             :scale-interval="0"
                                         >

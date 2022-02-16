@@ -7,7 +7,7 @@
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
         <a class="btn btn-outline-secondary" @click="switchMode()" :disabled="loading">
-            <i class="fas" :class="$currentDarkmode ? 'fa-sun' : 'fa-moon'"></i>
+            <i class="fas" :class="$root.$data.currentDarkmode ? 'fa-sun' : 'fa-moon'"></i>
         </a>
     </div>
 </template>
@@ -46,11 +46,9 @@ export default {
 
     methods: {
         async switchMode() {
-            let response = await this.get(`${this.route}/darkmode/${this.$currentDarkmode ? "0" : "1"}`);
+            let response = await this.get(`${this.route}/darkmode/${this.$root.$data.currentDarkmode ? "0" : "1"}`);
             if (response && !this.errors) {
-                if(this.$currentDarkmode != response.$currentDarkmode) {
-                    this.window.location.reload();
-                }
+                this.$root.$data.currentDarkmode = response.darkmode;
             }
         },
     },
