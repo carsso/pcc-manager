@@ -213,22 +213,6 @@
                                     {{ task.name }}
                                 </span>
                                 <br />
-                                <div class="micro-gauge">
-                                    <vue-svg-gauge
-                                        :start-angle="-270"
-                                        :end-angle="90"
-                                        :inner-radius="0"
-                                        :value="task.progress"
-                                        :separator-step="0"
-                                        :min="0"
-                                        :max="100"
-                                        :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
-                                        :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
-                                        gauge-color="#f4c009"
-                                        :scale-interval="0"
-                                    >
-                                    </vue-svg-gauge>
-                                </div>
                                 <small>{{ round(task.progress, 0) }}%</small>
                                 -
                                 <small class="text-muted" v-if="task.description">
@@ -987,8 +971,8 @@ export default {
                     continue;
                 }
                 if (task.state == "done" || task.state == "canceled") {
-                    this.$delete(this.tasks, taskId);
-                    this.$delete(this.taskIds, taskId);
+                    delete this.tasks[taskId];
+                    delete this.taskIds[taskId];
                 }
             }
             let robotsNames = {};
@@ -1174,17 +1158,6 @@ export default {
         font-size: 14px;
         font-weight: 700;
     }
-}
-
-.mini-gauge {
-    max-width: 180px;
-    margin: auto;
-}
-
-.micro-gauge {
-    max-width: 20px;
-    margin: auto;
-    display: inline-block;
 }
 
 .task-progress {
