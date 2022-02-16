@@ -73,8 +73,8 @@
         <div class="card mt-3">
             <div class="card-body p-3 text-center">
                 <div class="btn-group" role="group" aria-label="Basic example">
-                    <template v-for="(text, btnDaysFrom) in daysButtons">
-                        <button type="button" class="btn btn-primary" :class="daysFrom == btnDaysFrom ? 'active' : ''" @click="changeDaysFrom(btnDaysFrom)" :key="text">
+                    <template v-for="(text, btnDaysFrom) in daysButtons" :key="text">
+                        <button type="button" class="btn btn-primary" :class="daysFrom == btnDaysFrom ? 'active' : ''" @click="changeDaysFrom(btnDaysFrom)">
                             {{ text }}
                         </button>
                     </template>
@@ -86,7 +86,7 @@
             <div class="card-body p-4 text-center"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading graphs from OVHcloud API & Metrics API...</div>
         </div>
         <div class="row text-center" v-else>
-            <div class="col-12 col-lg-6" v-for="(graph, graphName) in _(graphs).toPairs().sortBy(0).fromPairs().value()" :key="graphName">
+            <div class="col-12 col-lg-6" v-for="(graph, graphName) in window._(graphs).toPairs().sortBy(0).fromPairs().value()" :key="graphName">
                 <div class="card mt-3">
                     <div class="card-body p-4">
                         <div class="position-absolute top-0 end-0 m-3">
@@ -106,9 +106,13 @@
 <script>
 import LoadingScreen from "./LoadingScreen";
 import ErrorsZone from "./ErrorsZone";
-import LineChart from "./compositions/LineChart";
+import { Chart, registerables } from 'chart.js';
+import 'chartjs-adapter-moment';
+import { LineChart, useLineChart } from 'vue-chart-3'
 import { httpRequester } from "./compositions/axios/httpRequester";
 import moment from "moment";
+
+Chart.register(...registerables);
 
 export default {
     name: "PccGraphsPage",
@@ -177,9 +181,13 @@ export default {
                                 _metricName: "vscope.filer.datastore.diskspace.used",
                                 label: "Disk space used",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
+                                yAxisID: "yAxis",
                             },
                         ],
                     },
@@ -187,25 +195,19 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    ticks: {
-                                        beginAtZero: true,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "Usage (GB)",
-                                    },
+                            },
+                            yAxis: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Usage (GB)",
                                 },
-                            ],
+                            },
                         },
                     },
                 },
@@ -217,9 +219,13 @@ export default {
                                 _metricName: "vscope.filer.datastore.diskspace.used.perc",
                                 label: "Disk space used %",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
+                                yAxisID: "yAxis",
                             },
                         ],
                     },
@@ -227,26 +233,20 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    ticks: {
-                                        beginAtZero: true,
-                                        suggestedMax: 100,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "Usage percent (%)",
-                                    },
+                            },
+                            yAxis: {
+                                beginAtZero: true,
+                                suggestedMax: 100,
+                                title: {
+                                    display: true,
+                                    text: "Usage percent (%)",
                                 },
-                            ],
+                            },
                         },
                     },
                 },
@@ -261,9 +261,13 @@ export default {
                                 _metricName: "vscope.host.cpu.usage.perc",
                                 label: "CPU usage %",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
+                                yAxisID: "yAxis",
                             },
                         ],
                     },
@@ -271,26 +275,20 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    ticks: {
-                                        beginAtZero: true,
-                                        suggestedMax: 100,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "Usage percent (%)",
-                                    },
+                            },
+                            yAxis: {
+                                beginAtZero: true,
+                                suggestedMax: 100,
+                                title: {
+                                    display: true,
+                                    text: "Usage percent (%)",
                                 },
-                            ],
+                            },
                         },
                     },
                 },
@@ -303,9 +301,13 @@ export default {
                                 _metricName: "vscope.host.mem.tps",
                                 label: "Memory TPS",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
+                                yAxisID: "yAxis",
                             },
                         ],
                     },
@@ -313,25 +315,19 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    ticks: {
-                                        beginAtZero: true
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'TPS'
-                                    },
-                                }
-                            ],
+                            },
+                            yAxis: {
+                                beginAtZero: true
+                                title: {
+                                    display: true,
+                                    text: 'TPS'
+                                },
+                            },
                         },
                     },
                 },
@@ -344,9 +340,13 @@ export default {
                                 _metricName: "vscope.host.mem.usage.perc",
                                 label: "Memory usage %",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
+                                yAxisID: "yAxis",
                             },
                         ],
                     },
@@ -354,26 +354,20 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    ticks: {
-                                        beginAtZero: true,
-                                        suggestedMax: 100,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "Usage percent (%)",
-                                    },
+                            },
+                            yAxis: {
+                                beginAtZero: true,
+                                suggestedMax: 100,
+                                title: {
+                                    display: true,
+                                    text: "Usage percent (%)",
                                 },
-                            ],
+                            },
                         },
                     },
                 },
@@ -390,9 +384,12 @@ export default {
                                 },
                                 label: "Packets received",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d5ffd3",
                                 borderColor: "#7af879",
+                                xAxisID: "xAxis",
                                 yAxisID: "pps",
                             },
                             {
@@ -403,9 +400,12 @@ export default {
                                 },
                                 label: "Packets sent",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#ffd3d3",
                                 borderColor: "#f87979",
+                                xAxisID: "xAxis",
                                 yAxisID: "pps",
                             },
                             {
@@ -416,9 +416,12 @@ export default {
                                 },
                                 label: "Bytes received",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
                                 yAxisID: "kbps",
                             },
                             {
@@ -429,9 +432,12 @@ export default {
                                 },
                                 label: "Bytes sent",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#fffad3",
                                 borderColor: "#f8d779",
+                                xAxisID: "xAxis",
                                 yAxisID: "kbps",
                             },
                         ],
@@ -440,40 +446,32 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    id: "kbps",
-                                    type: "linear",
-                                    position: "left",
-                                    ticks: {
-                                        beginAtZero: true,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "KBytes/s",
-                                    },
+                            },
+                            kbps: {
+                                id: "kbps",
+                                type: "linear",
+                                position: "left",
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "KBytes/s",
                                 },
-                                {
-                                    id: "pps",
-                                    type: "linear",
-                                    position: "right",
-                                    ticks: {
-                                        beginAtZero: true,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "Packets/s",
-                                    },
+                            },
+                            pps: {
+                                id: "pps",
+                                type: "linear",
+                                position: "right",
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Packets/s",
                                 },
-                            ],
+                            },
                         },
                     },
                 };
@@ -489,9 +487,13 @@ export default {
                                 _metricName: "vscope.vm.cpu.usage.perc",
                                 label: "CPU usage %",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
+                                yAxisID: "yAxis",
                             },
                         ],
                     },
@@ -499,26 +501,20 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    ticks: {
-                                        beginAtZero: true,
-                                        suggestedMax: 100,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "Usage percent (%)",
-                                    },
+                            },
+                            yAxis: {
+                                beginAtZero: true,
+                                suggestedMax: 100,
+                                title: {
+                                    display: true,
+                                    text: "Usage percent (%)",
                                 },
-                            ],
+                            },
                         },
                     },
                 },
@@ -530,9 +526,13 @@ export default {
                                 _metricName: "vscope.vm.mem.usage.perc",
                                 label: "Memory usage %",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
+                                yAxisID: "yAxis",
                             },
                         ],
                     },
@@ -540,26 +540,20 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    ticks: {
-                                        beginAtZero: true,
-                                        suggestedMax: 100,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "Usage percent (%)",
-                                    },
+                            },
+                            yAxis: {
+                                beginAtZero: true,
+                                suggestedMax: 100,
+                                title: {
+                                    display: true,
+                                    text: "Usage percent (%)",
                                 },
-                            ],
+                            },
                         },
                     },
                 },
@@ -571,9 +565,13 @@ export default {
                                 _metricName: "vscope.vm.cpu.ready",
                                 label: "CPU ready",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
+                                yAxisID: "yAxis",
                             },
                         ],
                     },
@@ -581,25 +579,19 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    ticks: {
-                                        beginAtZero: true,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "Miliseconds (CPU Ready)",
-                                    },
+                            },
+                            yAxis: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Miliseconds (CPU Ready)",
                                 },
-                            ],
+                            },
                         },
                     },
                 },
@@ -612,9 +604,13 @@ export default {
                                 _metricName: "vscope.vm.mem.tps",
                                 label: "Memory TPS",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
+                                yAxisID: "yAxis",
                             },
                         ],
                     },
@@ -622,25 +618,19 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    ticks: {
-                                        beginAtZero: true,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'TPS'
-                                    },
+                            },
+                            yAxis: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'TPS'
                                 },
-                            ],
+                            },
                         },
                     },
                 },
@@ -653,9 +643,12 @@ export default {
                                 _metricName: "vscope.vm.disk.bandwidth.read",
                                 label: "Disk read throughput",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d5ffd3",
                                 borderColor: "#7af879",
+                                xAxisID: "xAxis",
                                 yAxisID: "kbps",
                             },
                             {
@@ -663,9 +656,12 @@ export default {
                                 _metricName: "vscope.vm.disk.bandwidth.write",
                                 label: "Disk write throughput",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#ffd3d3",
                                 borderColor: "#f87979",
+                                xAxisID: "xAxis",
                                 yAxisID: "kbps",
                             },
                             {
@@ -673,9 +669,12 @@ export default {
                                 _metricName: "vscope.vm.disk.io.read",
                                 label: "Disk read IOPS",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
                                 yAxisID: "iops",
                             },
                             {
@@ -683,9 +682,12 @@ export default {
                                 _metricName: "vscope.vm.disk.io.write",
                                 label: "Disk write IOPS",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#fffad3",
                                 borderColor: "#f8d779",
+                                xAxisID: "xAxis",
                                 yAxisID: "iops",
                             },
                         ],
@@ -694,40 +696,30 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    id: "kbps",
-                                    type: "linear",
-                                    position: "left",
-                                    ticks: {
-                                        beginAtZero: true,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "KBytes/s",
-                                    },
+                            },
+                            kbps: {
+                                type: "linear",
+                                position: "left",
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "KBytes/s",
                                 },
-                                {
-                                    id: "iops",
-                                    type: "linear",
-                                    position: "right",
-                                    ticks: {
-                                        beginAtZero: true,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "Operations/s",
-                                    },
+                            },
+                            iops: {
+                                type: "linear",
+                                position: "right",
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Operations/s",
                                 },
-                            ],
+                            },
                         },
                     },
                 },
@@ -739,18 +731,26 @@ export default {
                                 _metricName: "vscope.vm.disk.latency.read",
                                 label: "Disk read latency",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
+                                yAxisID: "yAxis",
                             },
                             {
                                 data: [],
                                 _metricName: "vscope.vm.disk.latency.write",
                                 label: "Disk write latency",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#fffad3",
                                 borderColor: "#f8d779",
+                                xAxisID: "xAxis",
+                                yAxisID: "yAxis",
                             },
                         ],
                     },
@@ -758,25 +758,19 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    ticks: {
-                                        beginAtZero: true,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "Miliseconds",
-                                    },
+                            },
+                            yAxis: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Miliseconds",
                                 },
-                            ],
+                            },
                         },
                     },
                 },
@@ -788,9 +782,12 @@ export default {
                                 _metricName: "vscope.vm.net.packetsrx",
                                 label: "Packets received",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d5ffd3",
                                 borderColor: "#7af879",
+                                xAxisID: "xAxis",
                                 yAxisID: "pps",
                             },
                             {
@@ -798,9 +795,12 @@ export default {
                                 _metricName: "vscope.vm.net.packetstx",
                                 label: "Packets sent",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#ffd3d3",
                                 borderColor: "#f87979",
+                                xAxisID: "xAxis",
                                 yAxisID: "pps",
                             },
                             {
@@ -808,9 +808,12 @@ export default {
                                 _metricName: "vscope.vm.net.rx",
                                 label: "Bytes received",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#d3d8ff",
                                 borderColor: "#7994f8",
+                                xAxisID: "xAxis",
                                 yAxisID: "kbps",
                             },
                             {
@@ -818,9 +821,12 @@ export default {
                                 _metricName: "vscope.vm.net.tx",
                                 label: "Bytes sent",
                                 fill: false,
+                                cubicInterpolationMode: 'monotone',
+                                tension: 0.4,
                                 pointRadius: 2,
                                 backgroundColor: "#fffad3",
                                 borderColor: "#f8d779",
+                                xAxisID: "xAxis",
                                 yAxisID: "kbps",
                             },
                         ],
@@ -829,40 +835,30 @@ export default {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            xAxes: [
-                                {
-                                    type: "time",
-                                    time: {
-                                        unit: "day",
-                                    },
+                            xAxis: {
+                                type: "time",
+                                time: {
+                                    unit: "day",
                                 },
-                            ],
-                            yAxes: [
-                                {
-                                    id: "kbps",
-                                    type: "linear",
-                                    position: "left",
-                                    ticks: {
-                                        beginAtZero: true,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "KBytes/s",
-                                    },
+                            },
+                            kbps: {
+                                type: "linear",
+                                position: "left",
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "KBytes/s",
                                 },
-                                {
-                                    id: "pps",
-                                    type: "linear",
-                                    position: "right",
-                                    ticks: {
-                                        beginAtZero: true,
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: "Packets/s",
-                                    },
+                            },
+                            pps: {
+                                type: "linear",
+                                position: "right",
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Packets/s",
                                 },
-                            ],
+                            },
                         },
                     },
                 },
@@ -905,7 +901,6 @@ export default {
         },
 
         changeDaysFrom(days) {
-            if (this.loading) return;
             if (this.daysFrom == days) return;
             this.daysFrom = days;
             this.loadGraphsData();
@@ -1018,7 +1013,7 @@ export default {
                 for (const i in data.datasets) {
                     if (data.datasets[i]._metricName == metricName) {
                         data.datasets[i].data = datas[metricName];
-                        this.$set(this.graphs[graphName], "data", { ...data });
+                        this.graphs[graphName]["data"] = { ...data };
                     }
                 }
             }

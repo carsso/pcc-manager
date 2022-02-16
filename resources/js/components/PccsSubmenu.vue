@@ -9,8 +9,8 @@
         <li v-if="!Object.keys(pccs).length" class="my-3">
             <a class="dropdown-item disabled"> <i class="fas fa-circle-notch fa-spin me-1"></i> Loading PCCs from OVHcloud API... </a>
         </li>
-        <template v-for="(pcc, pccName) in _(pccs).toPairs().sortBy(0).fromPairs().value()">
-            <li :key="pccName">
+        <template v-for="(pcc, pccName) in window._(pccs).toPairs().sortBy(0).fromPairs().value()" :key="pccName">
+            <li>
                 <a class="dropdown-item" :href="`${pccRoute}/${pccName}`">
                     {{ pccName }}
                     <small class="text-muted">
@@ -80,7 +80,7 @@ export default {
         async loadPccs() {
             this.pccNames = await this.get(`${this.ovhapiRoute}/dedicatedCloud`);
             for (const pccName of this.pccNames) {
-                this.$set(this.pccs, pccName, {});
+                this.pccs[pccName] = {};
             }
             for (const pccName of this.pccNames) {
                 this.loadPcc(pccName);
@@ -88,7 +88,7 @@ export default {
         },
         async loadPcc(pccName) {
             let pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}`);
-            this.$set(this.pccs, pccName, { ...pcc });
+            this.pccs[pccName] = { ...pcc };
         },
     },
 };

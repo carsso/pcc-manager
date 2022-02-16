@@ -70,7 +70,7 @@
         </div>
         <template v-else>
             <div class="row text-center">
-                <div class="col-12 col-lg-6 mt-3" v-for="(datacenter, datacenterId) in _(datacenters).toPairs().sortBy(0).fromPairs().value()" :key="datacenterId">
+                <div class="col-12 col-lg-6 mt-3" v-for="(datacenter, datacenterId) in window._(datacenters).toPairs().sortBy(0).fromPairs().value()" :key="datacenterId">
                     <div class="card">
                         <div class="card-body p-3 row">
                             <div class="col-12 col-lg-8">
@@ -142,7 +142,7 @@
                                         <i>No IP block found</i>
                                     </td>
                                 </tr>
-                                <tr v-for="ip in _.orderBy(_.values(ips), ['network'])" :key="ip.network" :title="`${ip.country} - ${ip.network} : Netmask: ${ip.netmask} - Gateway: ${ip.gateway}`">
+                                <tr v-for="ip in window._.orderBy(window._.values(ips), ['network'])" :key="ip.network" :title="`${ip.country} - ${ip.network} : Netmask: ${ip.netmask} - Gateway: ${ip.gateway}`">
                                     <td>
                                         <span class="fi me-1" :class="'fi-' + flagFromCountry(ip.country).toLowerCase()"></span>
                                         {{ ip.network }}
@@ -198,9 +198,9 @@
                                 <i>No task found</i>
                             </td>
                         </tr>
-                        <tr v-for="task in _.orderBy(_.values(tasks), ['lastModificationDate'], ['desc'])" :key="task.taskId">
+                        <tr v-for="task in window._.orderBy(window._.values(tasks), ['lastModificationDate'], ['desc'])" :key="task.taskId">
                             <td>
-                                <span :class="getTaskStateClass(task)">
+                                <span :class="getTaskStateTextClass(task)">
                                     <i class="fas fa-circle"></i>
                                     {{ task.state }}
                                 </span>
@@ -208,7 +208,7 @@
                                 <br />
                                 <small class="text-muted">#{{ task.taskId }}</small>
                             </td>
-                            <td>
+                            <td class="position-relative">
                                 <span :title="robots && robots[task.name] && robots[task.name].description">
                                     {{ task.name }}
                                 </span>
@@ -229,7 +229,7 @@
                                     >
                                     </vue-svg-gauge>
                                 </div>
-                                <small>{{ task.progress | round(0) }}%</small>
+                                <small>{{ round(task.progress, 0) }}%</small>
                                 -
                                 <small class="text-muted" v-if="task.description">
                                     {{ task.description }}
@@ -245,6 +245,9 @@
                                 <small class="text-muted" v-else>
                                     <i>No description</i>
                                 </small>
+                                <div class="progress task-progress">
+                                    <div class="progress-bar" :class="getTaskStateBgClass(task)" role="progressbar" :style="`width:${round(task.progress, 0)}%`" :aria-valuenow="round(task.progress, 0)" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
                             </td>
                             <td>
                                 <small>{{ task.createdFrom }}</small>
@@ -310,7 +313,7 @@
                                 <i>No user found</i>
                             </td>
                         </tr>
-                        <tr v-for="user in _.orderBy(_.values(users), ['name'])" :key="user.userId">
+                        <tr v-for="user in window._.orderBy(window._.values(users), ['name'])" :key="user.userId">
                             <td>
                                 <span :class="getUserStateClass(user)">
                                     <i class="fas fa-circle"></i>
@@ -428,7 +431,7 @@
                                         <i>No allowed network found</i>
                                     </td>
                                 </tr>
-                                <tr v-for="allowedNetwork in _.orderBy(_.values(allowedNetworks), ['network'])" :key="allowedNetwork.networkAccessId" :title="`${allowedNetwork.network}: ${allowedNetwork.state} #${allowedNetwork.networkAccessId}`">
+                                <tr v-for="allowedNetwork in window._.orderBy(window._.values(allowedNetworks), ['network'])" :key="allowedNetwork.networkAccessId" :title="`${allowedNetwork.network}: ${allowedNetwork.state} #${allowedNetwork.networkAccessId}`">
                                     <td>
                                         <i class="fas me-1" :class="allowedNetwork.state == 'allowed' ? 'fa-check text-success' : 'fa-clock text-warning'"></i>
                                         {{ allowedNetwork.network }}
@@ -464,7 +467,7 @@
                                         <i>No two factor authentication trusted IP found</i>
                                     </td>
                                 </tr>
-                                <tr v-for="twoFAWhitelist in _.orderBy(_.values(twoFAWhitelists), ['network'])" :key="twoFAWhitelist.id" :title="`${twoFAWhitelist.cidrNetmask}: ${twoFAWhitelist.state} #${twoFAWhitelist.id}`">
+                                <tr v-for="twoFAWhitelist in window._.orderBy(window._.values(twoFAWhitelists), ['network'])" :key="twoFAWhitelist.id" :title="`${twoFAWhitelist.cidrNetmask}: ${twoFAWhitelist.state} #${twoFAWhitelist.id}`">
                                     <td>
                                         <i class="fas me-1" :class="twoFAWhitelist.state == 'enabled' ? 'fa-check text-success' : 'fa-clock text-warning'"></i>
                                         {{ twoFAWhitelist.cidrNetmask }}
@@ -487,7 +490,7 @@
 import LoadingScreen from "./LoadingScreen";
 import ErrorsZone from "./ErrorsZone";
 import { httpRequester } from "./compositions/axios/httpRequester";
-import { VueSvgGauge } from "vue-svg-gauge";
+import VueSvgGauge from "./VueSvgGauge.vue";
 import moment from "moment";
 
 export default {
@@ -633,7 +636,7 @@ export default {
             if (value.currentVersion.build != value.lastMinor.build) {
                 upgrades.push(value.lastMinor.major + value.lastMinor.minor);
             }
-            this.$set(this.pcc, "upgrades", upgrades);
+            this.pcc["upgrades"] = upgrades;
         },
 
         async loadPccSecurityOptionsMatrix() {
@@ -754,18 +757,18 @@ export default {
                     this.complianceOptions = {};
                 }
                 if (value["state"] != "disabled" || 1) {
-                    this.$set(this.complianceOptions, optionName, { ...value });
+                    this.complianceOptions[optionName] = { ...value };
                 }
             } else if (value["optionType"] == "security") {
                 if (!this.securityOptions) {
                     this.securityOptions = {};
                 }
-                this.$set(this.securityOptions, optionName, { ...value });
+                this.securityOptions[optionName] = { ...value };
             } else {
                 if (!this.options) {
                     this.options = {};
                 }
-                this.$set(this.options, optionName, { ...value });
+                this.options[optionName] = { ...value };
             }
         },
 
@@ -816,7 +819,7 @@ export default {
                 if (!this.ips) {
                     this.ips = {};
                 }
-                this.$set(this.ips, ipNet, { ...ip });
+                this.ips[ipNet] = { ...ip };
             }
         },
 
@@ -834,7 +837,7 @@ export default {
                 for (const i in allowedNetworks) {
                     const allowedNetwork = allowedNetworks[i];
                     if (!allowedNetwork["error"]) {
-                        this.$set(this.allowedNetworks, allowedNetwork["key"], { ...allowedNetwork["value"] });
+                        this.allowedNetworks[allowedNetwork["key"]] = { ...allowedNetwork["value"] };
                     }
                 }
             }
@@ -854,7 +857,7 @@ export default {
                 for (const i in twoFAWhitelists) {
                     const twoFAWhitelist = twoFAWhitelists[i];
                     if (!twoFAWhitelist["error"]) {
-                        this.$set(this.twoFAWhitelists, twoFAWhitelist["key"], { ...twoFAWhitelist["value"] });
+                        this.twoFAWhitelists[twoFAWhitelist["key"]] = { ...twoFAWhitelist["value"] };
                     }
                 }
             }
@@ -879,7 +882,7 @@ export default {
                             value.rights = this.users[value.userId].rights;
                             value.objectRights = this.users[value.userId].objectRights;
                         }
-                        this.$set(this.users, user["key"], { ...value });
+                        this.users[user["key"]] = { ...value };
                         this.loadUser(user["key"]);
                     }
                 }
@@ -904,7 +907,7 @@ export default {
                     }
                 }
             }
-            this.$set(this.users[userId], "rights", { ...rights });
+            this.users[userId]["rights"] = { ...rights };
         },
 
         async loadUserObjectRights(userId) {
@@ -920,7 +923,7 @@ export default {
                     }
                 }
             }
-            this.$set(this.users[userId], "objectRights", { ...objectRights });
+            this.users[userId]["objectRights"] = { ...objectRights };
         },
 
         async loadDatacenters() {
@@ -937,7 +940,7 @@ export default {
                 for (const i in datacenters) {
                     const datacenter = datacenters[i];
                     if (!datacenter["error"]) {
-                        this.$set(this.datacenters, datacenter["key"], { ...datacenter["value"] });
+                        this.datacenters[datacenter["key"]] = { ...datacenter["value"] };
                     }
                 }
             }
@@ -972,7 +975,7 @@ export default {
                 if (this.taskIds.hasOwnProperty(taskId)) {
                     continue;
                 }
-                this.$set(this.taskIds, taskId, taskId);
+                this.taskIds[taskId] = taskId;
             }
 
             if (!Object.values(this.taskIds).length) {
@@ -1000,11 +1003,11 @@ export default {
                     if (!task["error"]) {
                         let value = task["value"];
                         robotsNames[value.name] = value.name;
-                        this.$set(this.tasks, task["key"], { ...value });
+                        this.tasks[task["key"]] = { ...value };
                     }
                 }
             }
-            this.loadRobots(_.values(robotsNames));
+            this.loadRobots(window._.values(robotsNames));
         },
 
         async loadRobots(robotsNames) {
@@ -1024,7 +1027,7 @@ export default {
                     const robot = robots[i];
                     if (!robot["error"]) {
                         let value = robot["value"];
-                        this.$set(this.robots, robot["key"], { ...value });
+                        this.robots[robot["key"]] = { ...value };
                     }
                 }
             }
@@ -1065,33 +1068,41 @@ export default {
             return results;
         },
 
-        getTaskStateClass(task) {
-            var resultClass = "text-warning";
+        getTaskStateTextClass(task) {
+            return "text-"+this.getTaskStateColor(task);
+        },
+
+        getTaskStateBgClass(task) {
+            return "bg-"+this.getTaskStateColor(task);
+        },
+
+        getTaskStateColor(task) {
+            var resultClass = "warning";
             if (task.state) {
                 if (task.state == "todo") {
-                    resultClass = "text-secondary";
+                    resultClass = "secondary";
                 } else if (task.state == "waitingTodo") {
-                    resultClass = "text-secondary";
+                    resultClass = "secondary";
                 } else if (task.state == "toCancel") {
-                    resultClass = "text-secondary";
+                    resultClass = "secondary";
                 } else if (task.state == "toCreate") {
-                    resultClass = "text-secondary";
+                    resultClass = "secondary";
                 } else if (task.state == "fixing") {
-                    resultClass = "text-warning";
+                    resultClass = "warning";
                 } else if (task.state == "doing") {
-                    resultClass = "text-warning";
+                    resultClass = "warning";
                 } else if (task.state == "waitingForChilds") {
-                    resultClass = "text-warning";
+                    resultClass = "warning";
                 } else if (task.state == "done") {
-                    resultClass = "text-success";
+                    resultClass = "success";
                 } else if (task.state == "canceled") {
-                    resultClass = "text-success";
+                    resultClass = "info";
                 } else if (task.state == "error") {
-                    resultClass = "text-danger";
+                    resultClass = "danger";
                 } else if (task.state == "unknown") {
-                    resultClass = "text-danger";
+                    resultClass = "danger";
                 } else {
-                    resultClass = "text-danger";
+                    resultClass = "danger";
                 }
             }
             return resultClass;
@@ -1174,5 +1185,13 @@ export default {
     max-width: 20px;
     margin: auto;
     display: inline-block;
+}
+
+.task-progress {
+    position: absolute;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    margin: 0 -0.25rem;
 }
 </style>

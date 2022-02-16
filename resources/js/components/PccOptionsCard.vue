@@ -20,7 +20,7 @@
                             <i>No sector-specific compliance option enabled</i>
                         </td>
                     </tr>
-                    <tr v-for="option in _.orderBy(_.values(options), ['compatible', 'state', 'name'], ['desc', 'desc', 'asc'])" :key="option.name">
+                    <tr v-for="option in window._.orderBy(window._.values(options), ['compatible', 'state', 'name'], ['desc', 'desc', 'asc'])" :key="option.name">
                         <td>
                             <span class="text-muted" v-if="option.state == 'disabled' && option.compatible === false" :title="`Incompatibility reason: ${option.reason && option.reason.message}`">
                                 <i class="fas fa-circle"></i>
@@ -42,7 +42,7 @@
                             </span>
                             <table class="table table-sm table-striped table-bordered mb-0" v-if="option.suboptions">
                                 <tbody>
-                                    <tr v-for="suboption in _.orderBy(_.values(option.suboptions), ['compatible', 'state', 'name'], ['desc', 'desc', 'asc'])" :key="suboption.id">
+                                    <tr v-for="suboption in window._.orderBy(window._.values(option.suboptions), ['compatible', 'state', 'name'], ['desc', 'desc', 'asc'])" :key="suboption.id">
                                         <td>
                                             <span :class="getOptionStateClass(suboption)">
                                                 <i class="fas fa-circle"></i>

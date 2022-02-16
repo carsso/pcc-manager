@@ -48,7 +48,9 @@ export default {
         async switchMode() {
             let response = await this.get(`${this.route}/darkmode/${this.$currentDarkmode ? "0" : "1"}`);
             if (response && !this.errors) {
-                this.$currentDarkmode = response.darkmode;
+                if(this.$currentDarkmode != response.$currentDarkmode) {
+                    this.window.location.reload();
+                }
             }
         },
     },

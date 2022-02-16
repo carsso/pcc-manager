@@ -184,7 +184,7 @@
                                         <vue-svg-gauge
                                             :start-angle="-110"
                                             :end-angle="110"
-                                            :value="gaugesValues('datastores-usage') | round(0)"
+                                            :value="round(gaugesValues('datastores-usage'), 0)"
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
@@ -201,7 +201,7 @@
                                                 <span>
                                                     <div>Space</div>
                                                     <div>usage :</div>
-                                                    <div class="h4">{{ gaugesValues("datastores-usage") | round(0) }} %</div>
+                                                    <div class="h4">{{ round(gaugesValues("datastores-usage"), 0) }} %</div>
                                                 </span>
                                             </div>
                                         </vue-svg-gauge>
@@ -212,7 +212,7 @@
                                         <vue-svg-gauge
                                             :start-angle="-110"
                                             :end-angle="110"
-                                            :value="gaugesValues('datastores-provisioned') | round(0)"
+                                            :value="round(gaugesValues('datastores-provisioned'), 0)"
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
@@ -229,7 +229,7 @@
                                                 <span>
                                                     <div>Space</div>
                                                     <div>provisioned :</div>
-                                                    <div class="h4">{{ gaugesValues("datastores-provisioned") | round(0) }} %</div>
+                                                    <div class="h4">{{ round(gaugesValues("datastores-provisioned"), 0) }} %</div>
                                                 </span>
                                             </div>
                                         </vue-svg-gauge>
@@ -278,10 +278,10 @@
                                                         :start-angle="-270"
                                                         :end-angle="90"
                                                         :inner-radius="0"
-                                                        :value="filer.spaceUsed | round(0)"
+                                                        :value="round(filer.spaceUsed, 0)"
                                                         :separator-step="0"
                                                         :min="0"
-                                                        :max="(filer.spaceUsed + filer.spaceFree) | round(0)"
+                                                        :max="round(filer.spaceUsed + filer.spaceFree, 0)"
                                                         :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                                         :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
@@ -289,7 +289,7 @@
                                                     >
                                                     </vue-svg-gauge>
                                                 </div>
-                                                {{ filer.spaceUsed | round(0) }} <small>of</small> {{ (filer.spaceUsed + filer.spaceFree) | round(0) }} <small>{{ filer.size.unit }}</small>
+                                                {{ round(filer.spaceUsed, 0) }} <small>of</small> {{ round(filer.spaceUsed + filer.spaceFree, 0) }} <small>{{ filer.size.unit }}</small>
                                             </span>
                                             <br />
                                             <span v-if="filer.size.unit" title="Space provisioned">
@@ -298,10 +298,10 @@
                                                         :start-angle="-270"
                                                         :end-angle="90"
                                                         :inner-radius="0"
-                                                        :value="filer.spaceProvisionned | round(0)"
+                                                        :value="round(filer.spaceProvisionned, 0)"
                                                         :separator-step="0"
                                                         :min="0"
-                                                        :max="(filer.spaceUsed + filer.spaceFree) | round(0)"
+                                                        :max="round(filer.spaceUsed + filer.spaceFree, 0)"
                                                         :base-color="$currentDarkmode ? '#555555' : '#dddddd'"
                                                         :blur-color="$currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
@@ -309,7 +309,7 @@
                                                     >
                                                     </vue-svg-gauge>
                                                 </div>
-                                                {{ filer.spaceProvisionned | round(0) }} <small>{{ filer.size.unit }} <small>provisioned</small></small>
+                                                {{ round(filer.spaceProvisionned, 0) }} <small>{{ filer.size.unit }} <small>provisioned</small></small>
                                             </span>
                                         </td>
                                     </tr>
@@ -337,7 +337,7 @@
                                         <vue-svg-gauge
                                             :start-angle="-110"
                                             :end-angle="110"
-                                            :value="gaugesValues('hosts-cpu') | round(0)"
+                                            :value="round(gaugesValues('hosts-cpu'), 0)"
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
@@ -354,7 +354,7 @@
                                                 <span>
                                                     <div>CPU</div>
                                                     <div>usage :</div>
-                                                    <div class="h4">{{ gaugesValues("hosts-cpu") | round(0) }} %</div>
+                                                    <div class="h4">{{ round(gaugesValues("hosts-cpu"), 0) }} %</div>
                                                 </span>
                                             </div>
                                         </vue-svg-gauge>
@@ -365,7 +365,7 @@
                                         <vue-svg-gauge
                                             :start-angle="-110"
                                             :end-angle="110"
-                                            :value="gaugesValues('hosts-ram') | round(0)"
+                                            :value="round(gaugesValues('hosts-ram'), 0)"
                                             :separator-step="0"
                                             :min="0"
                                             :max="100"
@@ -382,7 +382,7 @@
                                                 <span>
                                                     <div>RAM</div>
                                                     <div>usage :</div>
-                                                    <div class="h4">{{ gaugesValues("hosts-ram") | round(0) }} %</div>
+                                                    <div class="h4">{{ round(gaugesValues("hosts-ram"), 0) }} %</div>
                                                 </span>
                                             </div>
                                         </vue-svg-gauge>
@@ -444,7 +444,7 @@
                                                     </vue-svg-gauge>
                                                 </div>
                                                 <small>
-                                                    CPU: {{ (host.cpuUsed / 1000) | round(1) }} <small>of</small> {{ (host.cpuMax / 1000) | round(0) }} <small>{{ host.cpu.unit }}</small>
+                                                    CPU: {{ round(host.cpuUsed / 1000, 1) }} <small>of</small> {{ round(host.cpuMax / 1000,  0) }} <small>{{ host.cpu.unit }}</small>
                                                 </small>
                                             </template>
                                             <br />
@@ -466,7 +466,7 @@
                                                     </vue-svg-gauge>
                                                 </div>
                                                 <small>
-                                                    RAM: {{ (host.memoryUsed / 1024) | round(0) }} <small>of</small> {{ host.ram.value | round(0) }} <small>{{ host.ram.unit }}</small>
+                                                    RAM: {{ round(host.memoryUsed / 1024, 0) }} <small>of</small> {{ round(host.ram.value, 0) }} <small>{{ host.ram.unit }}</small>
                                                 </small>
                                             </template>
                                         </td>
@@ -518,7 +518,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="vm in _.orderBy(_.values(vms), ['isOvhVm', (vm) => vm.name.toLowerCase()], ['asc', 'asc'])" :key="vm.vmId">
+                            <tr v-for="vm in window._.orderBy(window._.values(vms), ['isOvhVm', (vm) => vm.name.toLowerCase()], ['asc', 'asc'])" :key="vm.vmId">
                                 <td :title="`State: ${vm.powerState} - MoRef: ${vm.moRef}`">
                                     <i class="fas fa-circle" :class="getVirtualMachineStateClass(vm)"></i><br />
                                     <small class="text-muted">#{{ vm.vmId }}</small>
@@ -615,7 +615,7 @@
                                         >
                                         </vue-svg-gauge>
                                     </div>
-                                    {{ (vm.memoryMax / 1024) | round(0) }} <small>GB</small>
+                                    {{ round(vm.memoryMax / 1024, 0) }} <small>GB</small>
                                     <br />
                                     {{ vm.cpuNum }} <small>vCPU</small>
                                 </td>
@@ -636,22 +636,22 @@
                                         >
                                         </vue-svg-gauge>
                                     </div>
-                                    {{ (vm.cpuUsed / 1000) | round(1) }} <small>GHz</small>
+                                    {{ round(vm.cpuUsed / 1000, 1) }} <small>GHz</small>
                                     <br />
                                     <small>
                                         Ready:
-                                        <span :class="vm.cpuReadyPercent < 3 ? 'text-primary' : 'text-warning'">{{ vm.cpuReady | round(0) }} <small>ms</small></span>
+                                        <span :class="vm.cpuReadyPercent < 3 ? 'text-primary' : 'text-warning'">{{ round(vm.cpuReady, 0) }} <small>ms</small></span>
                                     </small>
                                 </td>
                                 <td v-if="vm.powerState != 'deleted'" :title="`Network TX/RX: ${round(vm.netTx / 100, 1)} MBps / ${round(vm.netRx / 100, 1)} MBps - Disk IOs R/W: ${round(vm.readPerSecond, 0)} IOps / ${round(vm.writePerSecond, 0)} IOps`">
-                                    <small><i class="fas fa-caret-up"></i> {{ (vm.netTx / 100) | round(1) }} / {{ (vm.netRx / 100) | round(1) }} <i class="fas fa-caret-down"></i> <small>MBps</small></small>
+                                    <small><i class="fas fa-caret-up"></i> {{ round(vm.netTx / 100, 1) }} / {{ round(vm.netRx / 100, 1) }} <i class="fas fa-caret-down"></i> <small>MBps</small></small>
                                     <br />
-                                    <small><i class="fas fa-caret-up"></i> {{ vm.readPerSecond | round(0) }} / {{ vm.writePerSecond | round(0) }} <i class="fas fa-caret-down"></i> <small>IOps</small></small>
+                                    <small><i class="fas fa-caret-up"></i> {{ round(vm.readPerSecond, 0) }} / {{ round(vm.writePerSecond, 0) }} <i class="fas fa-caret-down"></i> <small>IOps</small></small>
                                 </td>
                                 <td v-if="vm.powerState != 'deleted'" :title="`Disk R/W: ${round(vm.readRate / 100, 1)} MBps / ${round(vm.writeRate / 100, 1)} MBps - Disk latency R/W: ${round(vm.readLatency, 0)} ms / ${round(vm.writeLatency, 0)} ms`">
-                                    <small><i class="fas fa-caret-up"></i> {{ (vm.readRate / 100) | round(1) }} / {{ (vm.writeRate / 100) | round(1) }} <i class="fas fa-caret-down"></i> <small>MBps</small></small>
+                                    <small><i class="fas fa-caret-up"></i> {{ round(vm.readRate / 100, 1) }} / {{ round(vm.writeRate / 100, 1) }} <i class="fas fa-caret-down"></i> <small>MBps</small></small>
                                     <br />
-                                    <small><i class="fas fa-caret-up"></i> {{ vm.readLatency | round(0) }} / {{ vm.writeLatency | round(0) }} <i class="fas fa-caret-down"></i> <small>ms</small></small>
+                                    <small><i class="fas fa-caret-up"></i> {{ round(vm.readLatency, 0) }} / {{ round(vm.writeLatency, 0) }} <i class="fas fa-caret-down"></i> <small>ms</small></small>
                                 </td>
                             </tr>
                         </tbody>
@@ -666,7 +666,7 @@
 import LoadingScreen from "./LoadingScreen";
 import ErrorsZone from "./ErrorsZone";
 import { httpRequester } from "./compositions/axios/httpRequester";
-import { VueSvgGauge } from "vue-svg-gauge";
+import VueSvgGauge from "./VueSvgGauge.vue";
 
 export default {
     name: "PccDatacenterPage",
@@ -758,7 +758,7 @@ export default {
             if (value.currentVersion.build != value.lastMinor.build) {
                 upgrades.push(value.lastMinor.major + value.lastMinor.minor);
             }
-            this.$set(this.pcc, "upgrades", upgrades);
+            this.pcc["upgrades"] = upgrades;
         },
 
         async loadDatacenter() {
@@ -787,7 +787,7 @@ export default {
                 for (const hostId in hosts) {
                     const host = hosts[hostId];
                     if (!host["error"]) {
-                        this.$set(this.hosts, host["key"], { ...host["value"] });
+                        this.hosts[host["key"]] = { ...host["value"] };
                     }
                 }
             }
@@ -809,7 +809,7 @@ export default {
                     const filer = filers[filerId];
                     if (!filer["error"]) {
                         filer["value"]["global"] = false;
-                        this.$set(this.filers, filer["key"], { ...filer["value"] });
+                        this.filers[filer["key"]] = { ...filer["value"] };
                     }
                 }
             }
@@ -827,7 +827,7 @@ export default {
                     const filer = filers[filerId];
                     if (!filer["error"]) {
                         filer["value"]["global"] = true;
-                        this.$set(this.filers, filer["key"], { ...filer["value"] });
+                        this.filers[filer["key"]] = { ...filer["value"] };
                     }
                 }
             }
@@ -860,7 +860,7 @@ export default {
                             value["filers"][i]["capacity"] = capacity;
                         }
                         value["isOvhVm"] = this.isOvhVm(value);
-                        this.$set(this.vms, vm["key"], { ...value });
+                        this.vms[vm["key"]] = { ...value };
                     }
                 }
             }

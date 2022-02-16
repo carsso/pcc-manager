@@ -1,7 +1,6 @@
-import { reactive, toRefs, } from '@vue/composition-api';
+import { reactive, toRefs } from 'vue';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
-import Vue from 'vue';
 
 export function httpRequester() {
     const _loading = {};
@@ -9,7 +8,7 @@ export function httpRequester() {
         loaded: false,
         loading: false,
         errors: null,
-    })
+    });
 
     const get = (url) => { return request({ 'url': url }) };
     const request = async (config) => {
@@ -31,7 +30,7 @@ export function httpRequester() {
                 state.errors = {};
             }
 
-            Vue.set(state.errors, hash, getErrorsFromAxiosException(err));
+            state.errors[hash] = getErrorsFromAxiosException(err);
             hasError = true;
         }
         delete _loading[hash];

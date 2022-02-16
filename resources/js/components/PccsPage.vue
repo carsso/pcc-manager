@@ -7,7 +7,7 @@
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
         <div class="row text-center">
-            <div class="col-12 col-lg-6 mb-3" v-for="(pcc, pccName) in _(pccs).toPairs().sortBy(0).fromPairs().value()" :key="pccName">
+            <div class="col-12 col-lg-6 mb-3" v-for="(pcc, pccName) in window._(pccs).toPairs().sortBy(0).fromPairs().value()" :key="pccName">
                 <div class="card">
                     <div class="card-body p-4">
                         <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
@@ -37,7 +37,7 @@
                                 <div class="card-body p-4"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading datacenters from OVHcloud API...</div>
                             </div>
                             <template v-else>
-                                <div class="card mt-4" v-for="(datacenter, datacenterId) in _(pcc.datacenters).toPairs().sortBy(0).fromPairs().value()" :key="datacenterId">
+                                <div class="card mt-4" v-for="(datacenter, datacenterId) in window._(pcc.datacenters).toPairs().sortBy(0).fromPairs().value()" :key="datacenterId">
                                     <div class="card-body p-3 row">
                                         <div class="col-12 col-lg-8">
                                             <div class="mb-1">
@@ -116,7 +116,7 @@ export default {
 
     mounted() {
         for (const pccName of this.pccNames) {
-            this.$set(this.pccs, pccName, {});
+            this.pccs[pccName] = {};
         }
         this.loadAll(true);
     },
@@ -140,7 +140,7 @@ export default {
                 pccDatacenters = this.pccs[pccName]["datacenters"];
                 pcc["datacenters"] = pccDatacenters;
             }
-            this.$set(this.pccs, pccName, { ...pcc });
+            this.pccs[pccName] = { ...pcc };
             if (pcc) {
                 const datacenterIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}/datacenter`);
                 if (datacenterIds) {
@@ -152,7 +152,7 @@ export default {
                             pcc["datacenters"][datacenter["key"]] = datacenter["value"];
                         }
                     }
-                    this.$set(this.pccs, pccName, { ...pcc });
+                    this.pccs[pccName] = { ...pcc };
                 }
             }
         },
