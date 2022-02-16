@@ -14,7 +14,14 @@ const path = require('path');
  */
 
 mix.js('resources/js/app.js', 'public/js')
-    .vue()
+    .vue({
+        version: 3,
+        options: {
+            compilerOptions: {
+                whitespace: 'preserve',
+            },
+        },
+    })
     .sass('resources/sass/app.scss', 'public/css', {
         sassOptions: {
             includePaths: [
