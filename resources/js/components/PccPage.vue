@@ -290,10 +290,10 @@
                     </thead>
                     <tbody>
                         <tr v-if="!users">
-                            <td colspan="4"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading users from OVHcloud API...</td>
+                            <td :colspan="4 + window._.values(datacenters).length"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading users from OVHcloud API...</td>
                         </tr>
                         <tr v-else-if="!Object.keys(users).length">
-                            <td colspan="4">
+                            <td :colspan="4 + window._.values(datacenters).length">
                                 <i>No user found</i>
                             </td>
                         </tr>
@@ -812,6 +812,13 @@ export default {
             if (!allowedNetworkIds.length) {
                 this.allowedNetworks = {};
             }
+            if (this.allowedNetworks !== null) {
+                for (const allowedNetworkId in this.allowedNetworks) {
+                    if(!allowedNetworkIds.includes(parseInt(allowedNetworkId))) {
+                        delete this.allowedNetworks[allowedNetworkId];
+                    }
+                }
+            }
             let allowedNetworkIdsChunks = this.chunkArray(allowedNetworkIds, 40);
             for (let allowedNetworkIdsChunk of allowedNetworkIdsChunks) {
                 const allowedNetworks = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/allowedNetwork/${allowedNetworkIdsChunk.join(",")}?batch=,`);
@@ -832,6 +839,13 @@ export default {
             if (!twoFAWhitelistIds.length) {
                 this.twoFAWhitelists = {};
             }
+            if (this.twoFAWhitelists !== null) {
+                for (const twoFAWhitelistId in this.twoFAWhitelists) {
+                    if(!twoFAWhitelistIds.includes(parseInt(twoFAWhitelistId))) {
+                        delete this.twoFAWhitelists[twoFAWhitelistId];
+                    }
+                }
+            }
             let twoFAWhitelistIdsChunks = this.chunkArray(twoFAWhitelistIds, 40);
             for (let twoFAWhitelistIdsChunk of twoFAWhitelistIdsChunks) {
                 const twoFAWhitelists = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/twoFAWhitelist/${twoFAWhitelistIdsChunk.join(",")}?batch=,`);
@@ -851,6 +865,13 @@ export default {
             const userIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user`);
             if (!userIds.length) {
                 this.users = {};
+            }
+            if (this.users !== null) {
+                for (const userId in this.users) {
+                    if(!userIds.includes(parseInt(userId))) {
+                        delete this.users[userId];
+                    }
+                }
             }
             let userIdsChunks = this.chunkArray(userIds, 40);
             for (let userIdsChunk of userIdsChunks) {
