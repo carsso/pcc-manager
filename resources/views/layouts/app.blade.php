@@ -25,10 +25,23 @@
         @endif
     </head>
     <body>
-        <div id="app" class="h-100">
+        <div id="app">
             @yield('navbar')
-
-            @yield('main')
+            <main class="py-4">
+                <div class="container">@flash</div>
+                @yield('content')
+                <div class="text-center text-muted">
+                    <small>
+                        {{ config('app.name') }}
+                        - 
+                        <a href="{{ route('legal') }}">Legal notices</a>
+                        - 
+                        Not affiliated with OVHcloud
+                        - 
+                        <a href="https://github.com/carsso/pcc-manager" target="_blank"><i class="fab fa-github"></i> Source code available on GitHub</a>
+                    </small>
+                </div>
+            </main>
         </div>
         <!-- Scripts Footer -->
         <script src="{{ mix('js/app.js') }}"></script>

@@ -6,6 +6,12 @@
         <transition name="errors-zone">
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a :href="`${pccRoute}`">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ pccName }}</li>
+            </ol>
+        </nav>
         <div class="card">
             <div class="card-body p-3">
                 <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
@@ -14,9 +20,6 @@
                 <div class="row text-center">
                     <div class="col-4">
                         <h3 class="mb-1">
-                            <a :href="`${pccRoute}`">
-                                <i class="far fa-arrow-alt-circle-left"></i>
-                            </a>
                             {{ pccName }}
                         </h3>
                         <h4 class="mb-1">{{ pcc.description }}</h4>

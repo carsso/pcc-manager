@@ -6,6 +6,14 @@
         <transition name="errors-zone">
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a :href="`${pccRoute}`">Home</a></li>
+                <li class="breadcrumb-item"><a :href="`${pccRoute}/${pccName}`">{{ pccName }}</a></li>
+                <li class="breadcrumb-item"><a :href="`${pccRoute}/${pccName}`">Datacenters</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ datacenter.name || 'datacenter'+datacenterId }}</li>
+            </ol>
+        </nav>
         <div class="row text-center">
             <div class="col-8">
                 <div class="card">
@@ -16,9 +24,6 @@
                         <div class="row text-center">
                             <div class="col-6">
                                 <h3 class="mb-1">
-                                    <a :href="`${pccRoute}/${pccName}`">
-                                        <i class="far fa-arrow-alt-circle-left"></i>
-                                    </a>
                                     {{ pccName }}
                                 </h3>
                                 <h4 class="mb-1">{{ pcc.description }}</h4>
