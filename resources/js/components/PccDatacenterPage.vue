@@ -55,9 +55,9 @@
                                 <i class="fas fa-circle"></i>
                                 {{ backup.state }}
                             </span>
-                            <span class="text-gray-400" v-if="backup.backupOffer">
-                                - Backup hour: {{ backup.scheduleHour }}
+                            <span class="text-gray-600" v-if="backup.backupOffer">
                                 - Offer: {{ backup.backupOffer }}
+                                - Backup hour: {{ backup.scheduleHour }}
                                 <br />
                                 Encryption: <i class="fas" :class="backup.encryption ? 'fa-check text-green-700' : 'fa-times text-red-700'"></i>
                                 <span v-if="backup.replicationZone">
@@ -81,15 +81,15 @@
                                 <i class="fas fa-circle"></i>
                                 {{ disasterRecovery.state }}
                             </span>
-                            <span class="text-gray-400" v-if="disasterRecovery.drpType">
-                                {{ disasterRecovery.systemVersion }} {{ disasterRecovery.localSiteInformation ? disasterRecovery.localSiteInformation.zertoVersion : "" }} - Type: {{ disasterRecovery.drpType }} - Role:
-                                {{ disasterRecovery.localSiteInformation ? disasterRecovery.localSiteInformation.role : "unknown" }}
+                            <span class="text-gray-600" v-if="disasterRecovery.drpType">
+                                - {{ disasterRecovery.systemVersion }} {{ disasterRecovery.localSiteInformation ? disasterRecovery.localSiteInformation.zertoVersion : "" }}
+                                - Type: {{ disasterRecovery.drpType }}
+                                - Role: {{ disasterRecovery.localSiteInformation ? disasterRecovery.localSiteInformation.role : "unknown" }}
                                 <br />
                                 <template v-if="disasterRecovery.remoteSiteInformation">
                                     <span v-if="disasterRecovery.drpType == 'ovh'">
                                         Remote: {{ disasterRecovery.remoteSiteInformation.serviceName }}
-                                        -
-                                        {{ disasterRecovery.remoteSiteInformation.datacenterName }}
+                                        - {{ disasterRecovery.remoteSiteInformation.datacenterName }}
                                         <a :href="`${pccRoute}/${disasterRecovery.remoteSiteInformation.serviceName}/datacenter/${disasterRecovery.remoteSiteInformation.datacenterId}`" class="text-indigo-600 hover:text-indigo-800">
                                             <i class="far fa-arrow-alt-circle-right"></i>
                                         </a>
