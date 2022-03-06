@@ -130,7 +130,7 @@
                                         ]"
                                         :scale-interval="0"
                                     >
-                                        <div class="inner-text">
+                                        <div class="inner-text text-gray-600 dark:text-gray-300">
                                             <span>
                                                 <div>Space</div>
                                                 <div>usage :</div>
@@ -156,7 +156,7 @@
                                         ]"
                                         :scale-interval="0"
                                     >
-                                        <div class="inner-text">
+                                        <div class="inner-text text-gray-600 dark:text-gray-300">
                                             <span>
                                                 <div>Space</div>
                                                 <div>provisioned :</div>
@@ -277,7 +277,7 @@
                                         ]"
                                         :scale-interval="0"
                                     >
-                                        <div class="inner-text">
+                                        <div class="inner-text text-gray-600 dark:text-gray-300">
                                             <span>
                                                 <div>CPU</div>
                                                 <div>usage :</div>
@@ -303,7 +303,7 @@
                                         ]"
                                         :scale-interval="0"
                                     >
-                                        <div class="inner-text">
+                                        <div class="inner-text text-gray-600 dark:text-gray-300">
                                             <span>
                                                 <div>RAM</div>
                                                 <div>usage :</div>
@@ -1154,9 +1154,6 @@ export default {
 
     span {
         max-width: 100px;
-        color: grey;
-        font-size: 14px;
-        font-weight: 700;
     }
 }
 
