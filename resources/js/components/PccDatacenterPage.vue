@@ -56,14 +56,15 @@
                                 {{ backup.state }}
                             </span>
                             <span class="text-gray-400" v-if="backup.backupOffer">
+                                - Backup hour: {{ backup.scheduleHour }}
                                 - Offer: {{ backup.backupOffer }}
+                                <br />
+                                Encryption: <i class="fas" :class="backup.encryption ? 'fa-check text-green-700' : 'fa-times text-red-700'"></i>
                                 <span v-if="backup.replicationZone">
                                     -
                                     <i class="fas fa-map-marked-alt"></i>
                                     <abbr title="Replication datacenter">Replication</abbr> : {{ backup.replicationZone }}
                                 </span>
-                                <br />
-                                Backup hour: {{ backup.scheduleHour }} - Encryption: <i class="fas" :class="backup.encryption ? 'fa-check text-green-700' : 'fa-times text-red-700'"></i>
                             </span>
                         </template>
                     </div>

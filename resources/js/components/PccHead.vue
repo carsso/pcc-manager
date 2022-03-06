@@ -22,12 +22,13 @@
                     <div v-else>
                         <i class="fas fa-map-marked-alt"></i> Location: {{ pcc.location }}<br />
                         Commercial range: {{ pcc.commercialRange }}<br />
-                        <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}<br />
-                        <div v-if="pcc.upgrades">
+                        <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}
+                        <template v-if="pcc.upgrades">
                             <small class="text-yellow-600" v-if="pcc.upgrades.length > 0">
                                 <abbr :title="`Available upgrade(s): ${pcc.upgrades.join(', ')}`">Upgrade available</abbr>
                             </small>
-                        </div>
+                        </template>
+                        <br />
                         <div v-if="vrack">
                             <i class="fas fa-network-wired"></i> vRack :
                             <template v-if="!vrack.pcc">
