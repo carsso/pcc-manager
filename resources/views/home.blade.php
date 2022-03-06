@@ -26,8 +26,9 @@
 
     <div class="md:flex text-center gap-6 py-4">
         <div class="md:w-1/2 lg:w-1/3 mb-6">
-            <div class="bg-white dark:bg-gray-700 rounded-lg shadow text-center">
-                <img src="https://user-images.githubusercontent.com/666182/148128946-e64ce228-5c82-45b0-ad0b-19d94fc5814d.png" class="rounded-t-lg " alt="">
+            <div class="bg-white dark:bg-gray-700 rounded-lg shadow text-center dark:border dark:border-gray-700">
+                <img src="https://user-images.githubusercontent.com/666182/156908567-49930926-796d-47bf-b026-5e1347432626.png" class="rounded-t-lg dark:hidden" alt="">
+                <img src="https://user-images.githubusercontent.com/666182/156908568-f45b3c47-c28f-4aba-84e2-8c83e110097e.png" class="rounded-t-lg hidden dark:block" alt="">
                 <div class="p-4">
                     <p class="text-sm">Visualize you virtual machines, hosts and datastores health & resource usage.</p>
                 </div>

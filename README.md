@@ -26,7 +26,9 @@ Written in PHP/Laravel and VueJS. _Depends on the [OVHcloud API PHP wrapper](htt
 ### Screenshots:
 
 #### Datacenter view:
-![Datacenter view](https://user-images.githubusercontent.com/666182/148128946-e64ce228-5c82-45b0-ad0b-19d94fc5814d.png)
+![Datacenter view](https://user-images.githubusercontent.com/666182/156908567-49930926-796d-47bf-b026-5e1347432626.png)
+
+![Datacenter view](https://user-images.githubusercontent.com/666182/156908568-f45b3c47-c28f-4aba-84e2-8c83e110097e.png)
 
 ## Deployment
 
