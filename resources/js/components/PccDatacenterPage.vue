@@ -55,7 +55,7 @@
                                 <i class="fas fa-circle"></i>
                                 {{ backup.state }}
                             </span>
-                            <span class="text-gray-600" v-if="backup.backupOffer">
+                            <span class="text-gray-600 dark:text-gray-300" v-if="backup.backupOffer">
                                 - Offer: {{ backup.backupOffer }}
                                 - Backup hour: {{ backup.scheduleHour }}
                                 <br />
@@ -81,7 +81,7 @@
                                 <i class="fas fa-circle"></i>
                                 {{ disasterRecovery.state }}
                             </span>
-                            <span class="text-gray-600" v-if="disasterRecovery.drpType">
+                            <span class="text-gray-600 dark:text-gray-300" v-if="disasterRecovery.drpType">
                                 - {{ disasterRecovery.systemVersion }} {{ disasterRecovery.localSiteInformation ? disasterRecovery.localSiteInformation.zertoVersion : "" }}
                                 - Type: {{ disasterRecovery.drpType }}
                                 - Role: {{ disasterRecovery.localSiteInformation ? disasterRecovery.localSiteInformation.role : "unknown" }}
