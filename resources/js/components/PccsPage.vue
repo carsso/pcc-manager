@@ -12,8 +12,8 @@
                 <div class="bg-white dark:bg-gray-700 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-600">
                     <div class="p-4 relative">
                         <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
-                        <h3 class="mb-2 text-2xl">{{ pccName }}</h3>
-                        <h4 class="text-xl">{{ pcc.description }}</h4>
+                        <h3 class="mb-1 text-2xl">{{ pccName }}</h3>
+                        <h4 class="text-lg">{{ pcc.description }}</h4>
                         <div v-if="!Object.keys(pcc).length" class="py-6">
                             <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading data from OVHcloud API...
                         </div>

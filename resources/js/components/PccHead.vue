@@ -11,7 +11,7 @@
             <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
             <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 dark:divide-gray-600">
                 <div class="p-4">
-                    <h3 class="mb-2 text-2xl">{{ pccName }}</h3>
+                    <h3 class="mb-1 text-2xl">{{ pccName }}</h3>
                     <h4 class="text-lg">{{ pcc.description }}</h4>
                     <div>
                         <a target="_blank" :href="pcc.webInterfaceUrl" class="text-sm font-medium underline text-indigo-600 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-600">{{ pcc.webInterfaceUrl }}</a>
