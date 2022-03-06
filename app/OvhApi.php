@@ -114,7 +114,11 @@ class OvhApi
             }
             $credentials = $this->legacyProvider->requestCredentials($rights, $this->redirectUrl);
             $this->state = $credentials['consumerKey'];
-            return $credentials['validationUrl'];
+            $validationUrl = $credentials['validationUrl'];
+            if($forceValidationUrl = config('ovh.'.$this->endpoint.'.custom_api_validation_url')) {
+                $validationUrl = preg_replace('/^(.*\/auth\/)\?/', $forceValidationUrl.'?', $validationUrl);
+            }
+            return $validationUrl;
         }
     }
 
