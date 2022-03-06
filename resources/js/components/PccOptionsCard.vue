@@ -42,64 +42,68 @@
                                         <small class="text-yellow-600" v-if="option.upgrades.length > 0"><abbr :title="`Available upgrade(s): ${option.upgrades.join(', ')}`">Upgrade available</abbr></small>
                                     </template>
                                 </span>
-                                <table class="table table-sm table-striped table-bordered mb-0" v-if="option.suboptions">
-                                    <tbody>
-                                        <tr v-for="suboption in window._.orderBy(window._.values(option.suboptions), ['compatible', 'state', 'name'], ['desc', 'desc', 'asc'])" :key="suboption.id">
-                                            <td>
-                                                <span :class="getOptionStateClass(suboption)">
-                                                    <i class="fas fa-circle"></i>
-                                                    {{ suboption.state }}
-                                                </span>
-                                                <small class="text-gray-500"> #{{ suboption.id }} </small>
-                                            </td>
-                                            <td :title="getSuboptionTitle(suboption)">
-                                                <template v-if="suboption.domainName">
-                                                    {{ suboption.domainName }}
-                                                    <small class="text-gray-500">
-                                                        <template v-if="suboption.hostname">
-                                                            <template v-if="suboption.port">
-                                                                {{suboption.hostname}}:{{suboption.port}}
+                                <div class="px-1 pb-1" v-if="option.suboptions && Object.keys(option.suboptions).length">
+                                    <div class="shadow overflow-hidden border border-gray-200 dark:border-gray-800 sm:rounded-lg">
+                                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                                            <tbody class="text-xs bg-white dark:bg-gray-700">
+                                                <tr v-for="(suboption, suboptionIdx) in window._.orderBy(window._.values(option.suboptions), ['compatible', 'state', 'name'], ['desc', 'desc', 'asc'])" :key="suboption.id" :class="suboptionIdx % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'">
+                                                    <td>
+                                                        <span :class="getOptionStateClass(suboption)">
+                                                            <i class="fas fa-circle"></i>
+                                                            {{ suboption.state }}
+                                                        </span>
+                                                        <small class="text-gray-500"> #{{ suboption.id }} </small>
+                                                    </td>
+                                                    <td :title="getSuboptionTitle(suboption)">
+                                                        <template v-if="suboption.domainName">
+                                                            {{ suboption.domainName }}
+                                                            <small class="text-gray-500">
+                                                                <template v-if="suboption.hostname">
+                                                                    <template v-if="suboption.port">
+                                                                        {{suboption.hostname}}:{{suboption.port}}
+                                                                    </template>
+                                                                    <template v-else>
+                                                                        {{suboption.hostname}}
+                                                                    </template>
+                                                                    ({{suboption.ip}})
+                                                                </template>
+                                                                <template v-else>
+                                                                    <template v-if="suboption.port">
+                                                                        {{suboption.ip}}:{{suboption.port}}
+                                                                    </template>
+                                                                    <template v-else>
+                                                                        {{suboption.ip}}
+                                                                    </template>
+                                                                </template>
+                                                                {{ suboption.noSsl ? '(no SSL/TLS)' : '' }}
+                                                            </small>
+                                                        </template>
+                                                        <template v-else>
+                                                            <template v-if="suboption.hostname">
+                                                                <template v-if="suboption.port">
+                                                                    {{suboption.hostname}}:{{suboption.port}}
+                                                                </template>
+                                                                <template v-else>
+                                                                    {{suboption.hostname}}
+                                                                </template>
+                                                                ({{suboption.ip}})
                                                             </template>
                                                             <template v-else>
-                                                                {{suboption.hostname}}
+                                                                <template v-if="suboption.port">
+                                                                    {{suboption.ip}}:{{suboption.port}}
+                                                                </template>
+                                                                <template v-else>
+                                                                    {{suboption.ip}}
+                                                                </template>
                                                             </template>
-                                                            ({{suboption.ip}})
+                                                            {{ suboption.noSsl ? '(no SSL/TLS)' : '' }}
                                                         </template>
-                                                        <template v-else>
-                                                            <template v-if="suboption.port">
-                                                                {{suboption.ip}}:{{suboption.port}}
-                                                            </template>
-                                                            <template v-else>
-                                                                {{suboption.ip}}
-                                                            </template>
-                                                        </template>
-                                                        {{ suboption.noSsl ? '(no SSL/TLS)' : '' }}
-                                                    </small>
-                                                </template>
-                                                <template v-else>
-                                                    <template v-if="suboption.hostname">
-                                                        <template v-if="suboption.port">
-                                                            {{suboption.hostname}}:{{suboption.port}}
-                                                        </template>
-                                                        <template v-else>
-                                                            {{suboption.hostname}}
-                                                        </template>
-                                                        ({{suboption.ip}})
-                                                    </template>
-                                                    <template v-else>
-                                                        <template v-if="suboption.port">
-                                                            {{suboption.ip}}:{{suboption.port}}
-                                                        </template>
-                                                        <template v-else>
-                                                            {{suboption.ip}}
-                                                        </template>
-                                                    </template>
-                                                    {{ suboption.noSsl ? '(no SSL/TLS)' : '' }}
-                                                </template>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
