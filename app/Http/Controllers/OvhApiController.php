@@ -34,7 +34,17 @@ class OvhApiController extends Controller
             }
             return $this->tryLogin($endpoint, $code, $state);
         } elseif($state = session('state')) {
-            return $this->tryLogin($endpoint, $code, $state);
+            try {
+                return $this->tryLogin($endpoint, $code, $state);
+            } catch (RequestException $e) {
+                $response = $e->getResponse();
+                $error = null;
+                if ($response != null) {
+                    $json = json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+                    $error = $json['message'].' ('.$json['errorCode'].')';
+                }
+                return redirect()->route('home')->withFlashError('A login error has occured : '.($error ? $error : $e->getMessage()))->withInput();
+            }
         }
         return redirect()->route('pcc');
     }

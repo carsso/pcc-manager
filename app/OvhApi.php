@@ -145,6 +145,7 @@ class OvhApi
                 $this->consumerKey,
             );
         }
+
         return $this->get('/me');
     }
 

@@ -2,12 +2,10 @@
 
 @section('content')
 <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="row text-center">
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="my-4">{{ $code ?? null }} {{ $status ?? 'Error' }} : {{ $message ?? null }}</h3>
-                </div>
+    <div class="bg-white dark:bg-gray-700 rounded-lg shadow text-center relative mt-6">
+        <div class="p-4">
+            <div class="my-4">
+                {{ $code ?? null }} {{ $status ?? 'Error' }} : {{ $message ?? null }}
             </div>
         </div>
     </div>
