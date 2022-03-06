@@ -79,7 +79,9 @@
                                 </thead>
                                 <tbody class="text-sm bg-white dark:bg-gray-700">
                                     <tr v-if="!ips">
-                                        <td colspan="2" class="p-4"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading IP blocks from OVHcloud API...</td>
+                                        <td colspan="2" class="p-4">
+                                            <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading IP blocks from OVHcloud API...
+                                        </td>
                                     </tr>
                                     <tr v-else-if="!Object.keys(ips).length">
                                         <td colspan="2" class="p-4">
@@ -87,11 +89,11 @@
                                         </td>
                                     </tr>
                                     <tr v-for="(ip, ipIdx) in window._.orderBy(window._.values(ips), ['network'])" :key="ip.network" :title="`${ip.country} - ${ip.network} : Netmask: ${ip.netmask} - Gateway: ${ip.gateway}`" :class="ipIdx % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'">
-                                        <td>
+                                        <td class="p-1">
                                             <span class="fi mr-1" :class="'fi-' + flagFromCountry(ip.country).toLowerCase()"></span>
                                             {{ ip.network }}
                                         </td>
-                                        <td>
+                                        <td class="p-1">
                                             <small class="text-gray-500">{{ ip.gateway }}</small>
                                         </td>
                                     </tr>
@@ -131,7 +133,9 @@
                         </thead>
                         <tbody class="text-sm bg-white dark:bg-gray-700">
                             <tr v-if="!tasks">
-                                <td colspan="5" class="p-4"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading tasks from OVHcloud API...</td>
+                                <td colspan="5" class="p-4">
+                                    <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading tasks from OVHcloud API...
+                                </td>
                             </tr>
                             <tr v-else-if="!Object.keys(tasks).length">
                                 <td colspan="5" class="p-4">
@@ -139,7 +143,7 @@
                                 </td>
                             </tr>
                             <tr v-for="(task, taskIdx) in window._.orderBy(window._.values(tasks), ['lastModificationDate'], ['desc'])" :key="task.taskId" :class="taskIdx % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'">
-                                <td>
+                                <td class="p-1">
                                     <span :class="getTaskStateTextClass(task)">
                                         <i class="fas fa-circle"></i>
                                         {{ task.state }}
@@ -148,7 +152,7 @@
                                     <br />
                                     <small class="text-gray-500">#{{ task.taskId }}</small>
                                 </td>
-                                <td class="relative">
+                                <td class="p-1 relative">
                                     <span :title="robots && robots[task.name] && robots[task.name].description">
                                         {{ task.name }}
                                     </span>
@@ -173,12 +177,12 @@
                                         <div class="progress-bar" :class="getTaskStateBgClass(task)" role="progressbar" :style="`width:${round(task.progress, 0)}%`" :aria-valuenow="round(task.progress, 0)" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </td>
-                                <td>
+                                <td class="p-1">
                                     <small>{{ task.createdFrom }}</small>
                                     <br />
                                     <small class="text-gray-500" v-if="task.createdBy">({{ task.createdBy }})</small>
                                 </td>
-                                <td>
+                                <td class="p-1">
                                     <small v-if="task.endDate && task.state == 'done'" class="text-green-700">
                                         Finished on<br />
                                         {{ dateFormat(task.endDate) }}
@@ -188,7 +192,7 @@
                                         {{ dateFormat(task.lastModificationDate) }}
                                     </small>
                                 </td>
-                                <td>
+                                <td class="p-1">
                                     <small v-if="task.parentTaskId" class="text-gray-500"> <abbr title="Parent task">Task.</abbr>: #{{ task.parentTaskId }}<br /> </small>
                                     <small v-if="task.datacenterId" class="text-gray-500"> <abbr title="Datacenter">Datac.</abbr>: #{{ task.datacenterId }}<br /> </small>
                                     <small v-if="task.userId" class="text-gray-500"> User: #{{ task.userId }}<br /> </small>
@@ -226,7 +230,9 @@
                         </thead>
                         <tbody class="text-sm bg-white dark:bg-gray-700">
                             <tr v-if="!users">
-                                <td :colspan="4 + window._.values(datacenters).length" class="p-4"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading users from OVHcloud API...</td>
+                                <td :colspan="4 + window._.values(datacenters).length" class="p-4">
+                                    <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading users from OVHcloud API...
+                                </td>
                             </tr>
                             <tr v-else-if="!Object.keys(users).length">
                                 <td :colspan="4 + window._.values(datacenters).length" class="p-4">
@@ -234,7 +240,7 @@
                                 </td>
                             </tr>
                             <tr v-for="(user, userIdx) in window._.orderBy(window._.values(users), ['name'])" :key="user.userId" :class="userIdx % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'">
-                                <td>
+                                <td class="p-1">
                                     <span :class="getUserStateClass(user)">
                                         <i class="fas fa-circle"></i>
                                         {{ user.state }}
@@ -242,7 +248,7 @@
                                     <br />
                                     <small class="text-gray-500">#{{ user.userId }}</small>
                                 </td>
-                                <td>
+                                <td class="p-1">
                                     <template v-if="user.activeDirectoryId">
                                         <span v-if="user.activeDirectoryType == 'group'" :title="`This is an Active Directory federation group from Active Directory #${user.activeDirectoryId}`">
                                             <i class="far fa-address-book text-cyan-500"></i>
@@ -260,7 +266,7 @@
                                     <br />
                                     <small class="text-gray-500">{{ user.firstName }} {{ user.lastName }}</small>
                                 </td>
-                                <td>
+                                <td class="p-1">
                                     <small v-if="user.email">
                                         {{ user.email }}
                                         (<abbr title="Technical email alerts">Alerts</abbr>: <i class="fas" :class="user.receiveAlerts ? 'fa-check text-green-700' : 'fa-times text-red-700'"></i>)
@@ -271,7 +277,7 @@
                                         (<abbr title="Security token validation">Token</abbr>: <i class="fas" :class="user.isTokenValidator ? 'fa-check text-green-700' : 'fa-times text-red-700'"></i>)
                                     </small>
                                 </td>
-                                <td>
+                                <td class="p-1">
                                     <small>
                                         <abbr title="NSX access">NSX</abbr>:
                                         <i class="fas" :class="user.nsxRight ? 'fa-check text-green-700' : 'fa-times text-red-700'"></i>
@@ -302,7 +308,7 @@
                                         -->
                                     </small>
                                 </td>
-                                <td v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
+                                <td class="p-1" v-for="(datacenter, datacenterId) in datacenters" :key="datacenterId">
                                     <span v-if="user.rights && user.rights[datacenterId]">
                                         <abbr title="Datacenter">DC.</abbr>:
                                         <span :class="getUserAccessStateClass(user.rights[datacenterId].right)">{{ user.rights[datacenterId].right }}</span>
@@ -346,7 +352,9 @@
                                 </thead>
                                 <tbody class="text-sm bg-white dark:bg-gray-700">
                                     <tr v-if="!allowedNetworks">
-                                        <td colspan="2" class="p-4"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading allowed networks from OVHcloud API...</td>
+                                        <td colspan="2" class="p-4">
+                                            <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading allowed networks from OVHcloud API...
+                                        </td>
                                     </tr>
                                     <tr v-else-if="!Object.keys(allowedNetworks).length">
                                         <td colspan="2" class="p-4">
@@ -354,11 +362,11 @@
                                         </td>
                                     </tr>
                                     <tr v-for="(allowedNetwork, allowedNetworkIdx) in window._.orderBy(window._.values(allowedNetworks), ['network'])" :key="allowedNetwork.networkAccessId" :title="`${allowedNetwork.network}: ${allowedNetwork.state} #${allowedNetwork.networkAccessId}`" :class="allowedNetworkIdx % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'">
-                                        <td>
+                                        <td class="p-1">
                                             <i class="fas mr-1" :class="allowedNetwork.state == 'allowed' ? 'fa-check text-green-700' : 'fa-clock text-yellow-600'"></i>
                                             {{ allowedNetwork.network }}
                                         </td>
-                                        <td>
+                                        <td class="p-1">
                                             <small class="text-gray-500">{{ allowedNetwork.description }}</small>
                                         </td>
                                     </tr>
@@ -384,7 +392,9 @@
                                 </thead>
                                 <tbody class="text-sm bg-white dark:bg-gray-700">
                                     <tr v-if="!twoFAWhitelists">
-                                        <td colspan="2" class="p-4"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading two factor authentication trusted IPs from OVHcloud API...</td>
+                                        <td colspan="2" class="p-4">
+                                            <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading two factor authentication trusted IPs from OVHcloud API...
+                                        </td>
                                     </tr>
                                     <tr v-else-if="!Object.keys(twoFAWhitelists).length">
                                         <td colspan="2" class="p-4">
@@ -392,11 +402,11 @@
                                         </td>
                                     </tr>
                                     <tr v-for="(twoFAWhitelist, twoFAWhitelistIdx) in window._.orderBy(window._.values(twoFAWhitelists), ['network'])" :key="twoFAWhitelist.id" :title="`${twoFAWhitelist.cidrNetmask}: ${twoFAWhitelist.state} #${twoFAWhitelist.id}`" :class="twoFAWhitelistIdx % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'">
-                                        <td>
+                                        <td class="p-1">
                                             <i class="fas mr-1" :class="twoFAWhitelist.state == 'enabled' ? 'fa-check text-green-700' : 'fa-clock text-yellow-600'"></i>
                                             {{ twoFAWhitelist.cidrNetmask }}
                                         </td>
-                                        <td>
+                                        <td class="p-1">
                                             <small class="text-gray-500">{{ twoFAWhitelist.description }}</small>
                                         </td>
                                     </tr>

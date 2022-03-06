@@ -15,7 +15,9 @@
                     </thead>
                     <tbody class="text-sm bg-white dark:bg-gray-700">
                         <tr v-if="!options">
-                            <td colspan="2" class="p-4"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading from OVHcloud API...</td>
+                            <td colspan="2" class="p-4">
+                                <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading from OVHcloud API...
+                            </td>
                         </tr>
                         <tr v-else-if="!Object.keys(options).length">
                             <td colspan="2" class="p-4">
@@ -23,7 +25,7 @@
                             </td>
                         </tr>
                         <tr v-for="(option, optionIdx) in window._.orderBy(window._.values(options), ['compatible', 'state', 'name'], ['desc', 'desc', 'asc'])" :key="option.name" :class="optionIdx % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'">
-                            <td>
+                            <td class="p-1">
                                 <span class="text-gray-500" v-if="option.state == 'disabled' && option.compatible === false" :title="`Incompatibility reason: ${option.reason && option.reason.message}`">
                                     <i class="fas fa-circle"></i>
                                     incompatible
@@ -33,7 +35,7 @@
                                     {{ option.state }}
                                 </span>
                             </td>
-                            <td>
+                            <td class="p-1">
                                 {{ option.description }}
                                 <small class="text-gray-500"> ({{ option.name }}) </small>
                                 <span class="text-gray-500" v-if="option.version">
@@ -42,19 +44,19 @@
                                         <small class="text-yellow-600" v-if="option.upgrades.length > 0"><abbr :title="`Available upgrade(s): ${option.upgrades.join(', ')}`">Upgrade available</abbr></small>
                                     </template>
                                 </span>
-                                <div class="px-1 pb-1" v-if="option.suboptions && Object.keys(option.suboptions).length">
+                                <div v-if="option.suboptions && Object.keys(option.suboptions).length">
                                     <div class="shadow overflow-hidden border border-gray-200 dark:border-gray-800 sm:rounded-lg">
                                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
                                             <tbody class="text-xs bg-white dark:bg-gray-700">
                                                 <tr v-for="(suboption, suboptionIdx) in window._.orderBy(window._.values(option.suboptions), ['compatible', 'state', 'name'], ['desc', 'desc', 'asc'])" :key="suboption.id" :class="suboptionIdx % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'">
-                                                    <td>
+                                                    <td class="p-1">
                                                         <span :class="getOptionStateClass(suboption)">
                                                             <i class="fas fa-circle"></i>
                                                             {{ suboption.state }}
                                                         </span>
                                                         <small class="text-gray-500"> #{{ suboption.id }} </small>
                                                     </td>
-                                                    <td :title="getSuboptionTitle(suboption)">
+                                                    <td class="p-1" :title="getSuboptionTitle(suboption)">
                                                         <template v-if="suboption.domainName">
                                                             {{ suboption.domainName }}
                                                             <small class="text-gray-500">
