@@ -2,8 +2,8 @@
     <div class="pcc-graphs-page mx-4">
         <pcc-head :breadcrumb="breadcrumb" :pcc-name="pccName" :pcc-route="pccRoute" :pcc="pcc" :vrack="vrack" :loading="loading" :errors="errors" :load-all="loadAll">
             <template v-slot:third-column>
-                <div v-if="!Object.keys(datacenter).length" class="py-6">
-                    <div class="mt-4 mb-2">
+                <div v-if="!Object.keys(datacenter).length" class="py-4">
+                    <div class="mb-2">
                         <span class="text-capitalize">{{ capitalize(entityType) }}</span>
                         <span class="h4">
                             {{ entity.name }}
@@ -12,8 +12,8 @@
                     </div>
                     <div class="py-2"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading datacenter from OVHcloud API...</div>
                 </div>
-                <div v-else class="py-6">
-                    <div class="mt-4 mb-2">
+                <div v-else class="py-4">
+                    <div class="mb-2">
                         <span class="text-capitalize">{{ capitalize(entityType) }}</span>
                         <span class="h4">
                             {{ entity.name }}

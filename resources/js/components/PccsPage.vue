@@ -9,21 +9,21 @@
         <Breadcrumb :pages="breadcrumb" :home-route="pccRoute"></Breadcrumb>
         <ul role="list" class="grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-2 text-center mt-6">
             <li class="col-span-1" v-for="(pcc, pccName) in window._(pccs).toPairs().sortBy(0).fromPairs().value()" :key="pccName">
-                <div class="bg-white dark:bg-gray-700 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-600">
-                    <div class="p-4 relative">
-                        <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
-                        <h3 class="mb-1 text-2xl">{{ pccName }}</h3>
-                        <h4 class="text-lg">{{ pcc.description }}</h4>
-                        <div v-if="!Object.keys(pcc).length" class="py-6">
-                            <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading data from OVHcloud API...
-                        </div>
-                        <template v-else>
-                            <p>
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow relative">
+                    <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
+                    <div class="divide-y divide-gray-200 dark:divide-gray-600 py-2">
+                        <div class="px-4 py-2">
+                            <h3 class="mb-1 text-2xl">{{ pccName }}</h3>
+                            <h4>{{ pcc.description }}</h4>
+                            <div v-if="!Object.keys(pcc).length" class="py-6">
+                                <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading data from OVHcloud API...
+                            </div>
+                            <p v-else>
                                 <a target="_blank" :href="pcc.webInterfaceUrl" class="text-sm font-medium underline text-indigo-600 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-600">{{ pcc.webInterfaceUrl }}</a>
                             </p>
-                            <div class="flex items-center justify-between pt-4">
+                            <div v-if="Object.keys(pcc).length" class="flex items-center justify-between pt-2">
                                 <div class="grow">
-                                    <i class="fas fa-map-marked-alt"></i> Datacenter: {{ pcc.location }}<br />
+                                    <i class="fas fa-map-marked-alt"></i> Location: {{ pcc.location }}<br />
                                     Commercial range: {{ pcc.commercialRange }}<br />
                                     <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}
                                 </div>
@@ -34,13 +34,11 @@
                                     </a>
                                 </div>
                             </div>
-                        </template>
-                    </div>
-                    <div v-if="!pcc.hasOwnProperty('datacenters')" class="p-4">
-                        <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading datacenters from OVHcloud API...
-                    </div>
-                    <template v-else>
-                        <div class="flex items-center justify-between p-4" v-for="(datacenter, datacenterId) in window._(pcc.datacenters).toPairs().sortBy(0).fromPairs().value()" :key="datacenterId">
+                        </div>
+                        <div v-if="!pcc.hasOwnProperty('datacenters')" class="p-4">
+                            <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading datacenters from OVHcloud API...
+                        </div>
+                        <div v-else class="flex items-center justify-between px-4 py-2" v-for="(datacenter, datacenterId) in window._(pcc.datacenters).toPairs().sortBy(0).fromPairs().value()" :key="datacenterId">
                             <div class="grow">
                                 <div>
                                     <span>
@@ -60,7 +58,7 @@
                                 </a>
                             </div>
                         </div>
-                    </template>
+                    </div>
                 </div>
             </li>
         </ul>

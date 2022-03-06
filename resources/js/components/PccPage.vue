@@ -2,7 +2,7 @@
     <div class="pcc-page mx-4">
         <pcc-head :breadcrumb="breadcrumb" :pcc-name="pccName" :pcc-route="pccRoute" :pcc="pcc" :vrack="vrack" :loading="loading" :errors="errors" :load-all="loadAll">
             <template v-slot:third-column>
-                <div v-if="Object.keys(pcc).length" class="py-6">
+                <div v-if="Object.keys(pcc).length" class="py-3">
                     <i class="fas fa-tachometer-alt"></i> Bandwidth: {{ pcc.bandwidth }}<br />
                     <i class="fas fa-user-lock"></i> Concurrent sessions: {{ pcc.userLimitConcurrentSession }}<br />
                     <i class="far fa-clock"></i> Session timeout: {{ pcc.userSessionTimeout ? pcc.userSessionTimeout : "never" }}
@@ -10,7 +10,7 @@
             </template>
         </pcc-head>
 
-        <div v-if="!datacenters" class="bg-white dark:bg-gray-700 rounded-lg shadow mt-6 text-center py-6">
+        <div v-if="!datacenters" class="bg-white dark:bg-gray-700 rounded-lg shadow mt-6 text-center py-4">
             <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading datacenters from OVHcloud API...
         </div>
         <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-2 mt-6">

@@ -2,7 +2,7 @@
     <div class="pcc-datacenter-page mx-4">
         <pcc-head :breadcrumb="breadcrumb" :pcc-name="pccName" :pcc-route="pccRoute" :pcc="pcc" :vrack="vrack" :loading="loading" :errors="errors" :load-all="loadAll">
             <template v-slot:third-column>
-                <div v-if="!Object.keys(datacenter).length" class="py-6">
+                <div v-if="!Object.keys(datacenter).length" class="py-3">
                     <div class="mb-2">
                         <span>Datacenter</span>
                         <span class="h4"> datacenter{{ datacenterId }} </span>
@@ -10,15 +10,15 @@
                     </div>
                     <div class="py-2"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading datacenter from OVHcloud API...</div>
                 </div>
-                <div v-else class="py-6">
-                    <div class="mb-2">
+                <div v-else class="py-3">
+                    <div>
                         <span>Datacenter</span>
                         <span class="h4">
                             {{ datacenter.description || datacenter.name }}
                         </span>
                         <span class="text-gray-500">{{ datacenter.description ? datacenter.name : "#" + datacenterId }}</span>
                     </div>
-                    <div class="mb-2">
+                    <div>
                         <span class="h5">{{ datacenter.commercialName }}</span>
                         <span class="text-gray-500">({{ datacenter.commercialRangeName }})</span>
                     </div>
