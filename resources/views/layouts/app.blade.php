@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"  data-bs-color-scheme="{{ Cookie::get('darkmode') ? 'dark' : 'light' }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-color-scheme="{{ Cookie::get('darkmode') ? 'dark' : 'light' }}" class="{{ Cookie::get('darkmode') ? 'dark' : 'light' }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,21 +24,21 @@
             </style>
         @endif
     </head>
-    <body>
+    <body class="bg-gray-100 dark:bg-gray-900 dark:text-gray-300">
         <div id="app">
             @yield('navbar')
             <main class="py-4">
-                <div class="container">@flash</div>
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">@flash</div>
                 @yield('content')
-                <div class="text-center text-muted">
+                <div class="text-center text-gray-500 mt-6">
                     <small>
                         {{ config('app.name') }}
                         - 
-                        <a href="{{ route('legal') }}">Legal notices</a>
+                        <a href="{{ route('legal') }}" class="underline hover:text-indigo-600">Legal notices</a>
                         - 
                         Not affiliated with OVHcloud
                         - 
-                        <a href="https://github.com/carsso/pcc-manager" target="_blank"><i class="fab fa-github"></i> Source code available on GitHub</a>
+                        <a href="https://github.com/carsso/pcc-manager" target="_blank" class="underline hover:text-indigo-600"><i class="fab fa-github"></i> Source code available on GitHub</a>
                     </small>
                 </div>
             </main>

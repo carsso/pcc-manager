@@ -1,107 +1,59 @@
 <template>
     <div class="pcc-graphs-page mx-4">
-        <transition name="loading-screen">
-            <LoadingScreen v-if="loading" />
-        </transition>
-        <transition name="errors-zone">
-            <errors-zone :errors="errors" v-if="errors" />
-        </transition>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a :href="`${pccRoute}`">Home</a></li>
-                <li class="breadcrumb-item"><a :href="`${pccRoute}/${pccName}`">{{ pccName }}</a></li>
-                <li class="breadcrumb-item"><a :href="`${pccRoute}/${pccName}`">Datacenters</a></li>
-                <li class="breadcrumb-item"><a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}`">{{ datacenter.name || 'datacenter'+datacenterId }}</a></li>
-                <li class="breadcrumb-item"><a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}`" class="text-capitalize">{{ entityType }}s</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ entity.name }}</li>
-            </ol>
-        </nav>
-        <div class="row text-center">
-            <div class="col-8">
-                <div class="card">
-                    <div class="card-body p-3">
-                        <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
-                            <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                        </button>
-                        <div class="row text-center">
-                            <div class="col-6">
-                                <h3 class="mb-1">
-                                    {{ pccName }}
-                                </h3>
-                                <h4 class="mb-1">{{ pcc.description }}</h4>
-                                <div>
-                                    <a target="_blank" :href="pcc.webInterfaceUrl">{{ pcc.webInterfaceUrl }}</a>
-                                </div>
-                            </div>
-                            <div v-if="!Object.keys(pcc).length" class="col-6 py-4"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading pcc from OVHcloud API...</div>
-                            <div v-else class="col-6">
-                                <i class="fas fa-map-marked-alt"></i> Datacenter: {{ pcc.location }}<br />
-                                Commercial range: {{ pcc.commercialRange }}<br />
-                                <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}<br />
-                            </div>
-                        </div>
+        <pcc-head :breadcrumb="breadcrumb" :pcc-name="pccName" :pcc-route="pccRoute" :pcc="pcc" :vrack="vrack" :loading="loading" :errors="errors" :load-all="loadAll">
+            <template v-slot:third-column>
+                <div v-if="!Object.keys(datacenter).length" class="py-6">
+                    <div class="mt-4 mb-2">
+                        <span class="text-capitalize">{{ capitalize(entityType) }}</span>
+                        <span class="h4">
+                            {{ entity.name }}
+                        </span>
+                        <span class="text-gray-500">{{ "#" + entityId }}</span>
+                    </div>
+                    <div class="py-2"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading datacenter from OVHcloud API...</div>
+                </div>
+                <div v-else class="py-6">
+                    <div class="mt-4 mb-2">
+                        <span class="text-capitalize">{{ capitalize(entityType) }}</span>
+                        <span class="h4">
+                            {{ entity.name }}
+                        </span>
+                        <span class="text-gray-500">{{ "#" + entityId }}</span>
+                    </div>
+                    <div>
+                        <span class="h5">Datacenter {{ datacenter.description || datacenter.name }}</span>
+                        <span class="text-gray-500">{{ datacenter.description ? datacenter.name : "#" + datacenterId }}</span>
                     </div>
                 </div>
-            </div>
-            <div class="col-4">
-                <div class="card">
-                    <div class="card-body p-3">
-                        <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
-                            <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                        </button>
-                        <div v-if="!Object.keys(datacenter).length" class="py-1">
-                            <div class="mb-1">
-                                <span class="text-capitalize">{{ entityType }}</span>
-                                <span class="h4">
-                                    {{ entity.name }}
-                                </span>
-                                <span class="text-muted">{{ "#" + entityId }}</span>
-                            </div>
-                            <div class="py-2"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading datacenter from OVHcloud API...</div>
+            </template>
+        </pcc-head>
+
+        <div class="bg-white dark:bg-gray-700 rounded-lg shadow text-center mt-6">
+            <div class="px-8 py-4 flex justify-center">
+                <RadioGroup v-model="daysFrom">
+                    <RadioGroupLabel class="sr-only"> Display graphs since : </RadioGroupLabel>
+                    <div class="grid grid-cols-3 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                        <RadioGroupOption as="template" v-for="(text, btnDaysFrom) in daysButtons" :key="text" :value="btnDaysFrom" v-slot="{ active, checked }">
+                        <div :class="[active ? 'ring-2 ring-offset-2 ring-indigo-500' : '', checked ? 'bg-indigo-600 border-transparent text-white hover:bg-indigo-700' : 'bg-white dark:bg-gray-600 border-gray-200 dark:border-gray-500 text-gray-900 dark:text-gray-200 hover:bg-gray-50', 'border rounded-md py-2 px-2 flex items-center justify-center text-sm font-medium uppercase cursor-pointer sm:flex-1']">
+                            <RadioGroupLabel as="p">
+                                {{ text }}
+                            </RadioGroupLabel>
                         </div>
-                        <div v-else class="py-1">
-                            <div class="mb-1">
-                                <span class="text-capitalize">{{ entityType }}</span>
-                                <span class="h4">
-                                    {{ entity.name }}
-                                </span>
-                                <span class="text-muted">{{ "#" + entityId }}</span>
-                            </div>
-                            <div class="mb-1">
-                                <span class="h5">Datacenter {{ datacenter.description || datacenter.name }}</span>
-                                <span class="text-muted">{{ datacenter.description ? datacenter.name : "#" + datacenterId }}</span>
-                            </div>
-                        </div>
+                        </RadioGroupOption>
                     </div>
-                </div>
+                </RadioGroup>
             </div>
         </div>
 
-        <div class="card mt-3">
-            <div class="card-body p-3 text-center">
-                <div class="btn-group" role="group" aria-label="Basic example">
-                    <template v-for="(text, btnDaysFrom) in daysButtons" :key="text">
-                        <button type="button" class="btn btn-primary" :class="daysFrom == btnDaysFrom ? 'active' : ''" @click="changeDaysFrom(btnDaysFrom)">
-                            {{ text }}
-                        </button>
-                    </template>
-                </div>
-            </div>
+        <div v-if="!graphs" class="bg-white dark:bg-gray-700 rounded-lg shadow mt-6 text-center py-6">
+            <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading graphs from OVHcloud API & Metrics API...
         </div>
-
-        <div v-if="!graphs" class="card mt-3">
-            <div class="card-body p-4 text-center"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading graphs from OVHcloud API & Metrics API...</div>
-        </div>
-        <div class="row text-center" v-else>
-            <div class="col-12 col-lg-6" v-for="(graph, graphName) in window._(graphs).toPairs().sortBy(0).fromPairs().value()" :key="graphName">
-                <div class="card mt-3">
-                    <div class="card-body p-4">
-                        <div class="position-absolute top-0 end-0 m-3">
-                            <button class="btn btn-sm badge btn-info" @click="loadAll()">
-                                <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                            </button>
-                        </div>
-                        {{ graphName }}
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-2 mt-6">
+            <div v-for="(graph, graphName) in window._(graphs).toPairs().sortBy(0).fromPairs().value()" :key="graphName">
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow text-center relative">
+                    <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
+                    <div class="p-4">
+                        <div class="mb-3">{{ graphName }}</div>
                         <line-chart :chart-data="graph.data" :options="graph.options" :height="300"></line-chart>
                     </div>
                 </div>
@@ -118,6 +70,7 @@ import 'chartjs-adapter-moment';
 import { LineChart, useLineChart } from 'vue-chart-3'
 import { httpRequester } from "./compositions/axios/httpRequester";
 import moment from "moment";
+import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 
 Chart.register(...registerables);
 
@@ -128,6 +81,9 @@ export default {
         LoadingScreen,
         ErrorsZone,
         LineChart,
+        RadioGroup,
+        RadioGroupLabel,
+        RadioGroupOption,
     },
 
     props: {
@@ -879,23 +835,37 @@ export default {
             },
             graphs: graphs,
             pcc: {},
+            vrack: null,
             datacenter: {},
             user: null,
             metricsToken: null,
-            daysFrom: 1,
+            daysFrom: "1",
             daysButtons: {
-                1: "today",
-                2: "yesterday",
-                7: "last week",
-                30: "last month",
-                182: "last 6 months",
-                365: "last year",
+                "1": "today",
+                "2": "yesterday",
+                "7": "last week",
+                "30": "last month",
+                "182": "last 6 months",
+                "365": "last year",
             },
+            breadcrumb: [
+                { name: this.pccName, href: this.pccRoute+'/'+this.pccName, current: false },
+                { name: 'Datacenters', href: this.pccRoute+'/'+this.pccName, current: false },
+                { name: 'Datacenter #'+this.datacenterId, href: this.pccRoute+'/'+this.pccName+'/datacenter/'+this.datacenterId, current: false },
+                { name: this.capitalize(this.entityType+'s'), href: this.pccRoute+'/'+this.pccName+'/datacenter/'+this.datacenterId, current: false },
+                { name: this.capitalize(this.entityType)+' #'+this.entityId, href: this.pccRoute+'/'+this.pccName+'/datacenter/'+this.datacenterId+'/'+this.entityType+'/'+this.entityId, current: true },
+            ],
         };
     },
 
     mounted() {
         this.loadAll();
+    },
+
+    watch: {
+        daysFrom(newValue, oldValue) {
+            this.loadGraphsData();
+        },
     },
 
     methods: {
@@ -907,10 +877,8 @@ export default {
             }
         },
 
-        changeDaysFrom(days) {
-            if (this.daysFrom == days) return;
-            this.daysFrom = days;
-            this.loadGraphsData();
+        capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
         },
 
         async loadPcc() {

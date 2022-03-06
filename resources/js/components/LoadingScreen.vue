@@ -1,6 +1,6 @@
 <template>
     <div class="loading-screen">
-        <div class="loading-text"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading... {{ text }}</div>
+        <div class="loading-text"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading... {{ text }}</div>
     </div>
 </template>
 

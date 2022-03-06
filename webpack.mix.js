@@ -1,6 +1,7 @@
 const mix = require('laravel-mix');
 const webpack = require('webpack');
 const path = require('path');
+const tailwindcss = require('tailwindcss');
 
 /*
  |--------------------------------------------------------------------------
@@ -28,4 +29,8 @@ mix.js('resources/js/app.js', 'public/js')
                 path.resolve(__dirname, './node_modules/bootstrap/scss/')
             ]
         }
-    });
+    })
+    .options({
+        postCss: [ tailwindcss('./tailwind.config.js') ],
+    })
+    .version();

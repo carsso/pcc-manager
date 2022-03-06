@@ -6,65 +6,64 @@
         <transition name="errors-zone">
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
-        <div class="row text-center">
-            <div class="col-12 col-lg-6 mb-3" v-for="(pcc, pccName) in window._(pccs).toPairs().sortBy(0).fromPairs().value()" :key="pccName">
-                <div class="card">
-                    <div class="card-body p-4">
-                        <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
-                            <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                        </button>
-                        <h3 class="mb-2">{{ pccName }}</h3>
-                        <h4>{{ pcc.description }}</h4>
-                        <div v-if="!Object.keys(pcc).length" class="mt-5 mb-3"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading data from OVHcloud API...</div>
+        <Breadcrumb :pages="breadcrumb" :home-route="pccRoute"></Breadcrumb>
+        <ul role="list" class="grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-2 text-center mt-6">
+            <li class="col-span-1" v-for="(pcc, pccName) in window._(pccs).toPairs().sortBy(0).fromPairs().value()" :key="pccName">
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-600">
+                    <div class="p-4 relative">
+                        <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
+                        <h3 class="mb-2 text-2xl">{{ pccName }}</h3>
+                        <h4 class="text-xl">{{ pcc.description }}</h4>
+                        <div v-if="!Object.keys(pcc).length" class="py-6">
+                            <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading data from OVHcloud API...
+                        </div>
                         <template v-else>
                             <p>
-                                <a target="_blank" :href="pcc.webInterfaceUrl">{{ pcc.webInterfaceUrl }}</a>
+                                <a target="_blank" :href="pcc.webInterfaceUrl" class="text-sm font-medium underline text-indigo-600 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-600">{{ pcc.webInterfaceUrl }}</a>
                             </p>
-                            <div class="row">
-                                <div class="col-12 col-lg-8">
+                            <div class="flex items-center justify-between pt-4">
+                                <div class="grow">
                                     <i class="fas fa-map-marked-alt"></i> Datacenter: {{ pcc.location }}<br />
                                     Commercial range: {{ pcc.commercialRange }}<br />
                                     <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}
                                 </div>
-                                <div class="col-12 col-lg-4 py-2">
-                                    <a class="btn btn-outline-primary btn-sm" :href="`${pccRoute}/${pccName}`">
-                                        <i class="fas fa-tasks fa-2x"></i><br />
+                                <div class="pl-4">
+                                    <a class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" :href="`${pccRoute}/${pccName}`">
+                                        <i class="fas fa-tasks mr-2"></i>
                                         Pcc / Tasks
                                     </a>
                                 </div>
                             </div>
-                            <div v-if="!pcc.hasOwnProperty('datacenters')" class="card mt-4">
-                                <div class="card-body p-4"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading datacenters from OVHcloud API...</div>
-                            </div>
-                            <template v-else>
-                                <div class="card mt-4" v-for="(datacenter, datacenterId) in window._(pcc.datacenters).toPairs().sortBy(0).fromPairs().value()" :key="datacenterId">
-                                    <div class="card-body p-3 row">
-                                        <div class="col-12 col-lg-8">
-                                            <div class="mb-1">
-                                                <span class="h4">
-                                                    {{ datacenter.description || datacenter.name }}
-                                                </span>
-                                                <span class="text-muted">{{ datacenter.description ? datacenter.name : "#" + datacenterId }}</span>
-                                            </div>
-                                            <div>
-                                                <span>{{ datacenter.commercialName }}</span>
-                                                <span class="text-muted">({{ datacenter.commercialRangeName }})</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-lg-4">
-                                            <a class="btn btn-outline-primary btn-sm" :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}`">
-                                                <i class="fas fa-building fa-2x"></i><br />
-                                                Datacenter
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
                         </template>
                     </div>
+                    <div v-if="!pcc.hasOwnProperty('datacenters')" class="p-4">
+                        <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading datacenters from OVHcloud API...
+                    </div>
+                    <template v-else>
+                        <div class="flex items-center justify-between p-4" v-for="(datacenter, datacenterId) in window._(pcc.datacenters).toPairs().sortBy(0).fromPairs().value()" :key="datacenterId">
+                            <div class="grow">
+                                <div>
+                                    <span>
+                                        {{ datacenter.description || datacenter.name }}
+                                    </span>
+                                    <span class="text-gray-500">{{ datacenter.description ? datacenter.name : "#" + datacenterId }}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span>{{ datacenter.commercialName }}</span>
+                                    <span class="text-gray-500">({{ datacenter.commercialRangeName }})</span>
+                                </div>
+                            </div>
+                            <div class="pl-4">
+                                <a class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}`">
+                                    <i class="fas fa-building mr-2"></i>
+                                    Datacenter
+                                </a>
+                            </div>
+                        </div>
+                    </template>
                 </div>
-            </div>
-        </div>
+            </li>
+        </ul>
     </div>
 </template>
 
@@ -111,6 +110,7 @@ export default {
     data() {
         return {
             pccs: {},
+            breadcrumb: [],
         };
     },
 

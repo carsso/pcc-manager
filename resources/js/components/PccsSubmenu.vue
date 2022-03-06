@@ -7,15 +7,15 @@
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
         <li v-if="!Object.keys(pccs).length" class="my-3">
-            <a class="dropdown-item disabled"> <i class="fas fa-circle-notch fa-spin me-1"></i> Loading PCCs from OVHcloud API... </a>
+            <a class="dropdown-item disabled"> <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading PCCs from OVHcloud API... </a>
         </li>
         <template v-for="(pcc, pccName) in window._(pccs).toPairs().sortBy(0).fromPairs().value()" :key="pccName">
             <li>
                 <a class="dropdown-item" :href="`${pccRoute}/${pccName}`">
                     {{ pccName }}
-                    <small class="text-muted">
+                    <small class="text-gray-500">
                         <template v-if="pcc.serviceName"> ({{ pcc.description || pcc.serviceName }}) </template>
-                        <template v-else> (<i class="fas fa-circle-notch fa-spin me-1"></i> Loading from OVHcloud API...) </template>
+                        <template v-else> (<i class="fas fa-circle-notch fa-spin mr-1"></i> Loading from OVHcloud API...) </template>
                     </small>
                 </a>
             </li>

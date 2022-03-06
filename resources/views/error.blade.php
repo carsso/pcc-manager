@@ -1,7 +1,7 @@
 @extends('layouts.app-with-navbar')
 
 @section('content')
-<div class="container">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <div class="row text-center">
         <div class="col">
             <div class="card">

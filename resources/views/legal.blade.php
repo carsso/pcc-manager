@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-<div class="container">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <h1 class="mt-4 mb-2">
         Legal notices
     </h1>

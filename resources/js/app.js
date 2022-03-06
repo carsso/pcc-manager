@@ -11,6 +11,7 @@ const app = createApp({
     watch: {
         currentDarkmode(newValue) {
             document.documentElement.dataset.bsColorScheme = newValue ? 'dark' : 'light';
+            document.documentElement.className = newValue ? 'dark' : 'light';
         }
     },
 

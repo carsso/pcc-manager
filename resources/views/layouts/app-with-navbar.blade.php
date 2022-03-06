@@ -1,15 +1,17 @@
 @extends('layouts.app')
 
 @section('navbar')
+<!--
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand py-0" href="{{ url('/') }}">
-                @if(strtoupper(config('app.env')) != 'PRODUCTION')
+                @if (strtoupper(config('app.env')) != 'PRODUCTION')
                     <strong class="bg-danger text-white px-2">DEV</strong>
                 @endif
                 {{ config('app.name') }}
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -27,19 +29,21 @@
                             ];
                         @endphp
                     @endauth
-                    @foreach($menuLinks as $routeName => $text)
+                    @foreach ($menuLinks as $routeName => $text)
                         <li class="nav-item">
-                            <a class="nav-link @route($routeName) text-secondary @else text-white @endroute" href="{{ route($routeName) }}">{{ $text }}</a>
+                            <a class="nav-link @route($routeName) text-secondary
+@else
+text-white @endroute"
+                                href="{{ route($routeName) }}">{{ $text }}</a>
                         </li>
                     @endforeach
-                    @auth 
+                    @auth
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarPccsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarPccsDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                                 PCCs
                             </a>
-                            <pccs-submenu
-                                ovhapi-route="{{ route('ovhapi') }}"
-                                pcc-route="{{ route('pcc') }}">
+                            <pccs-submenu ovhapi-route="{{ route('ovhapi') }}" pcc-route="{{ route('pcc') }}">
                             </pccs-submenu>
                         </li>
                     @endauth
@@ -53,12 +57,20 @@
                     @endauth
                 </div>
                 <div class="d-flex">
-                    <darkmode-toggler
-                        :darkmode="{{ Cookie::get('darkmode') ? 'true' : 'false' }}"
+                    <darkmode-toggler :darkmode="{{ Cookie::get('darkmode') ? 'true' : 'false' }}"
                         route="{{ route('home') }}">
                     </darkmode-toggler>
                 </div>
             </div>
         </div>
     </nav>
+-->
+    <navbar
+        app-name="{{ config('app.name') }}"
+        :is-dev="{{ strtoupper(config('app.env')) != 'PRODUCTION' ? 'true' : 'false' }}"
+        home-route="{{ route('home') }}"
+        pcc-route="{{ route('pcc') }}"
+        logout-route="{{ route('logout') }}"
+        :is-authenticated="{{ auth()->check() ? 'true' : 'false' }}">
+    </navbar>
 @endsection

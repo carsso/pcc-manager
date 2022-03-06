@@ -1,7 +1,7 @@
 @extends('layouts.app-with-navbar')
 
 @section('content')
-<div class="container-fluid">
+<div class="px-4 sm:px-6 lg:px-8">
     <pcc-graphs-page
         pcc-name='{{ $pccName }}'
         datacenter-id='{{ $datacenterId }}'

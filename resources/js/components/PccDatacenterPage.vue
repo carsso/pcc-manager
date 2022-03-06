@@ -1,133 +1,61 @@
 <template>
     <div class="pcc-datacenter-page mx-4">
-        <transition name="loading-screen">
-            <LoadingScreen v-if="loading" />
-        </transition>
-        <transition name="errors-zone">
-            <errors-zone :errors="errors" v-if="errors" />
-        </transition>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a :href="`${pccRoute}`">Home</a></li>
-                <li class="breadcrumb-item"><a :href="`${pccRoute}/${pccName}`">{{ pccName }}</a></li>
-                <li class="breadcrumb-item"><a :href="`${pccRoute}/${pccName}`">Datacenters</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ datacenter.name || 'datacenter'+datacenterId }}</li>
-            </ol>
-        </nav>
-        <div class="row text-center">
-            <div class="col-8">
-                <div class="card">
-                    <div class="card-body p-3">
-                        <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
-                            <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                        </button>
-                        <div class="row text-center">
-                            <div class="col-6">
-                                <h3 class="mb-1">
-                                    {{ pccName }}
-                                </h3>
-                                <h4 class="mb-1">{{ pcc.description }}</h4>
-                                <div>
-                                    <a target="_blank" :href="pcc.webInterfaceUrl">{{ pcc.webInterfaceUrl }}</a>
-                                </div>
-                            </div>
-                            <div v-if="!Object.keys(pcc).length" class="col-6 py-4"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading pcc from OVHcloud API...</div>
-                            <div v-else class="col-6">
-                                <i class="fas fa-map-marked-alt"></i> Datacenter: {{ pcc.location }}<br />
-                                Commercial range: {{ pcc.commercialRange }}<br />
-                                <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}<br />
-                                <div v-if="pcc.upgrades">
-                                    <small class="text-warning" v-if="pcc.upgrades.length > 0">
-                                        <abbr :title="`Available upgrade(s): ${pcc.upgrades.join(', ')}`">Upgrade available</abbr>
-                                    </small>
-                                </div>
-                                <div>
-                                    <i class="fas fa-network-wired"></i> vRack :
-                                    <template v-if="!vrack.pcc">
-                                        <template v-if="loading">
-                                            <i class="fas fa-circle-notch fa-spin"></i>
-                                        </template>
-                                        <template v-else>
-                                            <i class="text-muted">no</i>
-                                        </template>
-                                    </template>
-                                    <template v-else-if="vrack.pcc.name">
-                                        {{ vrack.pcc.name }} <span class="text-muted">({{ vrack.pcc.serviceName }})</span>
-                                    </template>
-                                    <template v-else>
-                                        {{ vrack.pcc.serviceName }}
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
+        <pcc-head :breadcrumb="breadcrumb" :pcc-name="pccName" :pcc-route="pccRoute" :pcc="pcc" :vrack="vrack" :loading="loading" :errors="errors" :load-all="loadAll">
+            <template v-slot:third-column>
+                <div v-if="!Object.keys(datacenter).length" class="py-6">
+                    <div class="mb-2">
+                        <span>Datacenter</span>
+                        <span class="h4"> datacenter{{ datacenterId }} </span>
+                        <span class="text-gray-500">#{{ datacenterId }}</span>
                     </div>
+                    <div class="py-2"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading datacenter from OVHcloud API...</div>
                 </div>
-            </div>
-            <div class="col-4">
-                <div class="card">
-                    <div class="card-body p-3">
-                        <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
-                            <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                        </button>
-                        <div v-if="!Object.keys(datacenter).length" class="py-1">
-                            <div class="mb-1">
-                                <span>Datacenter</span>
-                                <span class="h4"> datacenter{{ datacenterId }} </span>
-                                <span class="text-muted">#{{ datacenterId }}</span>
-                            </div>
-                            <div class="py-2"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading datacenter from OVHcloud API...</div>
-                        </div>
-                        <div v-else class="py-1">
-                            <div class="mb-2">
-                                <span>Datacenter</span>
-                                <span class="h4">
-                                    {{ datacenter.description || datacenter.name }}
-                                </span>
-                                <span class="text-muted">{{ datacenter.description ? datacenter.name : "#" + datacenterId }}</span>
-                            </div>
-                            <div class="mb-1">
-                                <span class="h5">{{ datacenter.commercialName }}</span>
-                                <span class="text-muted">({{ datacenter.commercialRangeName }})</span>
-                            </div>
-                            <div>
-                                <i class="fas fa-network-wired"></i> vRack :
-                                <template v-if="!vrack.datacenters || !vrack.datacenters[datacenter.name]">
-                                    <template v-if="loading">
-                                        <i class="fas fa-circle-notch fa-spin"></i>
-                                    </template>
-                                    <template v-else>
-                                        <i class="text-muted">no</i>
-                                    </template>
-                                </template>
-                                <template v-else-if="vrack.datacenters[datacenter.name].name">
-                                    {{ vrack.datacenters[datacenter.name].name }} <span class="text-muted">({{ vrack.datacenters[datacenter.name].serviceName }})</span>
-                                </template>
-                                <template v-else>
-                                    {{ vrack.datacenters[datacenter.name].serviceName }}
-                                </template>
-                            </div>
-                        </div>
+                <div v-else class="py-6">
+                    <div class="mb-2">
+                        <span>Datacenter</span>
+                        <span class="h4">
+                            {{ datacenter.description || datacenter.name }}
+                        </span>
+                        <span class="text-gray-500">{{ datacenter.description ? datacenter.name : "#" + datacenterId }}</span>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card mb-2 mt-3">
-            <div class="card-body p-3">
-                <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
-                    <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                </button>
-                <div class="row text-center">
-                    <div class="col-6">
-                        <div v-if="!Object.keys(backup).length" class="my-2"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading backup from OVHcloud API...</div>
+                    <div class="mb-2">
+                        <span class="h5">{{ datacenter.commercialName }}</span>
+                        <span class="text-gray-500">({{ datacenter.commercialRangeName }})</span>
+                    </div>
+                    <div>
+                        <i class="fas fa-network-wired"></i> vRack :
+                        <template v-if="!vrack.datacenters || !vrack.datacenters[datacenter.name]">
+                            <template v-if="loading">
+                                <i class="fas fa-circle-notch fa-spin"></i>
+                            </template>
+                            <template v-else>
+                                <i class="text-gray-500">no</i>
+                            </template>
+                        </template>
+                        <template v-else-if="vrack.datacenters[datacenter.name].name">
+                            {{ vrack.datacenters[datacenter.name].name }} <span class="text-gray-500">({{ vrack.datacenters[datacenter.name].serviceName }})</span>
+                        </template>
                         <template v-else>
-                            Veeam Backup Managed
-                            <br />
+                            {{ vrack.datacenters[datacenter.name].serviceName }}
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </pcc-head>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-2 mt-6">
+            <div>
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow text-center relative">
+                    <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
+                    <div class="p-4">
+                        <div v-if="!Object.keys(backup).length" class="my-2"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading backup from OVHcloud API...</div>
+                        <template v-else>
+                            <div class="mb-3">Veeam Backup Managed</div>
                             <span :class="getOptionStateClass(backup)">
                                 <i class="fas fa-circle"></i>
                                 {{ backup.state }}
                             </span>
-                            <span class="text-muted" v-if="backup.backupOffer">
+                            <span class="text-gray-400" v-if="backup.backupOffer">
                                 - Offer: {{ backup.backupOffer }}
                                 <span v-if="backup.replicationZone">
                                     -
@@ -135,20 +63,24 @@
                                     <abbr title="Replication datacenter">Replication</abbr> : {{ backup.replicationZone }}
                                 </span>
                                 <br />
-                                Backup hour: {{ backup.scheduleHour }} - Encryption: <i class="fas" :class="backup.encryption ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+                                Backup hour: {{ backup.scheduleHour }} - Encryption: <i class="fas" :class="backup.encryption ? 'fa-check text-green-700' : 'fa-times text-red-700'"></i>
                             </span>
                         </template>
                     </div>
-                    <div class="col-6">
-                        <div v-if="!Object.keys(disasterRecovery).length" class="my-2"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading disaster recovery from OVHcloud API...</div>
+                </div>
+            </div>
+            <div>
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow text-center relative">
+                    <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
+                    <div class="p-4">
+                        <div v-if="!Object.keys(disasterRecovery).length" class="my-2"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading disaster recovery from OVHcloud API...</div>
                         <template v-else>
-                            Zerto Disaster Recovery Plan
-                            <br />
+                            <div class="mb-3">Zerto Disaster Recovery Plan</div>
                             <span :class="getOptionStateClass(disasterRecovery)">
                                 <i class="fas fa-circle"></i>
                                 {{ disasterRecovery.state }}
                             </span>
-                            <span class="text-muted" v-if="disasterRecovery.drpType">
+                            <span class="text-gray-400" v-if="disasterRecovery.drpType">
                                 {{ disasterRecovery.systemVersion }} {{ disasterRecovery.localSiteInformation ? disasterRecovery.localSiteInformation.zertoVersion : "" }} - Type: {{ disasterRecovery.drpType }} - Role:
                                 {{ disasterRecovery.localSiteInformation ? disasterRecovery.localSiteInformation.role : "unknown" }}
                                 <br />
@@ -157,7 +89,7 @@
                                         Remote: {{ disasterRecovery.remoteSiteInformation.serviceName }}
                                         -
                                         {{ disasterRecovery.remoteSiteInformation.datacenterName }}
-                                        <a :href="`${pccRoute}/${disasterRecovery.remoteSiteInformation.serviceName}/datacenter/${disasterRecovery.remoteSiteInformation.datacenterId}`">
+                                        <a :href="`${pccRoute}/${disasterRecovery.remoteSiteInformation.serviceName}/datacenter/${disasterRecovery.remoteSiteInformation.datacenterId}`" class="text-indigo-600 hover:text-indigo-800">
                                             <i class="far fa-arrow-alt-circle-right"></i>
                                         </a>
                                     </span>
@@ -170,385 +102,370 @@
             </div>
         </div>
 
-        <div class="row text-center">
-            <div class="col-12 col-lg-6">
-                <div class="card my-2">
-                    <div class="card-body p-3">
-                        <div class="card-title">
-                            <span class="h5">Datastores</span>
-                            <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{ filers && Object.keys(filers).length }}</small>
-                            <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
-                                <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                            </button>
-                        </div>
-                        <div v-if="!filers" class="my-2"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading datastores from OVHcloud API...</div>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-2 mt-6">
+            <div>
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow text-center relative">
+                    <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
+                    <small class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 absolute top-0 left-0 m-2">{{ (filers && Object.keys(filers).length) || 0 }}</small>
+                    <div class="p-4">
+                        <div class="mb-3">Datastores</div>
+                        <div v-if="!filers" class="my-2"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading datastores from OVHcloud API...</div>
                         <template v-else>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="mini-gauge mb-4">
-                                        <vue-svg-gauge
-                                            :start-angle="-110"
-                                            :end-angle="110"
-                                            :value="round(gaugesValues('datastores-usage'), 0)"
-                                            :separator-step="0"
-                                            :min="0"
-                                            :max="100"
-                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
-                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
-                                            :gauge-color="[
-                                                { offset: 0, color: '#0b8c5a' },
-                                                { offset: 50, color: '#f4c009' },
-                                                { offset: 100, color: '#de3a21' },
-                                            ]"
-                                            :scale-interval="0"
-                                        >
-                                            <div class="inner-text">
-                                                <span>
-                                                    <div>Space</div>
-                                                    <div>usage :</div>
-                                                    <div class="h4">{{ round(gaugesValues("datastores-usage"), 0) }} %</div>
-                                                </span>
-                                            </div>
-                                        </vue-svg-gauge>
-                                    </div>
+                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-2 my-6">
+                                <div class="mini-gauge mb-4">
+                                    <vue-svg-gauge
+                                        :start-angle="-110"
+                                        :end-angle="110"
+                                        :value="round(gaugesValues('datastores-usage'), 0)"
+                                        :separator-step="0"
+                                        :min="0"
+                                        :max="100"
+                                        :base-color="$root.$data.currentDarkmode ? '#1f2937' : '#dddddd'"
+                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
+                                        :gauge-color="[
+                                            { offset: 0, color: '#0b8c5a' },
+                                            { offset: 50, color: '#f4c009' },
+                                            { offset: 100, color: '#de3a21' },
+                                        ]"
+                                        :scale-interval="0"
+                                    >
+                                        <div class="inner-text">
+                                            <span>
+                                                <div>Space</div>
+                                                <div>usage :</div>
+                                                <div class="h4">{{ round(gaugesValues("datastores-usage"), 0) }} %</div>
+                                            </span>
+                                        </div>
+                                    </vue-svg-gauge>
                                 </div>
-                                <div class="col-6">
-                                    <div class="mini-gauge mb-4">
-                                        <vue-svg-gauge
-                                            :start-angle="-110"
-                                            :end-angle="110"
-                                            :value="round(gaugesValues('datastores-provisioned'), 0)"
-                                            :separator-step="0"
-                                            :min="0"
-                                            :max="100"
-                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
-                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
-                                            :gauge-color="[
-                                                { offset: 0, color: '#0b8c5a' },
-                                                { offset: 50, color: '#f4c009' },
-                                                { offset: 100, color: '#de3a21' },
-                                            ]"
-                                            :scale-interval="0"
-                                        >
-                                            <div class="inner-text">
-                                                <span>
-                                                    <div>Space</div>
-                                                    <div>provisioned :</div>
-                                                    <div class="h4">{{ round(gaugesValues("datastores-provisioned"), 0) }} %</div>
-                                                </span>
-                                            </div>
-                                        </vue-svg-gauge>
-                                    </div>
+                                <div class="mini-gauge mb-4">
+                                    <vue-svg-gauge
+                                        :start-angle="-110"
+                                        :end-angle="110"
+                                        :value="round(gaugesValues('datastores-provisioned'), 0)"
+                                        :separator-step="0"
+                                        :min="0"
+                                        :max="100"
+                                        :base-color="$root.$data.currentDarkmode ? '#1f2937' : '#dddddd'"
+                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
+                                        :gauge-color="[
+                                            { offset: 0, color: '#0b8c5a' },
+                                            { offset: 50, color: '#f4c009' },
+                                            { offset: 100, color: '#de3a21' },
+                                        ]"
+                                        :scale-interval="0"
+                                    >
+                                        <div class="inner-text">
+                                            <span>
+                                                <div>Space</div>
+                                                <div>provisioned :</div>
+                                                <div class="h4">{{ round(gaugesValues("datastores-provisioned"), 0) }} %</div>
+                                            </span>
+                                        </div>
+                                    </vue-svg-gauge>
                                 </div>
                             </div>
-                            <table class="table table-sm table-striped table-bordered mb-0">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" colspan="2">Name</th>
-                                        <th scope="col">Profile</th>
-                                        <th scope="col">VM</th>
-                                        <th scope="col">Space Usage</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(filer, filerId) in filers" :key="filerId">
-                                        <td :title="`State: ${filer.state} - Profile: ${filer.profile}`">
-                                            <i class="fas fa-circle" :class="getDatastoreStateClass(filer)"></i><br />
-                                            <small class="text-muted">#{{ filerId }}</small>
-                                        </td>
-                                        <td :title="`State: ${filer.state} - Profile: ${filer.profile} - Node: ${filer.master.split(/\./)[0]} ${filer.activeNode}`">
-                                            <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/filer/${filerId}/graphs`">
-                                                <i class="far fa-chart-bar"></i>
-                                            </a>
-                                            {{ filer.name || "pcc-00" + filerId }}
-                                            <i v-if="filer.global" class="fas fa-globe text-info" title="Global"></i><br />
-                                            <small class="text-muted">
-                                                <i class="fas" :title="filer.activeNode" :class="filer.activeNode == 'master' ? 'fa-check text-success' : 'fa-exclamation text-warning'"></i>
-                                                {{ filer.master.split(/\./)[0] }}
-                                            </small>
-                                        </td>
-                                        <td>
-                                            <small>{{ filer.profile.replace("pcc-datastore-", "") }}</small>
-                                            <br />
-                                            <small class="text-muted">
-                                                <i class="fas fa-coins text-warning"></i>
-                                                {{ filer.billingType }}
-                                            </small>
-                                        </td>
-                                        <td>{{ filer.vmTotal }}</td>
-                                        <td>
-                                            <span v-if="filer.size.unit" title="Space used">
-                                                <div class="micro-gauge">
-                                                    <vue-svg-gauge
-                                                        :start-angle="-270"
-                                                        :end-angle="90"
-                                                        :inner-radius="0"
-                                                        :value="round(filer.spaceUsed, 0)"
-                                                        :separator-step="0"
-                                                        :min="0"
-                                                        :max="round(filer.spaceUsed + filer.spaceFree, 0)"
-                                                        :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
-                                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
-                                                        gauge-color="#f4c009"
-                                                        :scale-interval="0"
-                                                    >
-                                                    </vue-svg-gauge>
-                                                </div>
-                                                {{ round(filer.spaceUsed, 0) }} <small>of</small> {{ round(filer.spaceUsed + filer.spaceFree, 0) }} <small>{{ filer.size.unit }}</small>
-                                            </span>
-                                            <br />
-                                            <span v-if="filer.size.unit" title="Space provisioned">
-                                                <div class="micro-gauge">
-                                                    <vue-svg-gauge
-                                                        :start-angle="-270"
-                                                        :end-angle="90"
-                                                        :inner-radius="0"
-                                                        :value="round(filer.spaceProvisionned, 0)"
-                                                        :separator-step="0"
-                                                        :min="0"
-                                                        :max="round(filer.spaceUsed + filer.spaceFree, 0)"
-                                                        :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
-                                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
-                                                        gauge-color="#f4c009"
-                                                        :scale-interval="0"
-                                                    >
-                                                    </vue-svg-gauge>
-                                                </div>
-                                                {{ round(filer.spaceProvisionned, 0) }} <small>{{ filer.size.unit }} <small>provisioned</small></small>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div class="shadow overflow-hidden border border-gray-200 dark:border-gray-800 sm:rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                                    <thead class="bg-gray-50 dark:bg-gray-800 text-xs font-medium text-gray-500 dark:text-gray-300 tracking-wider">
+                                        <tr>
+                                            <th scope="col" colspan="2" class="px-1 py-2">Name</th>
+                                            <th scope="col" class="px-1 py-2">Profile</th>
+                                            <th scope="col" class="px-1 py-2">VM</th>
+                                            <th scope="col" class="px-1 py-2">Space Usage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-sm bg-white dark:bg-gray-700">
+                                        <tr v-for="(filer, filerId, filerIdx) in filers" :key="filerId" :class="filerIdx % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'">
+                                            <td :title="`State: ${filer.state} - Profile: ${filer.profile}`">
+                                                <i class="fas fa-circle" :class="getDatastoreStateClass(filer)"></i><br />
+                                                <small class="text-gray-500">#{{ filerId }}</small>
+                                            </td>
+                                            <td :title="`State: ${filer.state} - Profile: ${filer.profile} - Node: ${filer.master.split(/\./)[0]} ${filer.activeNode}`">
+                                                <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/filer/${filerId}/graphs`" class="text-indigo-600 hover:text-indigo-800">
+                                                    <i class="far fa-chart-bar"></i>
+                                                </a>
+                                                {{ filer.name || "pcc-00" + filerId }}
+                                                <i v-if="filer.global" class="fas fa-globe text-cyan-500" title="Global"></i><br />
+                                                <small class="text-gray-500">
+                                                    <i class="fas" :title="filer.activeNode" :class="filer.activeNode == 'master' ? 'fa-check text-green-700' : 'fa-exclamation text-yellow-600'"></i>
+                                                    {{ filer.master.split(/\./)[0] }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <small>{{ filer.profile.replace("pcc-datastore-", "") }}</small>
+                                                <br />
+                                                <small class="text-gray-500">
+                                                    <i class="fas fa-coins text-yellow-600"></i>
+                                                    {{ filer.billingType }}
+                                                </small>
+                                            </td>
+                                            <td>{{ filer.vmTotal }}</td>
+                                            <td>
+                                                <span v-if="filer.size.unit" title="Space used">
+                                                    <div class="micro-gauge align-middle">
+                                                        <vue-svg-gauge
+                                                            :start-angle="-270"
+                                                            :end-angle="90"
+                                                            :inner-radius="0"
+                                                            :value="round(filer.spaceUsed, 0)"
+                                                            :separator-step="0"
+                                                            :min="0"
+                                                            :max="round(filer.spaceUsed + filer.spaceFree, 0)"
+                                                            :base-color="$root.$data.currentDarkmode ? '#6b7280' : '#dddddd'"
+                                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
+                                                            gauge-color="#f4c009"
+                                                            :scale-interval="0"
+                                                        >
+                                                        </vue-svg-gauge>
+                                                    </div>
+                                                    {{ round(filer.spaceUsed, 0) }} <small>of</small> {{ round(filer.spaceUsed + filer.spaceFree, 0) }} <small>{{ filer.size.unit }}</small>
+                                                </span>
+                                                <br />
+                                                <span v-if="filer.size.unit" title="Space provisioned">
+                                                    <div class="micro-gauge align-middle">
+                                                        <vue-svg-gauge
+                                                            :start-angle="-270"
+                                                            :end-angle="90"
+                                                            :inner-radius="0"
+                                                            :value="round(filer.spaceProvisionned, 0)"
+                                                            :separator-step="0"
+                                                            :min="0"
+                                                            :max="round(filer.spaceUsed + filer.spaceFree, 0)"
+                                                            :base-color="$root.$data.currentDarkmode ? '#6b7280' : '#dddddd'"
+                                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
+                                                            gauge-color="#f4c009"
+                                                            :scale-interval="0"
+                                                        >
+                                                        </vue-svg-gauge>
+                                                    </div>
+                                                    {{ round(filer.spaceProvisionned, 0) }} <small>{{ filer.size.unit }} <small>provisioned</small></small>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </template>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-lg-6">
-                <div class="card my-2">
-                    <div class="card-body p-3">
-                        <div class="card-title">
-                            <span class="h5">Hosts</span>
-                            <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{ hosts && Object.keys(hosts).length }}</small>
-                            <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
-                                <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                            </button>
-                        </div>
-                        <div v-if="!hosts" class="my-2"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading hosts from OVHcloud API...</div>
+            <div>
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow text-center relative">
+                    <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
+                    <small class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 absolute top-0 left-0 m-2">{{ (hosts && Object.keys(hosts).length) || 0 }}</small>
+                    <div class="p-4">
+                        <div class="mb-3">Hosts</div>
+                        <div v-if="!hosts" class="my-2"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading hosts from OVHcloud API...</div>
                         <template v-else>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="mini-gauge mb-4">
-                                        <vue-svg-gauge
-                                            :start-angle="-110"
-                                            :end-angle="110"
-                                            :value="round(gaugesValues('hosts-cpu'), 0)"
-                                            :separator-step="0"
-                                            :min="0"
-                                            :max="100"
-                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
-                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
-                                            :gauge-color="[
-                                                { offset: 0, color: '#0b8c5a' },
-                                                { offset: 50, color: '#f4c009' },
-                                                { offset: 100, color: '#de3a21' },
-                                            ]"
-                                            :scale-interval="0"
-                                        >
-                                            <div class="inner-text">
-                                                <span>
-                                                    <div>CPU</div>
-                                                    <div>usage :</div>
-                                                    <div class="h4">{{ round(gaugesValues("hosts-cpu"), 0) }} %</div>
-                                                </span>
-                                            </div>
-                                        </vue-svg-gauge>
-                                    </div>
+                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-2 my-6">
+                                <div class="mini-gauge mb-4">
+                                    <vue-svg-gauge
+                                        :start-angle="-110"
+                                        :end-angle="110"
+                                        :value="round(gaugesValues('hosts-cpu'), 0)"
+                                        :separator-step="0"
+                                        :min="0"
+                                        :max="100"
+                                        :base-color="$root.$data.currentDarkmode ? '#1f2937' : '#dddddd'"
+                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
+                                        :gauge-color="[
+                                            { offset: 0, color: '#0b8c5a' },
+                                            { offset: 50, color: '#f4c009' },
+                                            { offset: 100, color: '#de3a21' },
+                                        ]"
+                                        :scale-interval="0"
+                                    >
+                                        <div class="inner-text">
+                                            <span>
+                                                <div>CPU</div>
+                                                <div>usage :</div>
+                                                <div class="h4">{{ round(gaugesValues("hosts-cpu"), 0) }} %</div>
+                                            </span>
+                                        </div>
+                                    </vue-svg-gauge>
                                 </div>
-                                <div class="col-6">
-                                    <div class="mini-gauge mb-4">
-                                        <vue-svg-gauge
-                                            :start-angle="-110"
-                                            :end-angle="110"
-                                            :value="round(gaugesValues('hosts-ram'), 0)"
-                                            :separator-step="0"
-                                            :min="0"
-                                            :max="100"
-                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
-                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
-                                            :gauge-color="[
-                                                { offset: 0, color: '#0b8c5a' },
-                                                { offset: 50, color: '#f4c009' },
-                                                { offset: 100, color: '#de3a21' },
-                                            ]"
-                                            :scale-interval="0"
-                                        >
-                                            <div class="inner-text">
-                                                <span>
-                                                    <div>RAM</div>
-                                                    <div>usage :</div>
-                                                    <div class="h4">{{ round(gaugesValues("hosts-ram"), 0) }} %</div>
-                                                </span>
-                                            </div>
-                                        </vue-svg-gauge>
-                                    </div>
+                                <div class="mini-gauge mb-4">
+                                    <vue-svg-gauge
+                                        :start-angle="-110"
+                                        :end-angle="110"
+                                        :value="round(gaugesValues('hosts-ram'), 0)"
+                                        :separator-step="0"
+                                        :min="0"
+                                        :max="100"
+                                        :base-color="$root.$data.currentDarkmode ? '#1f2937' : '#dddddd'"
+                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
+                                        :gauge-color="[
+                                            { offset: 0, color: '#0b8c5a' },
+                                            { offset: 50, color: '#f4c009' },
+                                            { offset: 100, color: '#de3a21' },
+                                        ]"
+                                        :scale-interval="0"
+                                    >
+                                        <div class="inner-text">
+                                            <span>
+                                                <div>RAM</div>
+                                                <div>usage :</div>
+                                                <div class="h4">{{ round(gaugesValues("hosts-ram"), 0) }} %</div>
+                                            </span>
+                                        </div>
+                                    </vue-svg-gauge>
                                 </div>
                             </div>
-                            <table class="table table-sm table-striped table-bordered mb-0">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" colspan="2">Name</th>
-                                        <th scope="col">Profile</th>
-                                        <th scope="col">Cores</th>
-                                        <th scope="col">VM</th>
-                                        <th scope="col">Usage</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(host, hostId) in hosts" :key="hostId">
-                                        <td :title="`Rack: ${host.rack} - State: ${host.state} - Connexion state: ${host.connectionState} - In maintenance: ${host.inMaintenance ? 'yes' : 'no'}`">
-                                            <i class="fas fa-circle" :class="getHostStateClass(host)"></i><br />
-                                            <small class="text-muted">#{{ hostId }}</small>
-                                        </td>
-                                        <td :title="`Rack: ${host.rack} - State: ${host.state} - Connexion state: ${host.connectionState} - In maintenance: ${host.inMaintenance ? 'yes' : 'no'}`">
-                                            <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/host/${hostId}/graphs`">
-                                                <i class="far fa-chart-bar"></i>
-                                            </a>
-                                            {{ host.name || "host" + hostId }}<br />
-                                            <small class="text-muted">Rack: {{ host.rack }}</small>
-                                        </td>
-                                        <td>
-                                            <small>{{ host.profile }}</small>
-                                            <br />
-                                            <small class="text-muted">
-                                                <i class="fas fa-coins text-warning"></i>
-                                                {{ host.billingType }}
-                                            </small>
-                                        </td>
-                                        <td>
-                                            <small>{{ host.cpuNum }} cores</small><br />
-                                            <small class="text-muted"> {{ host.vmVcpuTotal }} vCPU </small>
-                                        </td>
-                                        <td>{{ host.vmTotal }}</td>
-                                        <td>
-                                            <template v-if="host.cpuMax">
-                                                <div class="micro-gauge">
-                                                    <vue-svg-gauge
-                                                        :start-angle="-270"
-                                                        :end-angle="90"
-                                                        :inner-radius="0"
-                                                        :value="host.cpuUsed / 1000"
-                                                        :separator-step="0"
-                                                        :min="0"
-                                                        :max="host.cpuMax / 1000"
-                                                        :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
-                                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
-                                                        gauge-color="#f4c009"
-                                                        :scale-interval="0"
-                                                    >
-                                                    </vue-svg-gauge>
-                                                </div>
-                                                <small>
-                                                    CPU: {{ round(host.cpuUsed / 1000, 1) }} <small>of</small> {{ round(host.cpuMax / 1000,  0) }} <small>{{ host.cpu.unit }}</small>
+
+                            <div class="shadow overflow-hidden border border-gray-200 dark:border-gray-800 sm:rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                                    <thead class="bg-gray-50 dark:bg-gray-800 text-xs font-medium text-gray-500 dark:text-gray-300 tracking-wider">
+                                        <tr>
+                                            <th scope="col" colspan="2" class="px-1 py-2">Name</th>
+                                            <th scope="col" class="px-1 py-2">Profile</th>
+                                            <th scope="col" class="px-1 py-2">Cores</th>
+                                            <th scope="col" class="px-1 py-2">VM</th>
+                                            <th scope="col" class="px-1 py-2">Usage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-sm bg-white dark:bg-gray-700">
+                                        <tr v-for="(host, hostId, hostIdx) in hosts" :key="hostId" :class="hostIdx % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'">
+                                            <td :title="`Rack: ${host.rack} - State: ${host.state} - Connexion state: ${host.connectionState} - In maintenance: ${host.inMaintenance ? 'yes' : 'no'}`">
+                                                <i class="fas fa-circle" :class="getHostStateClass(host)"></i><br />
+                                                <small class="text-gray-500">#{{ hostId }}</small>
+                                            </td>
+                                            <td :title="`Rack: ${host.rack} - State: ${host.state} - Connexion state: ${host.connectionState} - In maintenance: ${host.inMaintenance ? 'yes' : 'no'}`">
+                                                <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/host/${hostId}/graphs`" class="text-indigo-600 hover:text-indigo-800">
+                                                    <i class="far fa-chart-bar"></i>
+                                                </a>
+                                                {{ host.name || "host" + hostId }}<br />
+                                                <small class="text-gray-500">Rack: {{ host.rack }}</small>
+                                            </td>
+                                            <td>
+                                                <small>{{ host.profile }}</small>
+                                                <br />
+                                                <small class="text-gray-500">
+                                                    <i class="fas fa-coins text-yellow-600"></i>
+                                                    {{ host.billingType }}
                                                 </small>
-                                            </template>
-                                            <br />
-                                            <template v-if="host.memoryUsed">
-                                                <div class="micro-gauge">
-                                                    <vue-svg-gauge
-                                                        :start-angle="-270"
-                                                        :end-angle="90"
-                                                        :inner-radius="0"
-                                                        :value="host.memoryUsed / 1024"
-                                                        :separator-step="0"
-                                                        :min="0"
-                                                        :max="host.ram.value"
-                                                        :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
-                                                        :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
-                                                        gauge-color="#f4c009"
-                                                        :scale-interval="0"
-                                                    >
-                                                    </vue-svg-gauge>
-                                                </div>
-                                                <small>
-                                                    RAM: {{ round(host.memoryUsed / 1024, 0) }} <small>of</small> {{ round(host.ram.value, 0) }} <small>{{ host.ram.unit }}</small>
-                                                </small>
-                                            </template>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                            </td>
+                                            <td>
+                                                <small>{{ host.cpuNum }} cores</small><br />
+                                                <small class="text-gray-500"> {{ host.vmVcpuTotal }} vCPU </small>
+                                            </td>
+                                            <td>{{ host.vmTotal }}</td>
+                                            <td>
+                                                <template v-if="host.cpuMax">
+                                                    <div class="micro-gauge align-middle">
+                                                        <vue-svg-gauge
+                                                            :start-angle="-270"
+                                                            :end-angle="90"
+                                                            :inner-radius="0"
+                                                            :value="host.cpuUsed / 1000"
+                                                            :separator-step="0"
+                                                            :min="0"
+                                                            :max="host.cpuMax / 1000"
+                                                            :base-color="$root.$data.currentDarkmode ? '#6b7280' : '#dddddd'"
+                                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
+                                                            gauge-color="#f4c009"
+                                                            :scale-interval="0"
+                                                        >
+                                                        </vue-svg-gauge>
+                                                    </div>
+                                                    <small>
+                                                        CPU: {{ round(host.cpuUsed / 1000, 1) }} <small>of</small> {{ round(host.cpuMax / 1000,  0) }} <small>{{ host.cpu.unit }}</small>
+                                                    </small>
+                                                </template>
+                                                <br />
+                                                <template v-if="host.memoryUsed">
+                                                    <div class="micro-gauge align-middle">
+                                                        <vue-svg-gauge
+                                                            :start-angle="-270"
+                                                            :end-angle="90"
+                                                            :inner-radius="0"
+                                                            :value="host.memoryUsed / 1024"
+                                                            :separator-step="0"
+                                                            :min="0"
+                                                            :max="host.ram.value"
+                                                            :base-color="$root.$data.currentDarkmode ? '#6b7280' : '#dddddd'"
+                                                            :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
+                                                            gauge-color="#f4c009"
+                                                            :scale-interval="0"
+                                                        >
+                                                        </vue-svg-gauge>
+                                                    </div>
+                                                    <small>
+                                                        RAM: {{ round(host.memoryUsed / 1024, 0) }} <small>of</small> {{ round(host.ram.value, 0) }} <small>{{ host.ram.unit }}</small>
+                                                    </small>
+                                                </template>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </template>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card my-2 text-center">
-            <div class="card-body p-3">
-                <div class="card-title">
-                    <span class="h5">Virtual Machines</span>
-                    <small class="badge rounded-pill bg-primary position-absolute top-0 start-0 m-3">{{ vms && Object.keys(vms).length }}</small>
-                    <button class="btn btn-sm badge btn-info position-absolute top-0 end-0 m-3" @click="loadAll()">
-                        <i class="fas fa-sync-alt" :class="loading ? 'fa-spin' : ''"></i>
-                    </button>
-                </div>
-                <div v-if="!vms" class="my-2"><i class="fas fa-circle-notch fa-spin me-1"></i> Loading VMs from OVHcloud API...</div>
-                <template v-else>
-                    <table class="table table-sm table-striped table-bordered mb-0">
-                        <thead>
+        <div class="bg-white dark:bg-gray-700 rounded-lg shadow text-center relative mt-6">
+            <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
+            <small class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 absolute top-0 left-0 m-2">{{ (vms && Object.keys(vms).length) || 0 }}</small>
+            <div class="p-4">
+                <div class="mb-3">Virtual Machines</div>
+                <div v-if="!vms" class="my-2"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading VMs from OVHcloud API...</div>
+                <div v-else class="shadow overflow-hidden border border-gray-200 dark:border-gray-800 sm:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                        <thead class="bg-gray-50 dark:bg-gray-800 text-xs font-medium text-gray-500 dark:text-gray-300 tracking-wider">
                             <tr>
-                                <th scope="col" colspan="2">Name</th>
-                                <th scope="col">
+                                <th scope="col" colspan="2" class="px-1 py-2">Name</th>
+                                <th scope="col" class="px-1 py-2">
                                     Host &<br />
                                     storage
                                 </th>
-                                <th scope="col"><abbr title="Snapshots">Snap</abbr></th>
-                                <th scope="col"><abbr title="VMWare Tools">Tools</abbr></th>
-                                <th scope="col"><abbr title="Veeam Backup option">Backup</abbr></th>
-                                <th scope="col"><abbr title="Fault tolerance">FT</abbr></th>
-                                <th scope="col">
+                                <th scope="col" class="px-1 py-2"><abbr title="Snapshots">Snap</abbr></th>
+                                <th scope="col" class="px-1 py-2"><abbr title="VMWare Tools">Tools</abbr></th>
+                                <th scope="col" class="px-1 py-2"><abbr title="Veeam Backup option">Backup</abbr></th>
+                                <th scope="col" class="px-1 py-2"><abbr title="Fault tolerance">FT</abbr></th>
+                                <th scope="col" class="px-1 py-2">
                                     RAM<br />
                                     vCPU
                                 </th>
-                                <th scope="col">CPU</th>
-                                <th scope="col">
+                                <th scope="col" class="px-1 py-2">CPU</th>
+                                <th scope="col" class="px-1 py-2">
                                     <abbr title="Network TX/RX">Net TX/RX</abbr><br />
                                     <abbr title="Disk IOs R/W">Disk IO R/W</abbr>
                                 </th>
-                                <th scope="col">
+                                <th scope="col" class="px-1 py-2">
                                     Disk R/W<br />
                                     <abbr title="Disk latency R/W">Latency R/W</abbr>
                                 </th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr v-for="vm in window._.orderBy(window._.values(vms), ['isOvhVm', (vm) => vm.name.toLowerCase()], ['asc', 'asc'])" :key="vm.vmId">
+                        <tbody class="text-sm bg-white dark:bg-gray-700">
+                            <tr v-for="(vm, vmIdx) in window._.orderBy(window._.values(vms), ['isOvhVm', (vm) => vm.name.toLowerCase()], ['asc', 'asc'])" :key="vm.vmId" :class="vmIdx % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'">
                                 <td :title="`State: ${vm.powerState} - MoRef: ${vm.moRef}`">
                                     <i class="fas fa-circle" :class="getVirtualMachineStateClass(vm)"></i><br />
-                                    <small class="text-muted">#{{ vm.vmId }}</small>
+                                    <small class="text-gray-500">#{{ vm.vmId }}</small>
                                 </td>
                                 <td :title="`State: ${vm.powerState} - MoRef: ${vm.moRef}`">
-                                    <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/vm/${vm.vmId}/graphs`">
+                                    <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/vm/${vm.vmId}/graphs`" class="text-indigo-600 hover:text-indigo-800">
                                         <i class="far fa-chart-bar"></i>
                                     </a>
                                     {{ vm.name }}
                                     <br />
-                                    <small class="text-secondary" v-if="vm.isOvhVm" title="This virtual machine is managed by OVHcloud">
+                                    <small class="text-gray-500" v-if="vm.isOvhVm" title="This virtual machine is managed by OVHcloud">
                                         <i class="fas fa-user-cog"></i>
                                         OVHcloud
                                     </small>
                                 </td>
-                                <td colspan="3" v-if="vm.powerState == 'deleted'" class="text-center text-secondary">
+                                <td colspan="3" v-if="vm.powerState == 'deleted'" class="text-center text-gray-500">
                                     <i>Virtual machine removed</i>
                                 </td>
                                 <td v-if="vm.powerState != 'deleted'">
-                                    <small title="Host" class="text-muted">{{ vm.hostName }}</small>
+                                    <small title="Host" class="text-gray-500">{{ vm.hostName }}</small>
                                     <br />
                                     <template v-if="vm.filers">
                                         <div v-for="filer in vm.filers" :key="filer.id" class="inline" :title="`Filer ${filer.name.substring(0, 13) == 'storageLocal_' ? 'local' : filer.name}: ${round(filer.committed / 1024, 1)} of ${round(filer.capacity / 1024, 0)} GB`">
                                             <template v-if="filer.capacity">
-                                                <div class="micro-gauge">
+                                                <div class="micro-gauge align-middle">
                                                     <vue-svg-gauge
                                                         :start-angle="-270"
                                                         :end-angle="90"
@@ -557,7 +474,7 @@
                                                         :separator-step="0"
                                                         :min="0"
                                                         :max="filer.capacity / 1024"
-                                                        :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                                        :base-color="$root.$data.currentDarkmode ? '#6b7280' : '#dddddd'"
                                                         :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                                         gauge-color="#f4c009"
                                                         :scale-interval="0"
@@ -567,27 +484,27 @@
                                                 <small>
                                                     <template v-if="filer.name.substring(0, 13) == 'storageLocal_'">
                                                         <template v-if="vm.isOvhVm"> local </template>
-                                                        <span v-else class="text-danger"> local <i class="fas fa-exclamation-triangle"></i> </span>
+                                                        <span v-else class="text-red-700"> local <i class="fas fa-exclamation-triangle"></i> </span>
                                                     </template>
                                                     <template v-else>
                                                         {{ filer.name }}
                                                     </template>
-                                                    <small class="text-muted" v-if="filer.disks.length && filer.disks.length > 1">({{ filer.disks.length }} disks)</small>
+                                                    <small class="text-gray-500" v-if="filer.disks.length && filer.disks.length > 1">({{ filer.disks.length }} disks)</small>
                                                 </small>
                                             </template>
                                         </div>
                                     </template>
                                 </td>
                                 <td v-if="vm.powerState != 'deleted'">
-                                    <span class="badge" :class="getVirtualMachineSnapClass(vm)">{{ vm.snapshotNum }}</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-white text-xs font-medium" :class="getVirtualMachineSnapClass(vm)">{{ vm.snapshotNum }}</span>
                                 </td>
                                 <td :title="`VMWare Tools: ${vm.vmwareTools} - ${vm.vmwareToolsVersion}`" v-if="vm.powerState != 'deleted'">
-                                    <span class="badge" :class="getVirtualMachineVmwareToolsData('class', vm)">
+                                    <span class="px-2.5 py-0.5 rounded-full text-white text-xs font-medium" :class="getVirtualMachineVmwareToolsData('class', vm)">
                                         <i class="fa" :class="getVirtualMachineVmwareToolsData('icon', vm)"></i>
                                     </span>
                                 </td>
                                 <td :title="`Backup: ${vm.backup && vm.backup.state ? vm.backup.state : 'removed'} - Restore points: ${vm.backup && vm.backup.restorePoints ? Object.keys(vm.backup.restorePoints).length : 0}`">
-                                    <span class="badge" :class="getVirtualMachineBackupClass(vm)">
+                                    <span class="px-2.5 py-0.5 rounded-full text-white text-xs font-medium" :class="getVirtualMachineBackupClass(vm)">
                                         <i class="fa" :class="getVirtualMachineBackupIcon(vm)"></i>
                                         <span v-if="vm.backup && vm.backup.state != 'removed'">
                                             <span v-if="vm.backup.restorePoints == null"> ... </span>
@@ -597,14 +514,14 @@
                                         </span>
                                     </span>
                                 </td>
-                                <td colspan="6" v-if="vm.powerState == 'deleted'" class="text-center text-secondary">
+                                <td colspan="6" v-if="vm.powerState == 'deleted'" class="text-center text-gray-500">
                                     <i>Virtual machine removed</i>
                                 </td>
                                 <td v-if="vm.powerState != 'deleted'" :title="`Fault Tolerance: ${vm.stateFt}`">
                                     <i class="fas fa-circle" :class="getVirtualMachineFtClass(vm)"></i>
                                 </td>
                                 <td :title="`RAM usage: ${round(vm.memoryUsed / 1024, 2)} of ${round(vm.memoryMax / 1024, 0)} GB - ${vm.cpuNum} vCPU`" v-if="vm.powerState != 'deleted'">
-                                    <div class="micro-gauge">
+                                    <div class="micro-gauge align-middle">
                                         <vue-svg-gauge
                                             :start-angle="-270"
                                             :end-angle="90"
@@ -613,7 +530,7 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="vm.memoryMax / 1024"
-                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                            :base-color="$root.$data.currentDarkmode ? '#6b7280' : '#dddddd'"
                                             :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                             gauge-color="#f4c009"
                                             :scale-interval="0"
@@ -625,7 +542,7 @@
                                     {{ vm.cpuNum }} <small>vCPU</small>
                                 </td>
                                 <td :title="`CPU usage: ${round(vm.cpuUsed / 1000, 2)} of ${round(vm.cpuMax / 1000, 1)} GHz - CPU Ready: ${vm.cpuReady} ms (${vm.cpuReadyPercent}} %)`" v-if="vm.powerState != 'deleted'">
-                                    <div class="micro-gauge">
+                                    <div class="micro-gauge align-middle">
                                         <vue-svg-gauge
                                             :start-angle="-270"
                                             :end-angle="90"
@@ -634,7 +551,7 @@
                                             :separator-step="0"
                                             :min="0"
                                             :max="vm.cpuMax / 1000"
-                                            :base-color="$root.$data.currentDarkmode ? '#555555' : '#dddddd'"
+                                            :base-color="$root.$data.currentDarkmode ? '#6b7280' : '#dddddd'"
                                             :blur-color="$root.$data.currentDarkmode ? '#111111' : '#c7c6c6'"
                                             gauge-color="#f4c009"
                                             :scale-interval="0"
@@ -645,7 +562,7 @@
                                     <br />
                                     <small>
                                         Ready:
-                                        <span :class="vm.cpuReadyPercent < 3 ? 'text-primary' : 'text-warning'">{{ round(vm.cpuReady, 0) }} <small>ms</small></span>
+                                        <span :class="vm.cpuReadyPercent < 3 ? 'text-blue-500' : 'text-yellow-600'">{{ round(vm.cpuReady, 0) }} <small>ms</small></span>
                                     </small>
                                 </td>
                                 <td v-if="vm.powerState != 'deleted'" :title="`Network TX/RX: ${round(vm.netTx / 100, 1)} MBps / ${round(vm.netRx / 100, 1)} MBps - Disk IOs R/W: ${round(vm.readPerSecond, 0)} IOps / ${round(vm.writePerSecond, 0)} IOps`">
@@ -661,7 +578,7 @@
                             </tr>
                         </tbody>
                     </table>
-                </template>
+                </div>
             </div>
         </div>
     </div>
@@ -726,6 +643,11 @@ export default {
             hosts: null,
             filers: null,
             vms: null,
+            breadcrumb: [
+                { name: this.pccName, href: this.pccRoute+'/'+this.pccName, current: false },
+                { name: 'Datacenters', href: this.pccRoute+'/'+this.pccName, current: false },
+                { name: 'Datacenter #'+this.datacenterId, href: this.pccRoute+'/'+this.pccName+'/datacenter/'+this.datacenterId, current: true },
+            ],
         };
     },
 
@@ -965,51 +887,51 @@ export default {
         },
 
         getDatastoreStateClass(datastore) {
-            var resultClass = "text-warning";
+            var resultClass = "text-yellow-600";
             if (datastore.state) {
                 if (datastore.state == "delivered") {
-                    resultClass = "text-success";
+                    resultClass = "text-green-700";
                 } else if (datastore.state == "adding") {
-                    resultClass = "text-warning";
+                    resultClass = "text-yellow-600";
                 } else if (datastore.state == "removing") {
-                    resultClass = "text-warning";
+                    resultClass = "text-yellow-600";
                 } else if (datastore.state == "error") {
-                    resultClass = "text-danger";
+                    resultClass = "text-red-700";
                 } else {
-                    resultClass = "text-danger";
+                    resultClass = "text-red-700";
                 }
             }
             return resultClass;
         },
 
         getHostStateClass(host) {
-            var resultClass = "text-warning";
+            var resultClass = "text-yellow-600";
             if (host.connectionState) {
                 if (host.connectionState == "connected") {
                     if (host.inMaintenance) {
-                        resultClass = "text-warning";
+                        resultClass = "text-yellow-600";
                     } else {
-                        resultClass = "text-success";
+                        resultClass = "text-green-700";
                     }
                 } else if (host.connectionState == "disconnected") {
-                    resultClass = "text-danger";
+                    resultClass = "text-red-700";
                 } else if (host.connectionState == "notResponding") {
-                    resultClass = "text-danger";
+                    resultClass = "text-red-700";
                 } else {
-                    resultClass = "text-danger";
+                    resultClass = "text-red-700";
                 }
             } else {
                 if (host.state) {
                     if (host.state == "delivered") {
-                        resultClass = "text-success";
+                        resultClass = "text-green-700";
                     } else if (host.state == "adding") {
-                        resultClass = "text-warning";
+                        resultClass = "text-yellow-600";
                     } else if (host.state == "removing") {
-                        resultClass = "text-warning";
+                        resultClass = "text-yellow-600";
                     } else if (host.state == "error") {
-                        resultClass = "text-danger";
+                        resultClass = "text-red-700";
                     } else {
-                        resultClass = "text-danger";
+                        resultClass = "text-red-700";
                     }
                 }
             }
@@ -1017,36 +939,36 @@ export default {
         },
 
         getVirtualMachineFtClass(virtualmachine) {
-            var resultClass = "text-warning";
+            var resultClass = "text-yellow-600";
             if (virtualmachine.stateFt) {
                 if (virtualmachine.stateFt == "running") {
-                    resultClass = "text-success";
+                    resultClass = "text-green-700";
                 } else if (virtualmachine.stateFt == "enabled") {
-                    resultClass = "text-primary";
+                    resultClass = "text-blue-500";
                 } else if (virtualmachine.stateFt == "starting") {
-                    resultClass = "text-info";
+                    resultClass = "text-cyan-500";
                 } else if (virtualmachine.stateFt == "needSecondary") {
-                    resultClass = "text-warning";
+                    resultClass = "text-yellow-600";
                 } else if (virtualmachine.stateFt == "disabled") {
-                    resultClass = "text-secondary";
+                    resultClass = "text-gray-500";
                 } else if (virtualmachine.stateFt == "notConfigured") {
-                    resultClass = "text-secondary";
+                    resultClass = "text-gray-500";
                 }
             }
             return resultClass;
         },
 
         getVirtualMachineStateClass(virtualmachine) {
-            var resultClass = "text-warning";
+            var resultClass = "text-yellow-600";
             if (virtualmachine.powerState) {
                 if (virtualmachine.powerState == "poweredOn") {
-                    resultClass = "text-success";
+                    resultClass = "text-green-700";
                 } else if (virtualmachine.powerState == "suspended") {
-                    resultClass = "text-warning";
+                    resultClass = "text-yellow-600";
                 } else if (virtualmachine.powerState == "deleted") {
-                    resultClass = "text-secondary";
+                    resultClass = "text-gray-500";
                 } else {
-                    resultClass = "text-danger";
+                    resultClass = "text-red-700";
                 }
             }
             return resultClass;
@@ -1060,43 +982,43 @@ export default {
             if (virtualmachine.vmwareTools) {
                 if (virtualmachine.vmwareTools == "guestToolsRunning") {
                     if (virtualmachine.vmwareToolsVersion == "guestToolsCurrent") {
-                        result["class"] = "bg-success";
+                        result["class"] = "bg-green-700";
                         result["icon"] = "fa-check";
                     } else if (virtualmachine.vmwareToolsVersion == "guestToolsSupportedNew") {
-                        result["class"] = "bg-success";
+                        result["class"] = "bg-green-700";
                         result["icon"] = "fa-check";
                     } else if (virtualmachine.vmwareToolsVersion == "guestToolsUnmanaged") {
-                        result["class"] = "bg-info";
+                        result["class"] = "bg-cyan-500";
                         result["icon"] = "fa-check";
                     } else if (virtualmachine.vmwareToolsVersion == "guestToolsNeedUpgrade") {
-                        result["class"] = "bg-warning";
+                        result["class"] = "bg-yellow-600";
                         result["icon"] = "fa-check";
                     } else if (virtualmachine.vmwareToolsVersion == "guestToolsSupportedOld") {
-                        result["class"] = "bg-warning";
+                        result["class"] = "bg-yellow-600";
                         result["icon"] = "fa-check";
                     } else if (virtualmachine.vmwareToolsVersion == "guestToolsTooNew") {
-                        result["class"] = "bg-warning";
+                        result["class"] = "bg-yellow-600";
                         result["icon"] = "fa-exclamation-triangle";
                     } else if (virtualmachine.vmwareToolsVersion == "guestToolsTooOld") {
-                        result["class"] = "bg-warning";
+                        result["class"] = "bg-yellow-600";
                         result["icon"] = "fa-exclamation-triangle";
                     } else if (virtualmachine.vmwareToolsVersion == "guestToolsNotInstalled") {
-                        result["class"] = "bg-danger";
+                        result["class"] = "bg-red-700";
                         result["icon"] = "fa-times";
                     } else if (virtualmachine.vmwareToolsVersion == "guestToolsBlacklisted") {
-                        result["class"] = "bg-danger";
+                        result["class"] = "bg-red-700";
                         result["icon"] = "fa-times";
                     }
                 } else if (virtualmachine.vmwareTools == "guestToolsExecutingScripts") {
-                    result["class"] = "bg-warning";
+                    result["class"] = "bg-yellow-600";
                     result["icon"] = "fa-check";
                 } else if (virtualmachine.vmwareTools == "guestToolsNotRunning") {
-                    result["class"] = "bg-danger";
+                    result["class"] = "bg-red-700";
                     result["icon"] = "fa-times";
                 }
             }
             if (virtualmachine.isOvhVm) {
-                result["class"] = "bg-secondary";
+                result["class"] = "bg-gray-600";
             }
             return result[type];
         },
@@ -1136,12 +1058,12 @@ export default {
         getVirtualMachineSnapClass(virtualmachine) {
             var resultClass = "";
             if (virtualmachine.snapshotNum) {
-                resultClass = "bg-danger";
+                resultClass = "bg-red-700";
             } else {
-                resultClass = "bg-success";
+                resultClass = "bg-green-700";
             }
             if (virtualmachine.isOvhVm) {
-                resultClass = "bg-secondary";
+                resultClass = "bg-gray-600";
             }
             return resultClass;
         },
@@ -1151,20 +1073,20 @@ export default {
             if (virtualmachine.backup) {
                 if (virtualmachine.backup.state) {
                     if (virtualmachine.backup.state == "delivered") {
-                        resultClass = "bg-success";
+                        resultClass = "bg-green-700";
                     } else if (virtualmachine.backup.state == "removed") {
-                        resultClass = "bg-warning";
+                        resultClass = "bg-yellow-600";
                     } else if (virtualmachine.backup.state == "disabled") {
-                        resultClass = "bg-danger";
+                        resultClass = "bg-red-700";
                     } else {
-                        resultClass = "bg-danger";
+                        resultClass = "bg-red-700";
                     }
                 }
             } else {
-                resultClass = "bg-danger";
+                resultClass = "bg-red-700";
             }
             if (virtualmachine.isOvhVm) {
-                resultClass = "bg-secondary";
+                resultClass = "bg-gray-600";
             }
             return resultClass;
         },
@@ -1190,16 +1112,16 @@ export default {
         },
 
         getOptionStateClass(option) {
-            var resultClass = "text-warning";
+            var resultClass = "text-yellow-600";
             if (option.state) {
                 if (option.state == "delivered") {
-                    resultClass = "text-success";
+                    resultClass = "text-green-700";
                 } else if (option.state == "enabled") {
-                    resultClass = "text-success";
+                    resultClass = "text-green-700";
                 } else if (option.state == "error") {
-                    resultClass = "text-danger";
+                    resultClass = "text-red-700";
                 } else if (option.state == "disabled") {
-                    resultClass = "text-danger";
+                    resultClass = "text-red-700";
                 }
             }
             return resultClass;

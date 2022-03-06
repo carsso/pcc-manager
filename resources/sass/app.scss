@@ -5,7 +5,11 @@
 @import 'variables';
 
 // Bootstrap
-@import '~bootstrap-dark-5/scss/bootstrap-blackbox';
+//@import '~bootstrap-dark-5/scss/bootstrap-blackbox';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @import "~@fortawesome/fontawesome-free/scss/fontawesome";
 @import "~@fortawesome/fontawesome-free/scss/solid";

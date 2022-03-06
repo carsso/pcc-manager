@@ -1,18 +1,30 @@
 <template>
-    <div class="errors-zone col-10 col-sm-6 col-lg-4">
+    <div class="errors-zone w-2/3 sm:w-2/3 lg:w-1/3">
         <transition-group name="errors-zone">
             <template v-for="(error, errorKey) in errors">
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" v-if="!dismissed.includes(errorKey)" :key="errorKey">
-                    <strong v-if="error.config && error.config.url && error.config.method"> {{ error.config.method.toUpperCase() }} {{ error.config.url }}<br /> </strong>
-                    <template v-if="error.message">
-                        {{ error.message }}
-                    </template>
-                    <template v-if="error.errors">
-                        <ul>
-                            <li v-for="(errorsError, index) in error.errors" :key="index">{{ errorsError[0] }}</li>
-                        </ul>
-                    </template>
-                    <button type="button" class="btn-close" @click="dismiss(errorKey)" aria-label="Close"></button>
+                <div class="rounded-md bg-red-50 dark:bg-red-800 p-4 mb-4" v-if="!dismissed.includes(errorKey)" :key="errorKey">
+                    <div class="text-sm font-medium text-red-800 dark:text-red-50">
+                        <div class="float-right pl-3">
+                            <div class="-mx-1.5 -my-1.5">
+                                <button type="button" @click="dismiss(errorKey)" class="inline-flex rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600">
+                                    <span class="sr-only">Dismiss</span>
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <strong v-if="error.config && error.config.url && error.config.method">
+                            <i class="fas fa-circle-exclamation text-red-400 mr-1"></i>
+                            {{ error.config.method.toUpperCase() }} {{ error.config.url }}
+                        </strong><br />
+                        <template v-if="error.message">
+                            {{ error.message }}
+                        </template>
+                        <template v-if="error.errors">
+                            <ul>
+                                <li v-for="(errorsError, index) in error.errors" :key="index">{{ errorsError[0] }}</li>
+                            </ul>
+                        </template>
+                    </div>
                 </div>
             </template>
         </transition-group>
