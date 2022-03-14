@@ -542,7 +542,7 @@
                                     <br />
                                     {{ vm.cpuNum }} <small>vCPU</small>
                                 </td>
-                                <td class="p-1" :title="`CPU usage: ${round(vm.cpuUsed / 1000, 2)} of ${round(vm.cpuMax / 1000, 1)} GHz - CPU Ready: ${vm.cpuReady} ms (${vm.cpuReadyPercent}} %)`" v-if="vm.powerState != 'deleted'">
+                                <td class="p-1" :title="`CPU usage: ${round(vm.cpuUsed / 1000, 2)} of ${round(vm.cpuMax / 1000, 1)} GHz - CPU Ready: ${vm.cpuReady} ms (${vm.cpuReadyPercent} %)`" v-if="vm.powerState != 'deleted'">
                                     <div class="micro-gauge align-middle">
                                         <vue-svg-gauge
                                             :start-angle="-270"
@@ -563,7 +563,7 @@
                                     <br />
                                     <small>
                                         Ready:
-                                        <span :class="vm.cpuReadyPercent < 3 ? 'text-blue-500' : 'text-yellow-600'">{{ round(vm.cpuReady, 0) }} <small>ms</small></span>
+                                        <span :class="getVirtualMachineCpuReadyClass(vm)">{{ round(vm.cpuReady, 0) }} <small>ms</small></span>
                                     </small>
                                 </td>
                                 <td class="p-1" v-if="vm.powerState != 'deleted'" :title="`Network TX/RX: ${round(vm.netTx / 100, 1)} MBps / ${round(vm.netRx / 100, 1)} MBps - Disk IOs R/W: ${round(vm.readPerSecond, 0)} IOps / ${round(vm.writePerSecond, 0)} IOps`">
@@ -955,6 +955,17 @@ export default {
                 } else if (virtualmachine.stateFt == "notConfigured") {
                     resultClass = "text-gray-500";
                 }
+            }
+            return resultClass;
+        },
+
+        getVirtualMachineCpuReadyClass(virtualmachine) {
+            var resultClass = "text-blue-500";
+            if (virtualmachine.cpuReadyPercent >= 3) {
+                resultClass = "text-yellow-600";
+            }
+            if (virtualmachine.cpuReadyPercent >= 5) {
+                resultClass = "text-red-700";
             }
             return resultClass;
         },
