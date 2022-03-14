@@ -963,8 +963,7 @@ export default {
             var resultClass = "text-blue-500";
             if (virtualmachine.cpuReadyPercent >= 3) {
                 resultClass = "text-yellow-600";
-            }
-            if (virtualmachine.cpuReadyPercent >= 5) {
+            } else if (virtualmachine.cpuReadyPercent >= 5) {
                 resultClass = "text-red-700";
             }
             return resultClass;
