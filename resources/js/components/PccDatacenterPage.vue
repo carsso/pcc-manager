@@ -51,21 +51,48 @@
                         <div v-if="!Object.keys(backup).length" class="my-2"><i class="fas fa-circle-notch fa-spin mr-1"></i> Loading backup from OVHcloud API...</div>
                         <template v-else>
                             <div class="mb-3">Veeam Backup Managed</div>
-                            <span :class="getOptionStateClass(backup)">
-                                <i class="fas fa-circle"></i>
-                                {{ backup.state }}
-                            </span>
-                            <span class="text-gray-600 dark:text-gray-300" v-if="backup.backupOffer">
-                                - Offer: {{ backup.backupOffer }}
-                                - Backup hour: {{ backup.scheduleHour }}
-                                <br />
-                                Encryption: <i class="fas" :class="backup.encryption ? 'fa-check text-green-700' : 'fa-times text-red-700'"></i>
-                                <span v-if="backup.replicationZone">
-                                    -
-                                    <i class="fas fa-map-marked-alt"></i>
-                                    <abbr title="Replication datacenter">Replication</abbr> : {{ backup.replicationZone }}
+                            <div>
+                                <span :class="getOptionStateClass(backup)">
+                                    <i class="fas fa-circle"></i>
+                                    {{ backup.state }}
                                 </span>
-                            </span>
+                                <span class="text-gray-600 dark:text-gray-300" v-if="backup.backupOffer">
+                                    - Offer: {{ backup.backupOffer }}
+                                    <br />
+                                    Backup hour: {{ backup.scheduleHour }}
+                                    - Encryption: <i class="fas" :class="backup.encryption ? 'fa-check text-green-700' : 'fa-times text-red-700'"></i>
+                                </span>
+                            </div>
+                            <template v-if="backup.backupOffer">
+                                <div v-if="backupRepositories === null" class="text-gray-600 dark:text-gray-300">
+                                    <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading backup replication...
+                                </div>
+                                <div v-else class="text-gray-600 dark:text-gray-300">
+                                    <span>
+                                        <abbr title="Replication datacenter">Replication</abbr>:
+                                    </span>
+                                    <template v-if="!Object.keys(backupRepositories).length">
+                                        <i class="fas fa-times text-red-700" title="No replication"></i>
+                                    </template>
+                                    <template v-else>
+                                        <span v-for="(backupRepository, backupRepositoryId) in backupRepositories" :key="backupRepositoryId"
+                                            class="text-xs px-2 py-0.5 mx-1 border border-gray-200 dark:border-gray-800 sm:rounded-lg inline-block"
+                                            :title="`${backupRepository.replicationZone} (${backupRepository.repositoryName}) - Replication state: ${backupRepository.replication} - Sync status: ${backupRepository.syncStatus} - Last successful replication: ${backupRepository.lastSuccessfulReplicationDate}`">
+                                            <span :class="getOptionStateClass({state: backupRepository.replication})">
+                                                <i class="fas fa-map-marked-alt"></i>
+                                            </span>
+                                            {{ backupRepository.replicationZone }}
+                                            <span class="text-gray-500">
+                                                {{ backupRepository.repositoryName }}
+                                            </span>
+                                            <span :class="backupRepository.syncStatus == 'ok' ? 'text-green-700' : 'text-red-700'">
+                                                <i class="fas" :class="backupRepository.syncStatus == 'ok' ? 'fa-check' : 'fa-times'"></i>
+                                                {{ backupRepository.syncStatus }}
+                                            </span>
+                                        </span>
+                                    </template>
+                                </div>
+                            </template>
                         </template>
                     </div>
                 </div>
@@ -640,6 +667,7 @@ export default {
             },
             datacenter: {},
             backup: {},
+            backupRepositories: null,
             disasterRecovery: {},
             hosts: null,
             filers: null,
@@ -662,6 +690,7 @@ export default {
                 this.loadPcc();
                 this.loadDatacenter();
                 this.loadBackup();
+                this.loadBackupRepositories();
                 this.loadDisasterRecovery();
                 this.loadHosts();
                 this.loadFilers();
@@ -695,6 +724,26 @@ export default {
 
         async loadBackup() {
             this.backup = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backup`);
+        },
+
+        async loadBackupRepositories() {
+            const backupRepositoryIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backupRepository`);
+            if (!backupRepositoryIds.length) {
+                this.backupRepositories = {};
+            }
+            let backupRepositoryIdsChunks = this.chunkArray(backupRepositoryIds, 40);
+            for (let backupRepositoryIdsChunk of backupRepositoryIdsChunks) {
+                const backupRepositories = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backupRepository/${backupRepositoryIdsChunk.join(",")}?batch=,`);
+                if (this.backupRepositories === null) {
+                    this.backupRepositories = {};
+                }
+                for (const backupRepositoryId in backupRepositories) {
+                    const backupRepository = backupRepositories[backupRepositoryId];
+                    if (!backupRepository["error"]) {
+                        this.backupRepositories[backupRepository["key"]] = { ...backupRepository["value"] };
+                    }
+                }
+            }
         },
 
         async loadDisasterRecovery() {
