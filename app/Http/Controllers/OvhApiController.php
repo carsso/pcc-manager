@@ -94,18 +94,36 @@ class OvhApiController extends Controller
             return response(['message' => 'OPTIONS request is always allowed'], 200);
         }
 
-        $batch = null;
-        if($request->header('HTTP_X_OVH_BATCH'))
-        {
-            $batch = $request->header('HTTP_X_OVH_BATCH');
-        }
+        $headers = [];
 
+        if($request->header('HTTP_X_OVH_BATCH')) {
+            $headers['X-OVH-BATCH'] = $request->header('HTTP_X_OVH_BATCH');
+        }
         if($request->has('batch')) {
-            $batch = $request->query('batch');
+            $headers['X-OVH-BATCH'] = $request->query('batch');
         }
 
-        if($request->getQueryString()) {
-            $uri .= '?'.$request->getQueryString();
+        if($request->has('pagination_sort')) {
+            $headers['X-PAGINATION-MODE'] = 'CachedObjectList-Pages';
+            $headers['X-PAGINATION-NUMBER'] = 1;
+            $headers['X-PAGINATION-SIZE'] = 40;
+            $headers['X-PAGINATION-SORT'] = $request->query('pagination_sort');
+            $headers['X-PAGINATION-SORT-ORDER'] = 'ASC';
+        }
+
+        $paginationKeys = ['pagination_mode', 'pagination_number', 'pagination_size', 'pagination_sort', 'pagination_sort_order'];
+        foreach ($paginationKeys as $key) {
+            $keySnake = str_replace('_', '-', $key);
+            if($request->header('HTTP_X_'.strtoupper($key))) {
+                $headers['X-'.strtoupper($keySnake)] = $request->header('HTTP_X_'.strtoupper($key));
+            }
+            if($request->has($key)) {
+                $headers['X-'.strtoupper($keySnake)] = $request->query($key);
+            }
+        }
+
+        if(!empty(http_build_query($request->except($paginationKeys+['batch'])))) {
+            $uri .= '?'.http_build_query($request->except($paginationKeys));
         }
 
         $content = null;
@@ -117,10 +135,6 @@ class OvhApiController extends Controller
         }
 
         $method = $request->getMethod();
-        $headers = null;
-        if($batch) {
-            $headers = ['X-OVH-BATCH' => $batch];
-        }
 
         $ovhApi = $request->user()->ovhApi;
         try {
