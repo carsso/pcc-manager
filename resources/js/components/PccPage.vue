@@ -282,6 +282,9 @@
                                         <abbr title="NSX access">NSX</abbr>:
                                         <i class="fas" :class="user.nsxRight ? 'fa-check text-green-700' : 'fa-times text-red-700'"></i>
                                         -
+                                        <abbr title="Manage encryption">Enc.</abbr>:
+                                        <i class="fas" :class="user.encryptionRight ? 'fa-check text-green-700' : 'fa-times text-red-700'"></i>
+                                        -
                                         <span v-if="user.objectRights" :title="`Objects rights: ${Object.keys(user.objectRights).length}`">
                                             <abbr :title="`Objects rights: ${Object.keys(user.objectRights).length}`">Obj.</abbr>:
                                             <span v-if="Object.keys(user.objectRights).length">
