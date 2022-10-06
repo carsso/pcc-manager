@@ -6,7 +6,7 @@
         <transition name="errors-zone">
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
-        <Breadcrumb :pages="breadcrumb" :home-route="pccRoute"></Breadcrumb>
+        <Breadcrumb :pages="breadcrumb" :home-route="homeRoute" :pcc-route="pccRoute" ></Breadcrumb>
         <div class="bg-white dark:bg-gray-700 rounded-lg shadow mt-6 text-center relative">
             <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
             <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 dark:divide-gray-600">
@@ -84,6 +84,10 @@ export default {
             required: true,
         },
         pccName: {
+            type: String,
+            required: true,
+        },
+        homeRoute: {
             type: String,
             required: true,
         },

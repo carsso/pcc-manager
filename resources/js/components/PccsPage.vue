@@ -6,7 +6,7 @@
         <transition name="errors-zone">
             <errors-zone :errors="errors" v-if="errors" />
         </transition>
-        <Breadcrumb :pages="breadcrumb" :home-route="pccRoute"></Breadcrumb>
+        <Breadcrumb :pages="breadcrumb" :home-route="homeRoute" :pcc-route="pccRoute" ></Breadcrumb>
         <ul role="list" class="grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-2 text-center mt-6">
             <li class="col-span-1" v-for="(pcc, pccName) in window._(pccs).toPairs().sortBy(0).fromPairs().value()" :key="pccName">
                 <div class="bg-white dark:bg-gray-700 rounded-lg shadow relative">
@@ -62,6 +62,18 @@
                 </div>
             </li>
         </ul>
+
+        <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4 text-center mt-6">
+            <p class="mb-4">
+                Check vRacks available on your OVHcloud account.
+            </p>
+            <p>
+                <a class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" :href="`${homeRoute}/vrack`">
+                    <i class="fas fa-network-wired mr-2"></i>
+                    vRacks
+                </a>
+            </p>
+        </div>
     </div>
 </template>
 
@@ -81,6 +93,10 @@ export default {
     props: {
         pccNames: {
             type: Array,
+            required: true,
+        },
+        homeRoute: {
+            type: String,
             required: true,
         },
         pccRoute: {

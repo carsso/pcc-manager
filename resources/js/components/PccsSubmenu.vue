@@ -41,6 +41,10 @@ export default {
             type: String,
             required: true,
         },
+        homeRoute: {
+            type: String,
+            required: true,
+        },
         pccRoute: {
             type: String,
             required: true,

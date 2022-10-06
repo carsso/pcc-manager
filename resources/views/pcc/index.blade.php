@@ -5,6 +5,7 @@
     <pccs-page
         :pcc-names='@json($pccNames)'
         ovhapi-route="{{ route('ovhapi') }}"
+        home-route="{{ route('home') }}"
         pcc-route="{{ route('pcc') }}">
     </pccs-page>
     @if(empty($pccNames))

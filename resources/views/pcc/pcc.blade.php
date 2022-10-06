@@ -5,6 +5,7 @@
     <pcc-page
         pcc-name='{{ $pccName }}'
         ovhapi-route="{{ route('ovhapi') }}"
+        home-route="{{ route('home') }}"
         pcc-route="{{ route('pcc') }}">
     </pcc-page>
 </div>

@@ -1,6 +1,6 @@
 <template>
     <div class="pcc-page mx-4">
-        <pcc-head :breadcrumb="breadcrumb" :pcc-name="pccName" :pcc-route="pccRoute" :pcc="pcc" :vrack="vrack" :loading="loading" :errors="errors" :load-all="loadAll">
+        <pcc-head :breadcrumb="breadcrumb" :pcc-name="pccName" :home-route="homeRoute" :pcc-route="pccRoute" :pcc="pcc" :vrack="vrack" :loading="loading" :errors="errors" :load-all="loadAll">
             <template v-slot:third-column>
                 <div v-if="Object.keys(pcc).length" class="py-3">
                     <i class="fas fa-tachometer-alt"></i> Bandwidth: {{ pcc.bandwidth }}<br />
@@ -39,10 +39,15 @@
                                     </template>
                                 </template>
                                 <template v-else-if="vrack.datacenters[datacenter.name].name">
-                                    {{ vrack.datacenters[datacenter.name].name }} <span class="text-gray-500">({{ vrack.datacenters[datacenter.name].serviceName }})</span>
+                                    {{ vrack.datacenters[datacenter.name].name }}
+                                    <a class="text-indigo-600 hover:text-indigo-800" :href="`${homeRoute}/vrack`">
+                                        ({{ vrack.datacenters[datacenter.name].serviceName }})
+                                    </a>
                                 </template>
                                 <template v-else>
-                                    {{ vrack.datacenters[datacenter.name].serviceName }}
+                                    <a class="text-indigo-600 hover:text-indigo-800" :href="`${homeRoute}/vrack`">
+                                        {{ vrack.datacenters[datacenter.name].serviceName }}
+                                    </a>
                                 </template>
                             </div>
                         </div>
@@ -378,8 +383,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div>
                 <div class="bg-white dark:bg-gray-700 rounded-lg shadow text-center relative mt-6">
                     <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
                     <small class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 absolute top-0 left-0 m-2">{{ (twoFAWhitelists && Object.keys(twoFAWhitelists).length) || 0 }}</small>
@@ -418,6 +421,8 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div>
                 <pcc-options-card title="Security options" :loading="loading" :options="securityOptions" :load-all="loadAll"> </pcc-options-card>
             </div>
         </div>
@@ -442,6 +447,10 @@ export default {
 
     props: {
         pccName: {
+            type: String,
+            required: true,
+        },
+        homeRoute: {
             type: String,
             required: true,
         },

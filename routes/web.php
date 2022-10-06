@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PccController;
+use App\Http\Controllers\VrackController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OvhApiController;
 use App\Http\Controllers\DarkmodeController;
@@ -60,6 +61,9 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/pcc/{pccName}/datacenter/{datacenterId}/{entityType}/{entityId}/graphs', [PccController::class, 'graphs'])
         ->where('entityType', 'host|filer|vm')
         ->name('pcc.graphs');
+
+    Route::get('/vrack', [VrackController::class, 'index'])
+        ->name('vrack');
 
     Route::any('/ovhapi{uri?}', [OvhApiController::class, 'request'])
         ->where('uri', '.*')

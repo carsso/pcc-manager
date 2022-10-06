@@ -1,6 +1,6 @@
 <template>
     <div class="pcc-datacenter-page mx-4">
-        <pcc-head :breadcrumb="breadcrumb" :pcc-name="pccName" :pcc-route="pccRoute" :pcc="pcc" :vrack="vrack" :loading="loading" :errors="errors" :load-all="loadAll">
+        <pcc-head :breadcrumb="breadcrumb" :pcc-name="pccName" :home-route="homeRoute" :pcc-route="pccRoute" :pcc="pcc" :vrack="vrack" :loading="loading" :errors="errors" :load-all="loadAll">
             <template v-slot:third-column>
                 <div v-if="!Object.keys(datacenter).length" class="py-3">
                     <div class="mb-2">
@@ -33,10 +33,15 @@
                             </template>
                         </template>
                         <template v-else-if="vrack.datacenters[datacenter.name].name">
-                            {{ vrack.datacenters[datacenter.name].name }} <span class="text-gray-500">({{ vrack.datacenters[datacenter.name].serviceName }})</span>
+                            {{ vrack.datacenters[datacenter.name].name }}
+                            <a class="text-indigo-600 hover:text-indigo-800" :href="`${homeRoute}/vrack`">
+                                ({{ vrack.datacenters[datacenter.name].serviceName }})
+                            </a>
                         </template>
                         <template v-else>
-                            {{ vrack.datacenters[datacenter.name].serviceName }}
+                            <a class="text-indigo-600 hover:text-indigo-800" :href="`${homeRoute}/vrack`">
+                                {{ vrack.datacenters[datacenter.name].serviceName }}
+                            </a>
                         </template>
                     </div>
                 </div>
@@ -633,6 +638,10 @@ export default {
             required: true,
         },
         datacenterId: {
+            type: String,
+            required: true,
+        },
+        homeRoute: {
             type: String,
             required: true,
         },

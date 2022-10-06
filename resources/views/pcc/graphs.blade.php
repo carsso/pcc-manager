@@ -9,6 +9,7 @@
         entity-id='{{ $entityId }}'
         :entity='@json($entity)'
         ovhapi-route="{{ route('ovhapi') }}"
+        home-route="{{ route('home') }}"
         pcc-route="{{ route('pcc') }}">
     </pcc-graphs-page>
 </div>

@@ -1,6 +1,6 @@
 <template>
     <div class="pcc-graphs-page mx-4">
-        <pcc-head :breadcrumb="breadcrumb" :pcc-name="pccName" :pcc-route="pccRoute" :pcc="pcc" :vrack="vrack" :loading="loading" :errors="errors" :load-all="loadAll">
+        <pcc-head :breadcrumb="breadcrumb" :pcc-name="pccName" :home-route="homeRoute" :pcc-route="pccRoute" :pcc="pcc" :vrack="vrack" :loading="loading" :errors="errors" :load-all="loadAll">
             <template v-slot:third-column>
                 <div v-if="!Object.keys(datacenter).length" class="py-4">
                     <div class="mb-2">
@@ -105,6 +105,10 @@ export default {
         },
         entity: {
             type: Object,
+            required: true,
+        },
+        homeRoute: {
+            type: String,
             required: true,
         },
         pccRoute: {
