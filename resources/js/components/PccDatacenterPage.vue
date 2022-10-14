@@ -219,7 +219,9 @@
                                                     <i class="far fa-chart-bar"></i>
                                                 </a>
                                                 {{ filer.name || "pcc-00" + filerId }}
-                                                <i v-if="filer.global" class="fas fa-globe text-cyan-500" title="Global"></i><br />
+                                                <i v-if="filer.isManagedByOvh" class="fas fa-user-cog text-gray-500" title="This datastore is managed by OVHcloud"></i>
+                                                <i v-if="filer.global" class="fas fa-globe text-cyan-500" title="This datastore is globally available (on all datacenters)"></i>
+                                                <br />
                                                 <small class="text-gray-500">
                                                     <i class="fas" :title="filer.activeNode" :class="filer.activeNode == 'master' ? 'fa-check text-green-700' : 'fa-exclamation text-yellow-600'"></i>
                                                     {{ filer.master.split(/\./)[0] }}
@@ -228,7 +230,11 @@
                                             <td class="p-1">
                                                 <small>{{ filer.profile.replace("pcc-datastore-", "") }}</small>
                                                 <br />
-                                                <small class="text-gray-500">
+                                                <small class="text-gray-500" v-if="filer.isManagedByOvh && filer.billingType == 'freeSpare'" title="This datastore is free and managed by OVHcloud">
+                                                    <i class="fas fa-user-cog"></i>
+                                                    OVHcloud
+                                                </small>
+                                                <small class="text-gray-500" v-else>
                                                     <i class="fas fa-coins text-yellow-600"></i>
                                                     {{ filer.billingType }}
                                                 </small>
