@@ -41,7 +41,8 @@ class OvhApiController extends Controller
                 $error = null;
                 if ($response != null) {
                     $json = json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
-                    $error = $json['message'].' ('.$json['errorCode'].')';
+                    $errorCode = isset($json['errorCode']) ? ' ('.$json['errorCode'].')' : '';
+                    $error = $json['message'].$errorCode;
                 }
                 return redirect()->route('home')->withFlashError('A login error has occured : '.($error ? $error : $e->getMessage()))->withInput();
             }
