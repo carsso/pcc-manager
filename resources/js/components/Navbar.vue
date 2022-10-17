@@ -10,8 +10,7 @@
                         </a>
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a :href="homeRoute" v-if="!isAuthenticated" class="border-indigo-500 text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Home</a>
-                        <a :href="pccRoute" v-if="isAuthenticated" class="border-indigo-500 text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Home</a>
+                        <a :href="route.route" v-for="(route, routeIdx) in routes" :key="routeIdx" class="border-indigo-500 text-gray-900 dark:text-white hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium" :class="route.active ? 'border-b-2' : 'hover:border-b-2'">{{ route.name }}</a>
                     </div>
                 </div>
                 <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -33,8 +32,7 @@
 
         <DisclosurePanel class="sm:hidden">
             <div class="pt-2 pb-3 space-y-1">
-                <DisclosureButton as="a" :href="homeRoute" v-if="!isAuthenticated" class="bg-indigo-50 dark:bg-gray-900 border-indigo-500 text-indigo-700 dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Home</DisclosureButton>
-                <DisclosureButton as="a" :href="pccRoute" v-if="isAuthenticated" class="bg-indigo-50 dark:bg-gray-900 border-indigo-500 text-indigo-700 dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Home</DisclosureButton>
+                <DisclosureButton as="a" :href="route.route" v-for="(route, routeIdx) in routes" :key="routeIdx" class="border-indigo-500 text-indigo-700 dark:text-white hover:text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 text-base font-medium" :class="route.active ? 'border-l-4' : ''">{{ route.name }}</DisclosureButton>
             </div>
             <div class="pt-4 pb-3 border-t border-gray-200">
                 <div class="flex items-center px-4">
@@ -80,11 +78,15 @@ export default {
             type: Boolean,
             default: false,
         },
-        homeRoute: {
+        routes: {
+            type: Array,
+            required: true,
+        },
+        vrackRoute: {
             type: String,
             required: true,
         },
-        pccRoute: {
+        homeRoute: {
             type: String,
             required: true,
         },

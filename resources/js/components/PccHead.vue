@@ -40,10 +40,15 @@
                                 </template>
                             </template>
                             <template v-else-if="vrack.pcc.name">
-                                {{ vrack.pcc.name }} <span class="text-gray-500">({{ vrack.pcc.serviceName }})</span>
+                                {{ vrack.pcc.name }}
+                                <a class="text-indigo-600 hover:text-indigo-800" :href="`${homeRoute}/vrack`">
+                                    ({{ vrack.pcc.serviceName }})
+                                </a>
                             </template>
                             <template v-else>
-                                {{ vrack.pcc.serviceName }}
+                                <a class="text-indigo-600 hover:text-indigo-800" :href="`${homeRoute}/vrack`">
+                                    {{ vrack.pcc.serviceName }}
+                                </a>
                             </template>
                         </div>
                     </div>

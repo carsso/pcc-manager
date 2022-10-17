@@ -8,16 +8,16 @@
         </transition>
         <Breadcrumb :pages="breadcrumb" :home-route="homeRoute"></Breadcrumb>
         <ul role="list" class="grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-2 text-center mt-6">
-            <li class="col-span-1" v-for="(vrack, vrackName) in window._(vracks).toPairs().sortBy(0).fromPairs().value()" :key="vrackName">
+            <li class="col-span-1" v-for="(vrack, vrackIdx) in window._.orderBy(window._.values(vracks), [(vrack) => vrack.connectedTo ? Object.keys(vrack.connectedTo).length : 0, 'serviceName'], ['desc', 'asc'])" :key="vrackIdx">
                 <div class="bg-white dark:bg-gray-700 rounded-lg shadow relative">
                     <LoadingBtn @click="loadAll()" :loading="loading"></LoadingBtn>
                     <div class="px-4 py-4">
-                        <h3 class="mb-1 text-2xl">vRack {{ vrackName }}</h3>
+                        <h3 class="mb-1 text-2xl">vRack {{ vrack.serviceName }}</h3>
                         <div v-if="!Object.keys(vrack).length" class="py-6">
                             <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading data from OVHcloud API...
                         </div>
                         <div v-else>
-                            <h4>{{ vrack.name || vrackName }}</h4>
+                            <h4>{{ vrack.name || vrack.serviceName }}</h4>
                             <p class="text-gray-500">{{ vrack.description }}</p>
                             <span class="text-gray-500" v-if="!Object.keys(vrack.connectedTo).length">
                                 <i>This vRack is empty</i>
