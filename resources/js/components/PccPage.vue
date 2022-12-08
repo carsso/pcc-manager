@@ -183,9 +183,9 @@
                                     </div>
                                 </td>
                                 <td class="p-1">
-                                    <small>{{ task.createdFrom }}</small>
+                                    <small>{{ task.createdBy }}</small>
                                     <br />
-                                    <small class="text-gray-500" v-if="task.createdBy">({{ task.createdBy }})</small>
+                                    <small class="text-gray-500" v-if="task.createdFrom">({{ task.createdFrom }})</small>
                                 </td>
                                 <td class="p-1">
                                     <small v-if="task.endDate && task.state == 'done'" class="text-green-700">
@@ -198,12 +198,14 @@
                                     </small>
                                 </td>
                                 <td class="p-1">
-                                    <small v-if="task.parentTaskId" class="text-gray-500"> <abbr title="Parent task">Task.</abbr>: #{{ task.parentTaskId }}<br /> </small>
-                                    <small v-if="task.datacenterId" class="text-gray-500"> <abbr title="Datacenter">Datac.</abbr>: #{{ task.datacenterId }}<br /> </small>
-                                    <small v-if="task.userId" class="text-gray-500"> User: #{{ task.userId }}<br /> </small>
-                                    <small v-if="task.orderId" class="text-gray-500"> Order: #{{ task.orderId }}<br /> </small>
-                                    <small v-if="task.vlanId" class="text-gray-500"> Vlan: #{{ task.vlanId }}<br /> </small>
-                                    <small v-if="task.filerId" class="text-gray-500"> Filer: #{{ task.filerId }}<br /> </small>
+                                    <div><small v-if="task.parentTaskId" class="text-gray-500"> <abbr title="Parent task">Parent</abbr>: #{{ task.parentTaskId }}</small></div>
+                                    <div><small v-if="task.datacenterId" class="text-gray-500"> <abbr title="Datacenter">Datac.</abbr>: #{{ task.datacenterId }}</small></div>
+                                    <div><small v-if="task.hostId" class="text-gray-500"> Host: #{{ task.hostId }}</small></div>
+                                    <div><small v-if="task.userId" class="text-gray-500"> User: #{{ task.userId }}</small></div>
+                                    <div><small v-if="task.orderId" class="text-gray-500"> Order: #{{ task.orderId }}</small></div>
+                                    <div><small v-if="task.vlanId" class="text-gray-500"> Vlan: #{{ task.vlanId }}</small></div>
+                                    <div><small v-if="task.filerId" class="text-gray-500"> Filer: #{{ task.filerId }}</small></div>
+                                    <div><small v-if="task.networkAccessId" class="text-gray-500"> <abbr title="Allowed networks">Net.</abbr>: #{{ task.networkAccessId }}</small></div>
                                 </td>
                             </tr>
                         </tbody>
@@ -623,7 +625,7 @@ export default {
 
             value["name"] = optionName;
             value["description"] = value["description"] || optionName;
-            value["optionType"] = "option";
+            value["optionType"] = "security";
             if (optionName == "accessNetworkFiltered") {
                 value["optionType"] = "security";
             } else if (optionName == "advancedSecurity") {

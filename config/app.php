@@ -123,6 +123,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'sentry_cdn' => env('SENTRY_CDN', 'https://browser.sentry-cdn.com'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
