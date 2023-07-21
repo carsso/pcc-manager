@@ -72,7 +72,7 @@ php artisan storage:link
 
 #### Pre-requisites
 - PHP >= 8.1
-- NodeJS >= 12
+- NodeJS >= 18
 
 #### Clone repository (main branch) : 
 ```sh
