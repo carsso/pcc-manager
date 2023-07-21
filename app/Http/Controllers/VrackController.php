@@ -9,7 +9,7 @@ class VrackController extends Controller
     public function index(Request $request)
     {
         $ovhApi = $request->user()->ovhApi;
-        $vrackNames = $ovhApi->get('/vrack');
+        $vrackNames = $ovhApi->get('/v1/vrack');
         sort($vrackNames);
         return view('vrack.index', compact('vrackNames'));
     }

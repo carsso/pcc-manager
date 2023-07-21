@@ -148,7 +148,7 @@ export default {
             }
         },
         async loadPcc(pccName) {
-            let pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}`);
+            let pcc = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}`);
             let pccDatacenters = {};
             if (this.pccs && this.pccs[pccName] && this.pccs[pccName]["datacenters"]) {
                 pccDatacenters = this.pccs[pccName]["datacenters"];
@@ -156,9 +156,9 @@ export default {
             }
             this.pccs[pccName] = { ...pcc };
             if (pcc) {
-                const datacenterIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}/datacenter`);
+                const datacenterIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter`);
                 if (datacenterIds) {
-                    const datacenters = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}/datacenter/${datacenterIds.join(",")}?batch=,`);
+                    const datacenters = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter/${datacenterIds.join(",")}?batch=,`);
                     pcc["datacenters"] = pccDatacenters;
                     for (const datacenterId in datacenters) {
                         const datacenter = datacenters[datacenterId];

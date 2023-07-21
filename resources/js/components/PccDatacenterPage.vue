@@ -715,14 +715,14 @@ export default {
         },
 
         async loadPcc() {
-            this.pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}`);
+            this.pcc = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}`);
             if (this.pcc) {
                 this.loadPccUpgrades();
             }
         },
 
         async loadPccUpgrades() {
-            const value = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/vcenterVersion`);
+            const value = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/vcenterVersion`);
             let upgrades = [];
             if (value.currentVersion.build != value.lastMajor.build) {
                 upgrades.push(value.lastMajor.major + value.lastMajor.minor);
@@ -734,21 +734,21 @@ export default {
         },
 
         async loadDatacenter() {
-            this.datacenter = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}`);
+            this.datacenter = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}`);
         },
 
         async loadBackup() {
-            this.backup = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backup`);
+            this.backup = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backup`);
         },
 
         async loadBackupRepositories() {
-            const backupRepositoryIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backupRepository`);
+            const backupRepositoryIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backupRepository`);
             if (!backupRepositoryIds.length) {
                 this.backupRepositories = {};
             }
             let backupRepositoryIdsChunks = this.chunkArray(backupRepositoryIds, 40);
             for (let backupRepositoryIdsChunk of backupRepositoryIdsChunks) {
-                const backupRepositories = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backupRepository/${backupRepositoryIdsChunk.join(",")}?batch=,`);
+                const backupRepositories = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backupRepository/${backupRepositoryIdsChunk.join(",")}?batch=,`);
                 if (this.backupRepositories === null) {
                     this.backupRepositories = {};
                 }
@@ -762,17 +762,17 @@ export default {
         },
 
         async loadDisasterRecovery() {
-            this.disasterRecovery = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/disasterRecovery/zerto/status`);
+            this.disasterRecovery = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/disasterRecovery/zerto/status`);
         },
 
         async loadHosts() {
-            const hostIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/host`);
+            const hostIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/host`);
             if (!hostIds.length) {
                 this.hosts = {};
             }
             let hostIdsChunks = this.chunkArray(hostIds, 40);
             for (let hostIdsChunk of hostIdsChunks) {
-                const hosts = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/host/${hostIdsChunk.join(",")}?batch=,`);
+                const hosts = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/host/${hostIdsChunk.join(",")}?batch=,`);
                 if (this.hosts === null) {
                     this.hosts = {};
                 }
@@ -786,14 +786,14 @@ export default {
         },
 
         async loadFilers() {
-            const filerIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/filer`);
+            const filerIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/filer`);
             if (!filerIds.length) {
                 this.filers = {};
             }
             let filerIdsChunks = this.chunkArray(filerIds, 40);
             this.loadGlobalFilers();
             for (let filerIdsChunk of filerIdsChunks) {
-                const filers = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/filer/${filerIdsChunk.join(",")}?batch=,`);
+                const filers = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/filer/${filerIdsChunk.join(",")}?batch=,`);
                 if (this.filers === null) {
                     this.filers = {};
                 }
@@ -808,10 +808,10 @@ export default {
         },
 
         async loadGlobalFilers() {
-            const filerIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/filer`);
+            const filerIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/filer`);
             let filerIdsChunks = this.chunkArray(filerIds, 40);
             for (let filerIdsChunk of filerIdsChunks) {
-                const filers = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/filer/${filerIdsChunk.join(",")}?batch=,`);
+                const filers = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/filer/${filerIdsChunk.join(",")}?batch=,`);
                 if (this.filers === null) {
                     this.filers = {};
                 }
@@ -826,13 +826,13 @@ export default {
         },
 
         async loadVms() {
-            const vmIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/vm`);
+            const vmIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/vm`);
             if (!vmIds.length) {
                 this.vms = {};
             }
             let vmIdsChunks = this.chunkArray(vmIds, 40);
             for (let vmIdsChunk of vmIdsChunks) {
-                const vms = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/vm/${vmIdsChunk.join(",")}?batch=,`);
+                const vms = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/vm/${vmIdsChunk.join(",")}?batch=,`);
                 if (this.vms === null) {
                     this.vms = {};
                 }
@@ -859,17 +859,17 @@ export default {
         },
 
         async loadVracks() {
-            const vrackNames = await this.get(`${this.ovhapiRoute}/vrack`);
+            const vrackNames = await this.get(`${this.ovhapiRoute}/v1/vrack`);
             for (let vrackName of vrackNames) {
                 this.loadVrack(vrackName);
             }
         },
 
         async loadVrack(vrackName) {
-            let vrack = await this.get(`${this.ovhapiRoute}/vrack/${vrackName}`); // No batch mode on this call
+            let vrack = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}`); // No batch mode on this call
             vrack["serviceName"] = vrackName;
             for (let serviceType of ["dedicatedCloud", "dedicatedCloudDatacenter"]) {
-                const serviceNames = await this.get(`${this.ovhapiRoute}/vrack/${vrackName}/${serviceType}`);
+                const serviceNames = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}/${serviceType}`);
                 for (let serviceName of serviceNames) {
                     if (this.pccName == serviceName) {
                         this.vrack["pcc"] = vrack;
@@ -1125,6 +1125,10 @@ export default {
             }
             // Zerto vRouter : rbx2b-1234-vr
             if (virtualmachine.name.match(/^[0-9]+\.[a-z]{3}[0-9][a-z]-[0-9]+-vr$/)) {
+                return true;
+            }
+            // NSX-T edge : edge110-992b.eri1c.pcc.ovh.net
+            if (virtualmachine.name.match(/^edge[0-9]+-[0-9]+[a-z]\.[a-z]{3}[0-9][a-z]\.pcc\.ovh\.[a-z]+$/)) {
                 return true;
             }
             return false;

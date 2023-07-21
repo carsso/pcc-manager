@@ -52,6 +52,28 @@ class Controller extends BaseController
     }
 
     /**
+     * @param string $route
+     * @param string $message
+     * @param \Exception|null $e
+     * @param string $sessionBag
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function redirectWithErrror(string $route, string $message, ?Exception $e = null, $sessionBag = 'flash')
+    {
+        $withError = 'with' . Str::studly($sessionBag) . 'Error';
+        $withErrorException = $withError . 'Exception';
+
+        $response = redirect()->route($route)->$withError($message)
+                          ->withInput();
+        if ($e) {
+            $response = $response->$withErrorException($e->getMessage());
+        }
+
+        return $response;
+    }
+
+    /**
      * @param string $message
      * @param \Illuminate\Http\RedirectResponse $redirectResponse
      * @param string $sessionBag

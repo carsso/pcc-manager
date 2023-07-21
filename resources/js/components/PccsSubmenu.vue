@@ -82,7 +82,7 @@ export default {
         },
 
         async loadPccs() {
-            this.pccNames = await this.get(`${this.ovhapiRoute}/dedicatedCloud`);
+            this.pccNames = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud`);
             for (const pccName of this.pccNames) {
                 this.pccs[pccName] = {};
             }
@@ -91,7 +91,7 @@ export default {
             }
         },
         async loadPcc(pccName) {
-            let pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${pccName}`);
+            let pcc = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}`);
             this.pccs[pccName] = { ...pcc };
         },
     },

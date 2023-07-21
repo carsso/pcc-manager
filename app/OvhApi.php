@@ -36,7 +36,7 @@ class OvhApi
         if($this->isOauth) {
             if($token) {
                 $values = json_decode(base64_decode($token), true);
-                $this->token = new AccessToken($values);
+                $this->token = new AccessToken($values); // BUG HERE $values is null
             }
             $this->oauth2Provider = new OvhcloudOAuth2Api([
                 'endpoint'          => $this->endpoint,
@@ -184,6 +184,9 @@ class OvhApi
     public function apiRequest($method, $path, $content = null, $headers = null)
     {
         if($this->isOauth) {
+            if(preg_match('/^\/v[0-9+]\//', $path)) {
+                $path = '/..'.$path;
+            }
             $request = $this->oauth2Provider->getAuthenticatedApiRequest(
                 strtoupper($method),
                 $path,

@@ -48,12 +48,12 @@ class OvhApiUserProvider implements UserProvider
         
         $currentCredential = null;
         try {
-            $currentCredential = $ovhApi->get('/auth/currentCredential');
+            $currentCredential = $ovhApi->get('/v1/auth/currentCredential');
         } catch (RequestException $e) {
         }
 
         try {
-            $userinfo = $ovhApi->get('/me');
+            $userinfo = $ovhApi->get('/v1/me');
         } catch (RequestException $e) {
             return null;
         }

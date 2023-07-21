@@ -61,7 +61,7 @@ class OvhApiController extends Controller
             return redirect()->route('pcc');
         }
 
-        return $this->backWithError('Invalid credentials');
+        return $this->redirectWithErrror('home', 'Invalid credentials');
     }
 
     private function tryLogin(String $endpoint, ?String $code = null, ?String $state = null)
@@ -75,7 +75,7 @@ class OvhApiController extends Controller
             return redirect()->route('pcc');
         }
 
-        return $this->backWithError('Invalid credentials');
+        return $this->redirectWithErrror('home', 'Invalid credentials');
     }
 
     public function logout(Request $request)

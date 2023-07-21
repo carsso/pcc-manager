@@ -9,7 +9,7 @@ Test it live on [pcc-manager.com](https://pcc-manager.com)
 _Inspired by the great OVHcloud vScope <sup>
 [link](https://www.ovhcloud.com/en/enterprise/products/hosted-private-cloud/vscope/)</sup> interface. Not affiliated with OVHcloud._
 
-Written in PHP/Laravel and VueJS. _Depends on my [OVHcloud APIs lightweight PHP wrapper](https://github.com/carsso/php-ovhcloud) and my [OVHcloud Provider for OAuth 2.0 Client](https://github.com/carsso/oauth2-ovhcloud)_
+Written in PHP/Laravel and VueJS. _Depends on [OVHcloud APIs PHP wrapper](https://github.com/ovh/php-ovh) and my [OVHcloud Provider for OAuth 2.0 Client](https://github.com/carsso/oauth2-ovhcloud)_
 
 ### Products compatibility
 
@@ -71,7 +71,7 @@ php artisan storage:link
 ## Development
 
 #### Pre-requisites
-- PHP >= 8.0.2
+- PHP >= 8.1
 - NodeJS >= 12
 
 #### Clone repository (main branch) : 

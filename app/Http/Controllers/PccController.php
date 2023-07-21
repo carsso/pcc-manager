@@ -13,7 +13,7 @@ class PccController extends Controller
     public function index(Request $request)
     {
         $ovhApi = $request->user()->ovhApi;
-        $pccNames = $ovhApi->get('/dedicatedCloud');
+        $pccNames = $ovhApi->get('/v1/dedicatedCloud');
         sort($pccNames);
         return view('pcc.index', compact('pccNames'));
     }
@@ -22,7 +22,7 @@ class PccController extends Controller
     {
         $ovhApi = $request->user()->ovhApi;
         try {
-            $ovhApi->get('/dedicatedCloud/'.$pccName);
+            $ovhApi->get('/v1/dedicatedCloud/'.$pccName);
         } catch (RequestException $exception) {
             $response = $exception->getResponse();
             if ($response != null) {
@@ -40,7 +40,7 @@ class PccController extends Controller
     {
         $ovhApi = $request->user()->ovhApi;
         try {
-            $ovhApi->get('/dedicatedCloud/'.$pccName.'/datacenter/'.$datacenterId);
+            $ovhApi->get('/v1/dedicatedCloud/'.$pccName.'/datacenter/'.$datacenterId);
         } catch (RequestException $exception) {
             $response = $exception->getResponse();
             if ($response != null) {
@@ -58,11 +58,11 @@ class PccController extends Controller
     {
         $ovhApi = $request->user()->ovhApi;
         try {
-            $entity = $ovhApi->get('/dedicatedCloud/'.$pccName.'/datacenter/'.$datacenterId.'/'.$entityType.'/'.$entityId);
+            $entity = $ovhApi->get('/v1/dedicatedCloud/'.$pccName.'/datacenter/'.$datacenterId.'/'.$entityType.'/'.$entityId);
         } catch (RequestException $e) {
             try {
                 # trying in global if not found in datacenter
-                $entity = $ovhApi->get('/dedicatedCloud/'.$pccName.'/'.$entityType.'/'.$entityId);
+                $entity = $ovhApi->get('/v1/dedicatedCloud/'.$pccName.'/'.$entityType.'/'.$entityId);
             } catch (RequestException $e2) {
                 $response = $e->getResponse();
                 if ($response != null) {

@@ -54,20 +54,20 @@ Route::group(
     ['middleware' => ['auth']], function () {
 
         Route::get('/pcc', [PccController::class, 'index'])
-        ->name('pcc');
+            ->name('pcc');
 
         Route::get('/pcc/{pccName}', [PccController::class, 'pcc'])
-        ->name('pcc.pcc');
+            ->name('pcc.pcc');
 
         Route::get('/pcc/{pccName}/datacenter/{datacenterId}', [PccController::class, 'datacenter'])
-        ->name('pcc.datacenter');
+            ->name('pcc.datacenter');
 
         Route::get('/pcc/{pccName}/datacenter/{datacenterId}/{entityType}/{entityId}/graphs', [PccController::class, 'graphs'])
             ->where('entityType', 'host|filer|vm')
             ->name('pcc.graphs');
 
         Route::get('/vrack', [VrackController::class, 'index'])
-        ->name('vrack');
+            ->name('vrack');
 
         Route::any('/ovhapi{uri?}', [OvhApiController::class, 'request'])
             ->where('uri', '.*')

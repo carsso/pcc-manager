@@ -118,26 +118,26 @@ export default {
         },
 
         async loadVracks() {
-            const vrackSchema = await this.get(`${this.ovhapiRoute}/vrack.json`);
+            const vrackSchema = await this.get(`${this.ovhapiRoute}/v1/vrack.json`);
             this.vrackServicesTypes = vrackSchema.models['vrack.AllowedServiceEnum'].enum;
-            const vrackNames = await this.get(`${this.ovhapiRoute}/vrack`);
+            const vrackNames = await this.get(`${this.ovhapiRoute}/v1/vrack`);
             for (let vrackName of vrackNames) {
                 this.loadVrack(vrackName);
             }
         },
 
         async loadVrack(vrackName) {
-            let vrack = await this.get(`${this.ovhapiRoute}/vrack/${vrackName}`); // No batch mode on this call
+            let vrack = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}`); // No batch mode on this call
             vrack['serviceName'] = vrackName;
             vrack['connectedTo'] = {};
             for (let serviceType of this.vrackServicesTypes) {
-                const serviceNames = await this.get(`${this.ovhapiRoute}/vrack/${vrackName}/${serviceType}`);
+                const serviceNames = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}/${serviceType}`);
                 for (let serviceName of serviceNames) {
                     let serviceInfo = {};
                     if(serviceType == 'dedicatedCloud' || serviceType == 'dedicatedCloudDatacenter') {
                         // Load data only for PCC serviceTypes for now, optimizing the number of API calls
                         const serviceNameEncoded = encodeURIComponent(encodeURIComponent(serviceName)); // Need to double encode slashes because of laravel routing bug with %2F
-                        serviceInfo = await this.get(`${this.ovhapiRoute}/vrack/${vrackName}/${serviceType}/${serviceNameEncoded}`);
+                        serviceInfo = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}/${serviceType}/${serviceNameEncoded}`);
                     }
                     serviceInfo.serviceType = serviceType;
                     vrack['connectedTo'][serviceName] = serviceInfo;

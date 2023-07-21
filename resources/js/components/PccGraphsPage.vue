@@ -886,19 +886,19 @@ export default {
         },
 
         async loadPcc() {
-            this.pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}`);
+            this.pcc = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}`);
         },
 
         async loadDatacenter() {
-            this.datacenter = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}`);
+            this.datacenter = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}`);
             this.loadGraphsData();
         },
 
         async loadUser() {
-            const userIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user?name=admin`);
+            const userIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user?name=admin`);
             let userIdsChunks = this.chunkArray(userIds, 40);
             for (let userIdsChunk of userIdsChunks) {
-                const users = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userIdsChunk.join(",")}?batch=,`);
+                const users = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userIdsChunk.join(",")}?batch=,`);
                 for (const i in users) {
                     const user = users[i];
                     if (!user["error"]) {
@@ -906,7 +906,7 @@ export default {
                         if (value.name == "admin") {
                             this.metricsToken = await this.request({
                                 method: "post",
-                                url: `${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${value.userId}/metricsToken`,
+                                url: `${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${value.userId}/metricsToken`,
                             });
                             this.user = value;
                             this.loadGraphsData();

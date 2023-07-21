@@ -256,15 +256,21 @@
                                     <small class="text-gray-500">#{{ user.userId }}</small>
                                 </td>
                                 <td class="p-1">
-                                    <template v-if="user.activeDirectoryId">
-                                        <span v-if="user.activeDirectoryType == 'group'" :title="`This is an Active Directory federation group from Active Directory #${user.activeDirectoryId}`">
+                                    <template v-if="user.identityProviderType == 'federation'">
+                                        <span v-if="user.type == 'group'" :title="`This is an Active Directory federation group from Active Directory #${user.identityProviderId}`">
                                             <i class="far fa-address-book text-cyan-500"></i>
                                             <i class="fas fa-users"></i>
                                             {{ user.name }} <span class="text-gray-500">({{ user.login.split('@')[1] }})</span>
                                         </span>
-                                        <span v-else :title="`This is an Active Directory federation user from Active Directory #${user.activeDirectoryId}`">
+                                        <span v-else :title="`This is an Active Directory federation user from Active Directory #${user.identityProviderId}`">
                                             <i class="far fa-address-book text-cyan-500"></i>
                                             {{ user.name }}<span class="text-gray-500">@{{ user.login.split('@')[1] }}</span>
+                                        </span>
+                                    </template>
+                                    <template v-else-if="user.identityProviderType == 'iam'">
+                                        <span v-if="user.type == 'group'" :title="`This is an OVHcloud IAM role`">
+                                            <i class="far fa-id-card text-yellow-600"></i>
+                                            {{ user.name }} <span class="text-gray-500">(OVHcloud IAM)</span>
                                         </span>
                                     </template>
                                     <span v-else>
@@ -555,8 +561,10 @@ export default {
                 this.loadPcc();
                 this.loadDatacenters();
                 this.loadPccOption("federation", "activeDirectory");
+                this.loadPccOption("iam");
                 this.loadPccOption("vmEncryption", "kms");
                 this.loadPccOption("nsx");
+                this.loadPccOption("nsxt");
                 this.loadPccOption("vrops");
                 this.loadPccOption("hcx");
                 this.loadPccOption("pcidss");
@@ -573,14 +581,14 @@ export default {
         },
 
         async loadPcc() {
-            this.pcc = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}`);
+            this.pcc = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}`);
             if (this.pcc) {
                 this.loadPccUpgrades();
             }
         },
 
         async loadPccUpgrades() {
-            const value = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/vcenterVersion`);
+            const value = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/vcenterVersion`);
             let upgrades = [];
             if (value.currentVersion.build != value.lastMajor.build) {
                 upgrades.push(value.lastMajor.major + value.lastMajor.minor);
@@ -592,7 +600,7 @@ export default {
         },
 
         async loadPccSecurityOptionsMatrix() {
-            let compatibilityMatrix = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/securityOptions/compatibilityMatrix`);
+            let compatibilityMatrix = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/securityOptions/compatibilityMatrix`);
             if (compatibilityMatrix) {
                 for (let option of compatibilityMatrix) {
                     this.fillOption(option.name, option);
@@ -636,6 +644,10 @@ export default {
                 value["name"] = "Federation";
                 value["description"] = "Active Directory user federation";
                 value["optionType"] = "option";
+            } else if (optionName == "iam") {
+                value["name"] = "IAM";
+                value["description"] = "OVHcloud Identity and Access Management";
+                value["optionType"] = "option";
             } else if (optionName == "grsecKernel") {
                 value["optionType"] = "security";
             } else if (optionName == "hcx") {
@@ -655,9 +667,14 @@ export default {
             } else if (optionName == "nids") {
                 value["optionType"] = "security";
             } else if (optionName == "nsx") {
-                value["name"] = "NSX";
-                value["description"] = "VMware Network Virtualization";
+                value["name"] = "NSX-V";
+                value["description"] = "NSX-V VMware Network Virtualization";
                 value["optionType"] = "option";
+            } else if (optionName == "nsxt") {
+                value["name"] = "NSX-T";
+                value["description"] = "NSX-T Data Center for vSphere";
+                value["optionType"] = "option";
+                value["version"] = value["version"].split("-")[0];
             } else if (optionName == "pcidss") {
                 value["name"] = "PCI DSS";
                 value["description"] = "Payment Card Industry Data Security Standard";
@@ -725,16 +742,16 @@ export default {
         },
 
         async loadPccOption(optionName, suboptionName) {
-            let value = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/${optionName}`);
+            let value = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/${optionName}`);
             if (suboptionName) {
                 value["suboptions"] = {};
-                const suboptionIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/${optionName}/${suboptionName}`);
+                const suboptionIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/${optionName}/${suboptionName}`);
                 if (!suboptionIds.length) {
                     this.suboptions = {};
                 }
                 let suboptionIdsChunks = this.chunkArray(suboptionIds, 40);
                 for (let suboptionIdsChunk of suboptionIdsChunks) {
-                    const suboptions = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/${optionName}/${suboptionName}/${suboptionIdsChunk.join(",")}?batch=,`);
+                    const suboptions = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/${optionName}/${suboptionName}/${suboptionIdsChunk.join(",")}?batch=,`);
                     if (this.suboptions === null) {
                         this.suboptions = {};
                     }
@@ -761,13 +778,13 @@ export default {
         },
 
         async loadIps() {
-            const ipNets = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/ip`);
+            const ipNets = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/ip`);
             if (!ipNets.length) {
                 this.ips = {};
             }
             for (let ipNet of ipNets) {
                 const ipNetEncoded = encodeURIComponent(encodeURIComponent(ipNet)); // Need to double encode slashes because of laravel routing bug with %2F
-                const ip = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/ip/${ipNetEncoded}`); // No batch mode on this call
+                const ip = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/ip/${ipNetEncoded}`); // No batch mode on this call
                 if (!this.ips) {
                     this.ips = {};
                 }
@@ -776,7 +793,7 @@ export default {
         },
 
         async loadAllowedNetworks() {
-            const allowedNetworkIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/allowedNetwork`);
+            const allowedNetworkIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/allowedNetwork`);
             if (!allowedNetworkIds.length) {
                 this.allowedNetworks = {};
             }
@@ -789,7 +806,7 @@ export default {
             }
             let allowedNetworkIdsChunks = this.chunkArray(allowedNetworkIds, 40);
             for (let allowedNetworkIdsChunk of allowedNetworkIdsChunks) {
-                const allowedNetworks = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/allowedNetwork/${allowedNetworkIdsChunk.join(",")}?batch=,`);
+                const allowedNetworks = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/allowedNetwork/${allowedNetworkIdsChunk.join(",")}?batch=,`);
                 if (this.allowedNetworks === null) {
                     this.allowedNetworks = {};
                 }
@@ -803,7 +820,7 @@ export default {
         },
 
         async loadTwoFAWhitelists() {
-            const twoFAWhitelistIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/twoFAWhitelist`);
+            const twoFAWhitelistIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/twoFAWhitelist`);
             if (!twoFAWhitelistIds.length) {
                 this.twoFAWhitelists = {};
             }
@@ -816,7 +833,7 @@ export default {
             }
             let twoFAWhitelistIdsChunks = this.chunkArray(twoFAWhitelistIds, 40);
             for (let twoFAWhitelistIdsChunk of twoFAWhitelistIdsChunks) {
-                const twoFAWhitelists = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/twoFAWhitelist/${twoFAWhitelistIdsChunk.join(",")}?batch=,`);
+                const twoFAWhitelists = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/twoFAWhitelist/${twoFAWhitelistIdsChunk.join(",")}?batch=,`);
                 if (this.twoFAWhitelists === null) {
                     this.twoFAWhitelists = {};
                 }
@@ -830,7 +847,7 @@ export default {
         },
 
         async loadUsers() {
-            const userIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user`);
+            const userIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user`);
             if (!userIds.length) {
                 this.users = {};
             }
@@ -843,7 +860,7 @@ export default {
             }
             let userIdsChunks = this.chunkArray(userIds, 40);
             for (let userIdsChunk of userIdsChunks) {
-                const users = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userIdsChunk.join(",")}?batch=,`);
+                const users = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userIdsChunk.join(",")}?batch=,`);
                 if (this.users === null) {
                     this.users = {};
                 }
@@ -868,11 +885,11 @@ export default {
         },
 
         async loadUserRights(userId) {
-            const userRightIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/right`);
+            const userRightIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userId}/right`);
             let userRightIdsChunks = this.chunkArray(userRightIds, 40);
             let rights = {};
             for (let userRightIdsChunk of userRightIdsChunks) {
-                const userRights = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/right/${userRightIdsChunk.join(",")}?batch=,`);
+                const userRights = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userId}/right/${userRightIdsChunk.join(",")}?batch=,`);
                 for (const i in userRights) {
                     const userRight = userRights[i]["value"];
                     if(userRight) {
@@ -884,11 +901,11 @@ export default {
         },
 
         async loadUserObjectRights(userId) {
-            const userObjectRightIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/objectRight`);
+            const userObjectRightIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userId}/objectRight`);
             let userObjectRightIdsChunks = this.chunkArray(userObjectRightIds, 40);
             let objectRights = {};
             for (let userObjectRightIdsChunk of userObjectRightIdsChunks) {
-                const userRights = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/user/${userId}/objectRight/${userObjectRightIdsChunk.join(",")}?batch=,`);
+                const userRights = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userId}/objectRight/${userObjectRightIdsChunk.join(",")}?batch=,`);
                 for (const i in userRights) {
                     const userRight = userRights[i]["value"];
                     if(userRight) {
@@ -900,13 +917,13 @@ export default {
         },
 
         async loadDatacenters() {
-            const datacenterIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter`);
+            const datacenterIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter`);
             if (!datacenterIds.length) {
                 this.datacenters = {};
             }
             let datacenterIdsChunks = this.chunkArray(datacenterIds, 40);
             for (let datacenterIdsChunk of datacenterIdsChunks) {
-                const datacenters = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/datacenter/${datacenterIdsChunk.join(",")}?batch=,`);
+                const datacenters = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${datacenterIdsChunk.join(",")}?batch=,`);
                 if (this.datacenters === null) {
                     this.datacenters = {};
                 }
@@ -922,7 +939,7 @@ export default {
         async loadTasks() {
             let taskIds = {};
             let recentTaskIds = {};
-            const stateTaskIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task`);
+            const stateTaskIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/task`);
             for (const taskId of stateTaskIds) {
                 if (!taskIds.hasOwnProperty(taskId)) {
                     taskIds[taskId] = taskId;
@@ -934,7 +951,7 @@ export default {
                 }
             }
             for (const state of ["done", "canceled"]) {
-                const stateTaskIds = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task?state=${state}`);
+                const stateTaskIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/task?state=${state}`);
                 for (const taskId of stateTaskIds) {
                     if (taskIds.hasOwnProperty(taskId)) {
                         if (this.recentTasks && recentTaskIds.hasOwnProperty(taskId)) {
@@ -967,7 +984,7 @@ export default {
             let robotsNames = {};
             let taskIdsChunks = this.chunkArray(Object.values(this.taskIds), 40);
             for (let taskIdsChunk of taskIdsChunks) {
-                const tasks = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/task/${taskIdsChunk.join(",")}?batch=,`);
+                const tasks = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/task/${taskIdsChunk.join(",")}?batch=,`);
                 if (this.tasks === null) {
                     this.tasks = {};
                 }
@@ -984,7 +1001,7 @@ export default {
         },
 
         async loadRobots(robotsNames) {
-            const availableRobotsNames = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/robot`);
+            const availableRobotsNames = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/robot`);
             let robotNamesChunks = this.chunkArray(Object.values(robotsNames), 40);
             for (let robotNamesChunk of robotNamesChunks) {
                 for (let robotName of robotNamesChunk) {
@@ -992,7 +1009,7 @@ export default {
                         delete robotNamesChunk[robotName];
                     }
                 }
-                const robots = await this.get(`${this.ovhapiRoute}/dedicatedCloud/${this.pccName}/robot/${robotNamesChunk.join(",")}?batch=,`);
+                const robots = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/robot/${robotNamesChunk.join(",")}?batch=,`);
                 if (!this.robots) {
                     this.robots = {};
                 }
@@ -1007,17 +1024,17 @@ export default {
         },
 
         async loadVracks() {
-            const vrackNames = await this.get(`${this.ovhapiRoute}/vrack`);
+            const vrackNames = await this.get(`${this.ovhapiRoute}/v1/vrack`);
             for (let vrackName of vrackNames) {
                 this.loadVrack(vrackName);
             }
         },
 
         async loadVrack(vrackName) {
-            let vrack = await this.get(`${this.ovhapiRoute}/vrack/${vrackName}`); // No batch mode on this call
+            let vrack = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}`); // No batch mode on this call
             vrack["serviceName"] = vrackName;
             for (let serviceType of ["dedicatedCloud", "dedicatedCloudDatacenter"]) {
-                const serviceNames = await this.get(`${this.ovhapiRoute}/vrack/${vrackName}/${serviceType}`);
+                const serviceNames = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}/${serviceType}`);
                 for (let serviceName of serviceNames) {
                     if (this.pccName == serviceName) {
                         this.vrack["pcc"] = vrack;

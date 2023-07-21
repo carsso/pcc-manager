@@ -1,14 +1,10 @@
 module.exports = {
     darkMode: 'class',
-    content: [],
     theme: {
         extend: {},
     },
-    variants: {
-        extend: {},
-    },
     plugins: [],
-    purge: [
+    content: [
         './storage/framework/views/*.php',
         './resources/**/*.blade.php',
         './resources/**/*.js',
