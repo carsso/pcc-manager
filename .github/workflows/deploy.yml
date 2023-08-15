@@ -1,0 +1,18 @@
+name: Deploy
+
+on:
+    push:
+      branches: [ deploy ]
+
+jobs:
+  deploy-prod:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          username: ${{ vars.DEPLOY_BASTION_USER }}
+          host: ${{ vars.DEPLOY_BASTION_HOST }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: '${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }} -- deploy'
