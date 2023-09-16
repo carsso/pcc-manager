@@ -29,16 +29,25 @@
 
     @if (config('sentry.dsn'))
         <script
-            src="{{ config('app.sentry_cdn') }}/7.24.2/bundle.tracing.min.js"
-            integrity="sha384-Nb9Pkx/WZV5kujSYUYEjIqArDFhw1LX9tsEjSylkWLAvjP4kgIQZ47O98EQfeUwX"
+            src="{{ config('app.sentry_cdn') }}/7.69.0/bundle.tracing.replay.min.js"
+            integrity="sha384-6ZlY7nOHgnD0vXeSWEgeSHy/+WXQkLYa52vA7d20SFsyRhhCU9mGOIGSgNlbzdSS"
             crossorigin="anonymous"></script>
 
         <script>
             Sentry.init({
                 dsn: "{{ config('sentry.dsn') }}",
                 tunnel: "/sentry",
-                integrations: [new Sentry.BrowserTracing()],
+                integrations: [
+                    new Sentry.BrowserTracing(),
+                    new Sentry.Replay({
+                        maskAllText: false,
+                        maskAllInputs: false,
+                        blockAllMedia: false,
+                    })
+                ],
                 tracesSampleRate: 1.0,
+                replaysSessionSampleRate: 1.0,
+                replaysOnErrorSampleRate: 1.0,
             });
 
             @if (auth()->check())
