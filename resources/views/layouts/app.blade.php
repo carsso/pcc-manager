@@ -52,6 +52,11 @@
 
             @if (auth()->check())
                 Sentry.setTag("nichandle", "{{ Auth::user()->userinfo['nichandle'] }}");
+                Sentry.setUser({
+                    email: "{{ Auth::user()->userinfo['nichandle'] ?? '' }}{{'@'}}{{ Auth::user()->endpoint ?? '' }}",
+                    nichandle: "{{ Auth::user()->userinfo['nichandle'] ?? '' }}",
+                    endpoint: "{{ Auth::user()->endpoint ?? '' }}",
+                });
             @endif
         </script>
     @endif

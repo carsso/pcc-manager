@@ -34,6 +34,9 @@ class HomeController extends Controller
         $project_id = intval(trim($dsn['path'], '/'));
 
         return Http::withBody($envelope, 'application/x-sentry-envelope')
+            ->withHeaders([
+                'X-Forwarded-For' => $request->ip(),
+            ])
             ->post('https://'.$dsn['host'].'/api/'.$project_id.'/envelope/');
     }
 }
