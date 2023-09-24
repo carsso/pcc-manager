@@ -674,7 +674,7 @@ export default {
                 value["name"] = "NSX-T";
                 value["description"] = "NSX-T Data Center for vSphere";
                 value["optionType"] = "option";
-                value["version"] = value["version"].split("-")[0];
+                value["version"] = value["version"] ? value["version"].split("-")[0] : '';
             } else if (optionName == "pcidss") {
                 value["name"] = "PCI DSS";
                 value["description"] = "Payment Card Industry Data Security Standard";
