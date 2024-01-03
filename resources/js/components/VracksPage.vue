@@ -120,6 +120,8 @@ export default {
         async loadVracks() {
             const vrackSchema = await this.get(`${this.ovhapiRoute}/v1/vrack.json`);
             this.vrackServicesTypes = vrackSchema.models['vrack.AllowedServiceEnum'].enum;
+            // Removing vrackServices from the list because API is not available yet
+            this.vrackServicesTypes = this.vrackServicesTypes.filter((serviceType) => serviceType !== 'vrackServices');
             const vrackNames = await this.get(`${this.ovhapiRoute}/v1/vrack`);
             for (let vrackName of vrackNames) {
                 this.loadVrack(vrackName);

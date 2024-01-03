@@ -23,7 +23,7 @@
                         <span class="text-gray-500">({{ datacenter.commercialRangeName }})</span>
                     </div>
                     <div>
-                        <i class="fas fa-network-wired"></i> vRack :
+                        <i class="fas fa-network-wired"></i> Datacenter vRack :
                         <template v-if="!vrack.datacenters || !vrack.datacenters[datacenter.name]">
                             <template v-if="loading">
                                 <i class="fas fa-circle-notch fa-spin"></i>

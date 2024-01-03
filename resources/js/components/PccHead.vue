@@ -30,7 +30,7 @@
                         </template>
                         <br />
                         <div v-if="vrack">
-                            <i class="fas fa-network-wired"></i> vRack :
+                            <i class="fas fa-network-wired"></i> VMNetwork vRack :
                             <template v-if="!vrack.pcc">
                                 <template v-if="loading">
                                     <i class="fas fa-circle-notch fa-spin"></i>
