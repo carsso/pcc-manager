@@ -14,7 +14,7 @@
             <br />
             <small class="text-gray-500">
                 Inspired by the great
-                <a href="https://www.ovhcloud.com/en/enterprise/products/hosted-private-cloud/vscope/" target="_blank" class="small hover:text-indigo-600">
+                <a href="https://help.ovhcloud.com/csm/en-vmware-using-vscope?id=kb_article_view&sysparm_article=KB0045667" target="_blank" class="small hover:text-indigo-600">
                     OVHcloud vScope
                     <i class="fas fa-external-link-alt"></i>
                 </a>
