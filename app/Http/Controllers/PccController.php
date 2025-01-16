@@ -23,12 +23,16 @@ class PccController extends Controller
         $ovhApi = $request->user()->ovhApi;
         try {
             $ovhApi->get('/v1/dedicatedCloud/'.$pccName);
+            $ovhApi->get('/v1/dedicatedCloud/'.$pccName.'/datacenter');
         } catch (RequestException $exception) {
             $response = $exception->getResponse();
             if ($response != null) {
                 $statusCode = $response->getStatusCode();
                 if($statusCode == 404) {
                     abort(404);
+                }
+                if($statusCode == 460) {
+                    abort(403, json_decode($response->getBody(), true)['message']);
                 }
             }
             throw $exception;
@@ -47,6 +51,9 @@ class PccController extends Controller
                 $statusCode = $response->getStatusCode();
                 if($statusCode == 404) {
                     abort(404);
+                }
+                if($statusCode == 460) {
+                    abort(403, json_decode($response->getBody(), true)['message']);
                 }
             }
             throw $exception;
@@ -69,6 +76,9 @@ class PccController extends Controller
                     $statusCode = $response->getStatusCode();
                     if($statusCode == 404) {
                         abort(404);
+                    }
+                    if($statusCode == 460) {
+                        abort(403, json_decode($response->getBody(), true)['message']);
                     }
                 }
                 throw $e;

@@ -27,13 +27,16 @@
                                     Commercial range: {{ pcc.commercialRange }}<br />
                                     <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}
                                 </div>
-                                <div class="pl-4">
+                                <div class="pl-4" v-if="pcc.service.status == 'ok'">
                                     <a class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" :href="`${pccRoute}/${pccName}`">
                                         <i class="fas fa-tasks mr-2"></i>
                                         Pcc / Tasks
                                     </a>
                                 </div>
                             </div>
+                        </div>
+                        <div v-if="pcc.service.status == 'expired'" class="p-4">
+                            This service is expired
                         </div>
                         <div v-if="!pcc.hasOwnProperty('datacenters')" class="p-4">
                             <i class="fas fa-circle-notch fa-spin mr-1"></i> Loading datacenters from OVHcloud API...
@@ -149,6 +152,11 @@ export default {
         },
         async loadPcc(pccName) {
             let pcc = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}`);
+            let pccService = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/serviceInfos`);
+            pcc['service'] = pccService;
+            if(pcc['service'] && pcc['service']['status'] != 'ok') {
+                pcc["datacenters"] = [];
+            }
             let pccDatacenters = {};
             if (this.pccs && this.pccs[pccName] && this.pccs[pccName]["datacenters"]) {
                 pccDatacenters = this.pccs[pccName]["datacenters"];
@@ -156,17 +164,19 @@ export default {
             }
             this.pccs[pccName] = { ...pcc };
             if (pcc) {
-                const datacenterIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter`);
-                if (datacenterIds) {
-                    const datacenters = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter/${datacenterIds.join(",")}?batch=,`);
-                    pcc["datacenters"] = pccDatacenters;
-                    for (const datacenterId in datacenters) {
-                        const datacenter = datacenters[datacenterId];
-                        if (!datacenter["error"]) {
-                            pcc["datacenters"][datacenter["key"]] = datacenter["value"];
+                if(pcc['service'] && pcc['service']['status'] == 'ok') {
+                    const datacenterIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter`);
+                    if (datacenterIds) {
+                        const datacenters = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter/${datacenterIds.join(",")}?batch=,`);
+                        pcc["datacenters"] = pccDatacenters;
+                        for (const datacenterId in datacenters) {
+                            const datacenter = datacenters[datacenterId];
+                            if (!datacenter["error"]) {
+                                pcc["datacenters"][datacenter["key"]] = datacenter["value"];
+                            }
                         }
+                        this.pccs[pccName] = { ...pcc };
                     }
-                    this.pccs[pccName] = { ...pcc };
                 }
             }
         },

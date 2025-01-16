@@ -215,9 +215,6 @@
                                                 <small class="text-gray-500">#{{ filerId }}</small>
                                             </td>
                                             <td class="p-1" :title="`State: ${filer.state} - Profile: ${filer.profile} - Node: ${filer.master.split(/\./)[0]} ${filer.activeNode}`">
-                                                <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/filer/${filerId}/graphs`" class="text-indigo-600 hover:text-indigo-800">
-                                                    <i class="far fa-chart-bar"></i>
-                                                </a>
                                                 {{ filer.name || "pcc-00" + filerId }}
                                                 <i v-if="filer.isManagedByOvh" class="fas fa-user-cog text-gray-500" title="This datastore is managed by OVHcloud"></i>
                                                 <i v-if="filer.global" class="fas fa-globe text-cyan-500" title="This datastore is globally available (on all datacenters)"></i>
@@ -232,7 +229,7 @@
                                                 <br />
                                                 <small class="text-gray-500" v-if="filer.isManagedByOvh && filer.billingType == 'freeSpare'" title="This datastore is free and managed by OVHcloud">
                                                     <i class="fas fa-user-cog"></i>
-                                                    OVHcloud
+                                                    OVHcloud managed
                                                 </small>
                                                 <small class="text-gray-500" v-else>
                                                     <i class="fas fa-coins text-yellow-600"></i>
@@ -370,9 +367,6 @@
                                                 <small class="text-gray-500">#{{ hostId }}</small>
                                             </td>
                                             <td class="p-1" :title="`Rack: ${host.rack} - State: ${host.state} - Connexion state: ${host.connectionState} - In maintenance: ${host.inMaintenance ? 'yes' : 'no'}`">
-                                                <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/host/${hostId}/graphs`" class="text-indigo-600 hover:text-indigo-800">
-                                                    <i class="far fa-chart-bar"></i>
-                                                </a>
                                                 {{ host.name || "host" + hostId }}<br />
                                                 <small class="text-gray-500">Rack: {{ host.rack }}</small>
                                             </td>
@@ -485,14 +479,15 @@
                                     <small class="text-gray-500">#{{ vm.vmId }}</small>
                                 </td>
                                 <td class="p-1" :title="`State: ${vm.powerState} - MoRef: ${vm.moRef}`">
-                                    <a :href="`${pccRoute}/${pccName}/datacenter/${datacenterId}/vm/${vm.vmId}/graphs`" class="text-indigo-600 hover:text-indigo-800">
-                                        <i class="far fa-chart-bar"></i>
-                                    </a>
                                     {{ vm.name }}
                                     <br />
                                     <small class="text-gray-500" v-if="vm.isOvhVm" title="This virtual machine is managed by OVHcloud">
                                         <i class="fas fa-user-cog"></i>
-                                        OVHcloud
+                                        OVHcloud managed
+                                    </small>
+                                    <small class="text-gray-500" v-if="vm.license" title="This virtual machine has a paid license">
+                                        <i class="fas fa-certificate text-blue-800"></i>
+                                        {{ vm.license }}
                                     </small>
                                 </td>
                                 <td class="p-1 text-center text-gray-500" colspan="3" v-if="vm.powerState == 'deleted'">
