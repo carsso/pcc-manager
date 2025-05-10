@@ -34,7 +34,7 @@ jobs:
       continue-on-error: true
       run: npm list
     - name: npm install
-      run: npm install
+      run: npm install --verbose
     - run: npm run build --verbose
     - name: Commit built assets
       run: |
