@@ -2,7 +2,7 @@
     <div class="errors-zone w-2/3 sm:w-2/3 lg:w-1/3">
         <transition-group name="errors-zone">
             <template v-for="(error, errorKey) in errors">
-                <div class="rounded-md bg-red-50 dark:bg-red-800 p-4 mb-4" v-if="!dismissed.includes(errorKey)" :key="errorKey">
+                <div class="rounded-md bg-red-50 dark:bg-red-800 p-4 mb-4" v-if="!dismissed.includes(errorKey) && !ignoreError(error)" :key="errorKey">
                     <div class="text-sm font-medium text-red-800 dark:text-red-50">
                         <div class="float-right pl-3">
                             <div class="-mx-1.5 -my-1.5">
@@ -40,12 +40,22 @@ export default {
     data() {
         return {
             dismissed: [],
+            ignoreErrors: [
+                "This service does not exist",
+                "This service is expired",
+                "Got an invalid (or empty) URL",
+                "<Result::error exceptionType='ObjectNotFound' status='210'>",
+            ],
         };
     },
 
     methods: {
         dismiss(errorKey) {
             this.dismissed.push(errorKey);
+        },
+
+        ignoreError(error) {
+            return this.ignoreErrors.some(ignoreError => error.message && error.message.includes(ignoreError));
         },
     },
 

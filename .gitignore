@@ -5,7 +5,6 @@
 /public/js/app.js
 /public/css/app.css
 /public/**/*.map
-/public/mix-manifest.json
 /public/fonts
 /storage/*.key
 /storage/clockwork

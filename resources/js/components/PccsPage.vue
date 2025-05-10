@@ -27,7 +27,7 @@
                                     Commercial range: {{ pcc.commercialRange }}<br />
                                     <i class="fas fa-laptop-code"></i> {{ pcc.managementInterface.toUpperCase() }} {{ pcc.version.major + pcc.version.minor }}
                                 </div>
-                                <div class="pl-4" v-if="pcc.service.status == 'ok'">
+                                <div class="pl-4">
                                     <a class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" :href="`${pccRoute}/${pccName}`">
                                         <i class="fas fa-tasks mr-2"></i>
                                         Pcc / Tasks
@@ -35,7 +35,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div v-if="pcc.service.status == 'expired'" class="p-4">
+                        <div v-if="pcc.service && pcc.service.status == 'expired'" class="p-4">
                             This service is expired
                         </div>
                         <div v-if="!pcc.hasOwnProperty('datacenters')" class="p-4">
@@ -81,9 +81,9 @@
 </template>
 
 <script>
-import LoadingScreen from "./LoadingScreen";
-import ErrorsZone from "./ErrorsZone";
-import { httpRequester } from "./compositions/axios/httpRequester";
+import LoadingScreen from "./LoadingScreen.vue";
+import ErrorsZone from "./ErrorsZone.vue";
+import { httpRequester } from "./compositions/axios/httpRequester.js";
 
 export default {
     name: "PccsPage",
@@ -132,9 +132,6 @@ export default {
     },
 
     mounted() {
-        for (const pccName of this.pccNames) {
-            this.pccs[pccName] = {};
-        }
         this.loadAll(true);
     },
 
@@ -152,9 +149,11 @@ export default {
         },
         async loadPcc(pccName) {
             let pcc = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}`);
+            if (!pcc) return;
+            this.pccs[pccName] = {};
             let pccService = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/serviceInfos`);
-            pcc['service'] = pccService;
-            if(pcc['service'] && pcc['service']['status'] != 'ok') {
+            if(pccService && pccService['status'] != 'ok') {
+                pcc['service'] = pccService;
                 pcc["datacenters"] = [];
             }
             let pccDatacenters = {};
@@ -164,20 +163,17 @@ export default {
             }
             this.pccs[pccName] = { ...pcc };
             if (pcc) {
-                if(pcc['service'] && pcc['service']['status'] == 'ok') {
-                    const datacenterIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter`);
-                    if (datacenterIds) {
-                        const datacenters = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter/${datacenterIds.join(",")}?batch=,`);
-                        pcc["datacenters"] = pccDatacenters;
-                        for (const datacenterId in datacenters) {
-                            const datacenter = datacenters[datacenterId];
-                            if (!datacenter["error"]) {
-                                pcc["datacenters"][datacenter["key"]] = datacenter["value"];
-                            }
-                        }
-                        this.pccs[pccName] = { ...pcc };
+                const datacenterIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter`);
+                if (!datacenterIds) return;
+                const datacenters = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter/${datacenterIds.join(",")}?batch=,`);
+                pcc["datacenters"] = pccDatacenters;
+                for (const datacenterId in datacenters) {
+                    const datacenter = datacenters[datacenterId];
+                    if (!datacenter["error"]) {
+                        pcc["datacenters"][datacenter["key"]] = datacenter["value"];
                     }
                 }
+                this.pccs[pccName] = { ...pcc };
             }
         },
     },

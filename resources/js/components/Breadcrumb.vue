@@ -11,7 +11,9 @@
             </li>
             <li v-for="page in pages" :key="page.name" class="flex my-1">
                 <div class="flex items-center">
-                    <i class="mx-1 lg:hidden fas fa-chevron-right flex-shrink-0 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    <span class="lg:hidden">
+                        <i class="mx-1 fas fa-chevron-right flex-shrink-0 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </span>
                     <svg class="hidden lg:block flex-shrink-0 w-6 h-full text-gray-200 dark:text-gray-500" viewBox="0 0 24 44" preserveAspectRatio="none" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
                     </svg>

@@ -619,9 +619,9 @@
 </template>
 
 <script>
-import LoadingScreen from "./LoadingScreen";
-import ErrorsZone from "./ErrorsZone";
-import { httpRequester } from "./compositions/axios/httpRequester";
+import LoadingScreen from "./LoadingScreen.vue";
+import ErrorsZone from "./ErrorsZone.vue";
+import { httpRequester } from "./compositions/axios/httpRequester.js";
 import VueSvgGauge from "./VueSvgGauge.vue";
 
 export default {
@@ -711,9 +711,8 @@ export default {
 
         async loadPcc() {
             this.pcc = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}`);
-            if (this.pcc) {
-                this.loadPccUpgrades();
-            }
+            if (!this.pcc) return;
+            this.loadPccUpgrades();
         },
 
         async loadPccUpgrades() {
@@ -862,19 +861,22 @@ export default {
 
         async loadVrack(vrackName) {
             let vrack = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}`); // No batch mode on this call
+            if (!vrack) return;
             vrack["serviceName"] = vrackName;
             for (let serviceType of ["dedicatedCloud", "dedicatedCloudDatacenter"]) {
                 const serviceNames = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}/${serviceType}`);
-                for (let serviceName of serviceNames) {
-                    if (this.pccName == serviceName) {
-                        this.vrack["pcc"] = vrack;
-                    }
-                    if (serviceName.includes(this.pccName + "_")) {
-                        if (!this.vrack["datacenters"]) {
-                            this.vrack["datacenters"] = {};
+                if (serviceNames) {
+                    for (let serviceName of serviceNames) {
+                        if (this.pccName == serviceName) {
+                            this.vrack["pcc"] = vrack;
                         }
-                        const datacenter = serviceName.replace(this.pccName + "_", "");
-                        this.vrack["datacenters"][datacenter] = vrack;
+                        if (serviceName.includes(this.pccName + "_")) {
+                            if (!this.vrack["datacenters"]) {
+                                this.vrack["datacenters"] = {};
+                            }
+                            const datacenter = serviceName.replace(this.pccName + "_", "");
+                            this.vrack["datacenters"][datacenter] = vrack;
+                        }
                     }
                 }
             }

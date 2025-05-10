@@ -50,9 +50,9 @@
 </template>
 
 <script>
-import LoadingScreen from "./LoadingScreen";
-import ErrorsZone from "./ErrorsZone";
-import { httpRequester } from "./compositions/axios/httpRequester";
+import LoadingScreen from "./LoadingScreen.vue";
+import ErrorsZone from "./ErrorsZone.vue";
+import { httpRequester } from "./compositions/axios/httpRequester.js";
 
 export default {
     name: "VracksPage",
@@ -104,9 +104,6 @@ export default {
     },
 
     mounted() {
-        for (const vrackName of this.vrackNames) {
-            this.vracks[vrackName] = {};
-        }
         this.loadAll(true);
     },
 
@@ -130,19 +127,23 @@ export default {
 
         async loadVrack(vrackName) {
             let vrack = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}`); // No batch mode on this call
+            if (!vrack) return;
+            this.vracks[vrackName] = {};
             vrack['serviceName'] = vrackName;
             vrack['connectedTo'] = {};
             for (let serviceType of this.vrackServicesTypes) {
                 const serviceNames = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}/${serviceType}`);
-                for (let serviceName of serviceNames) {
-                    let serviceInfo = {};
-                    if(serviceType == 'dedicatedCloud' || serviceType == 'dedicatedCloudDatacenter') {
-                        // Load data only for PCC serviceTypes for now, optimizing the number of API calls
-                        const serviceNameEncoded = encodeURIComponent(encodeURIComponent(serviceName)); // Need to double encode slashes because of laravel routing bug with %2F
-                        serviceInfo = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}/${serviceType}/${serviceNameEncoded}`);
+                if (serviceNames) {
+                    for (let serviceName of serviceNames) {
+                        let serviceInfo = {};
+                        if(serviceType == 'dedicatedCloud' || serviceType == 'dedicatedCloudDatacenter') {
+                            // Load data only for PCC serviceTypes for now, optimizing the number of API calls
+                            const serviceNameEncoded = encodeURIComponent(encodeURIComponent(serviceName)); // Need to double encode slashes because of laravel routing bug with %2F
+                            serviceInfo = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}/${serviceType}/${serviceNameEncoded}`);
+                        }
+                        serviceInfo.serviceType = serviceType;
+                        vrack['connectedTo'][serviceName] = serviceInfo;
                     }
-                    serviceInfo.serviceType = serviceType;
-                    vrack['connectedTo'][serviceName] = serviceInfo;
                 }
             }
             this.vracks[vrackName] = { ...vrack };

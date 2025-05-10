@@ -58,7 +58,6 @@ export default function getErrorsFromAxiosException(err) {
     if (err.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        console.log(err.response);
         if (err.response.status === 500) {
             error.message = 'Erreur 500';
             if (err.response.data.message) {
@@ -89,13 +88,10 @@ export default function getErrorsFromAxiosException(err) {
         // The request was made but no response was received
         // `err.request` is an instance of XMLHttpRequest in the browser and an instance of
         // http.ClientRequest in node.js
-        console.error('Error', err.request);
         error.message = 'Request failed !';
     } else {
         // Something happened in setting up the request that triggered an Error
-        console.error('Error', err.message);
         error.message = err.message;
     }
-    console.error(err.config);
     return error;
 };

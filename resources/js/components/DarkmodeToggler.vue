@@ -13,9 +13,9 @@
 </template>
 
 <script>
-import LoadingScreen from "./LoadingScreen";
-import ErrorsZone from "./ErrorsZone";
-import { httpRequester } from "./compositions/axios/httpRequester";
+import LoadingScreen from "./LoadingScreen.vue";
+import ErrorsZone from "./ErrorsZone.vue";
+import { httpRequester } from "./compositions/axios/httpRequester.js";
 
 export default {
     name: "DarkmodeToggler",

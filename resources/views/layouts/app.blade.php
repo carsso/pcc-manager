@@ -16,8 +16,13 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <!-- Styles -->
-    <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+    <script>
+        window.VITE_REVERB_APP_KEY = "{{ env('VITE_REVERB_APP_KEY') }}";
+        window.VITE_REVERB_HOST = "{{ env('VITE_REVERB_HOST') }}";
+        window.VITE_REVERB_PORT = "{{ env('VITE_REVERB_PORT') }}";
+        window.VITE_REVERB_SCHEME = "{{ env('VITE_REVERB_SCHEME') }}";
+    </script>
+    @vite(['resources/css/app.css', 'resources/scss/app.scss', 'resources/js/app.js'])
 
     @if (strtoupper(config('app.env')) != 'PRODUCTION')
         <style>
@@ -25,40 +30,6 @@
                 background-image: url('{{ URL::asset('img/bg_dev.png') }}');
             }
         </style>
-    @endif
-
-    @if (config('sentry.dsn'))
-        <script
-            src="{{ config('app.sentry_cdn') }}/7.69.0/bundle.tracing.replay.min.js"
-            integrity="sha384-6ZlY7nOHgnD0vXeSWEgeSHy/+WXQkLYa52vA7d20SFsyRhhCU9mGOIGSgNlbzdSS"
-            crossorigin="anonymous"></script>
-
-        <script>
-            Sentry.init({
-                dsn: "{{ config('sentry.dsn') }}",
-                tunnel: "/sentry",
-                integrations: [
-                    new Sentry.BrowserTracing(),
-                    new Sentry.Replay({
-                        maskAllText: false,
-                        maskAllInputs: false,
-                        blockAllMedia: false,
-                    })
-                ],
-                tracesSampleRate: 1.0,
-                replaysSessionSampleRate: 1.0,
-                replaysOnErrorSampleRate: 1.0,
-            });
-
-            @if (auth()->check())
-                Sentry.setTag("nichandle", "{{ Auth::user()->userinfo['nichandle'] }}");
-                Sentry.setUser({
-                    email: "{{ Auth::user()->userinfo['nichandle'] ?? '' }}{{'@'}}{{ Auth::user()->endpoint ?? '' }}",
-                    nichandle: "{{ Auth::user()->userinfo['nichandle'] ?? '' }}",
-                    endpoint: "{{ Auth::user()->endpoint ?? '' }}",
-                });
-            @endif
-        </script>
     @endif
 </head>
 
@@ -83,8 +54,6 @@
             </div>
         </main>
     </div>
-    <!-- Scripts Footer -->
-    <script src="{{ mix('js/app.js') }}"></script>
 </body>
 
 </html>

@@ -23,8 +23,8 @@
                     <!-- Mobile menu button -->
                     <DisclosureButton class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                         <span class="sr-only">Open main menu</span>
-                        <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
-                        <XIcon v-else class="block h-6 w-6" aria-hidden="true" />
+                        <Bars4Icon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
+                        <XMarkIcon v-else class="block h-6 w-6" aria-hidden="true" />
                     </DisclosureButton>
                 </div>
             </div>
@@ -48,7 +48,7 @@
 
 <script>
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
-import { MenuIcon, XIcon } from "@heroicons/vue/outline";
+import { Bars4Icon, XMarkIcon } from "@heroicons/vue/24/outline";
 
 export default {
     name: "Navbar",
@@ -61,8 +61,8 @@ export default {
         MenuButton,
         MenuItem,
         MenuItems,
-        MenuIcon,
-        XIcon,
+        Bars4Icon,
+        XMarkIcon,
     },
 
     props: {

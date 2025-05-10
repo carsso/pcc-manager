@@ -22,9 +22,6 @@ Route::get('/', [HomeController::class, 'index'])
     ->middleware('guest')
     ->name('home');
 
-Route::name('sentry')
-    ->any('/sentry', [HomeController::class, 'sentry']);
-
 Route::get('/legal', [HomeController::class, 'legal'])
     ->name('legal');
 
@@ -61,10 +58,6 @@ Route::group(
 
         Route::get('/pcc/{pccName}/datacenter/{datacenterId}', [PccController::class, 'datacenter'])
             ->name('pcc.datacenter');
-
-        Route::get('/pcc/{pccName}/datacenter/{datacenterId}/{entityType}/{entityId}/graphs', [PccController::class, 'graphs'])
-            ->where('entityType', 'host|filer|vm')
-            ->name('pcc.graphs');
 
         Route::get('/vrack', [VrackController::class, 'index'])
             ->name('vrack');

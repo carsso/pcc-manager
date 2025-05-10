@@ -60,30 +60,4 @@ class PccController extends Controller
         }
         return view('pcc.datacenter', compact('pccName', 'datacenterId'));
     }
-
-    public function graphs(Request $request, String $pccName, String $datacenterId, String $entityType, String $entityId)
-    {
-        $ovhApi = $request->user()->ovhApi;
-        try {
-            $entity = $ovhApi->get('/v1/dedicatedCloud/'.$pccName.'/datacenter/'.$datacenterId.'/'.$entityType.'/'.$entityId);
-        } catch (RequestException $e) {
-            try {
-                # trying in global if not found in datacenter
-                $entity = $ovhApi->get('/v1/dedicatedCloud/'.$pccName.'/'.$entityType.'/'.$entityId);
-            } catch (RequestException $e2) {
-                $response = $e->getResponse();
-                if ($response != null) {
-                    $statusCode = $response->getStatusCode();
-                    if($statusCode == 404) {
-                        abort(404);
-                    }
-                    if($statusCode == 460) {
-                        abort(403, json_decode($response->getBody(), true)['message']);
-                    }
-                }
-                throw $e;
-            }
-        }
-        return view('pcc.graphs', compact('pccName', 'datacenterId', 'entityType', 'entityId', 'entity'));
-    }
 }

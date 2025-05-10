@@ -13,10 +13,10 @@
 </template>
 
 <script>
-import LoadingScreen from "./LoadingScreen";
-import ErrorsZone from "./ErrorsZone";
-import { httpRequester } from "./compositions/axios/httpRequester";
-import { MoonIcon, SunIcon } from "@heroicons/vue/outline";
+import LoadingScreen from "./LoadingScreen.vue";
+import ErrorsZone from "./ErrorsZone.vue";
+import { httpRequester } from "./compositions/axios/httpRequester.js";
+import { MoonIcon, SunIcon } from "@heroicons/vue/24/outline";
 
 export default {
     name: "NavbarDarkmodeToggler",

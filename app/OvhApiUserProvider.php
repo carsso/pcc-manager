@@ -105,4 +105,8 @@ class OvhApiUserProvider implements UserProvider
     {
         return true;
     }
+
+    public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false)
+    {
+    }
 }

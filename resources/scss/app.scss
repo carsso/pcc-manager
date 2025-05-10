@@ -1,0 +1,39 @@
+@import "~fontawesome/css/all.css";
+
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Body
+$body-bg: #f8fafc;
+
+// Typography
+$font-family-sans-serif: 'Nunito', sans-serif;
+$font-size-base: 0.9rem;
+$line-height-base: 1.6;
+
+@import "~flag-icons/css/flag-icons.min.css";
+
+html {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+#app {
+    min-height: 100%;
+}
+
+main {
+    min-height: 400px;
+}
+
+.overflow-y-auto {
+    overflow-y: auto;
+}

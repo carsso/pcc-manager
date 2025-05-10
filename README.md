@@ -105,14 +105,14 @@ _Read https://github.com/carsso/php-ovhcloud#supported-endpoints to find the URL
 php artisan storage:link
 ```
 
-#### Build js and css files:
+#### Build js and css files automatically while developing:
 ```sh
 npm run dev
 ```
 
-#### Build js and css files automatically while developing :
+#### Build js and css files for prod :
 ```sh
-npm run watch
+npm run build
 ```
 
 ## License
