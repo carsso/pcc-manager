@@ -10,7 +10,7 @@ jobs:
     environment: production
     steps:
       - name: Deploy
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.5
         with:
           username: ${{ vars.DEPLOY_BASTION_USER }}
           host: ${{ vars.DEPLOY_BASTION_HOST }}
