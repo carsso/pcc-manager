@@ -113,7 +113,7 @@ export default {
     },
 
     setup() {
-        const { loaded, loading, errors, request, get } = httpRequester();
+        const { loaded, loading, errors, request, get, getList } = httpRequester();
 
         return {
             loaded,
@@ -121,6 +121,7 @@ export default {
             errors,
             request,
             get,
+            getList,
         };
     },
 
@@ -163,15 +164,11 @@ export default {
             }
             this.pccs[pccName] = { ...pcc };
             if (pcc) {
-                const datacenterIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter`);
-                if (!datacenterIds) return;
-                const datacenters = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter/${datacenterIds.join(",")}?batch=,`);
+                const datacenters = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${pccName}/datacenter`);
+                if (!datacenters) return;
                 pcc["datacenters"] = pccDatacenters;
-                for (const datacenterId in datacenters) {
-                    const datacenter = datacenters[datacenterId];
-                    if (!datacenter["error"]) {
-                        pcc["datacenters"][datacenter["key"]] = datacenter["value"];
-                    }
+                for (const datacenter of datacenters) {
+                    pcc["datacenters"][datacenter.datacenterId] = { ...datacenter };
                 }
                 this.pccs[pccName] = { ...pcc };
             }

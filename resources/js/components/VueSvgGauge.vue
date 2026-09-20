@@ -55,8 +55,11 @@
 </template>
 
 <script>
-import TWEEN from "@tweenjs/tween.js";
+import { Easing, Group, Tween } from "@tweenjs/tween.js";
 import _get from "lodash/get";
+
+// Shared group for every gauge animation, updated by requestAnimationFrame
+const tweenGroup = new Group();
 
 // Main radius of the gauge
 const RADIUS = 100;
@@ -397,14 +400,14 @@ export default {
                 }
 
                 function animate() {
-                    if (TWEEN.update()) {
+                    if (tweenGroup.update()) {
                         requestAnimationFrame(animate);
                     }
                 }
 
-                new TWEEN.Tween({ tweeningValue: tweenedValue })
+                new Tween({ tweeningValue: tweenedValue }, tweenGroup)
                     .to({ tweeningValue: safeValue }, transitionDuration)
-                    .easing(_get(TWEEN.Easing, easing))
+                    .easing(_get(Easing, easing))
                     .onUpdate((object) => {
                         this.tweenedValue = object.tweeningValue;
                     })

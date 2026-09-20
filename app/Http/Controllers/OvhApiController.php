@@ -11,6 +11,15 @@ use GuzzleHttp\Exception\RequestException;
 
 class OvhApiController extends Controller
 {
+    // Forwarded as-is to the OVHcloud API, mainly to fetch expanded object lists (X-Pagination-Mode: CachedObjectList-Pages)
+    private const PAGINATION_HEADERS = [
+        'X-Pagination-Mode',
+        'X-Pagination-Number',
+        'X-Pagination-Size',
+        'X-Pagination-Sort',
+        'X-Pagination-Sort-Order',
+    ];
+
     public function loginReadOnly(String $endpoint)
     {
         return $this->login($endpoint, 'read-only');
@@ -96,35 +105,14 @@ class OvhApiController extends Controller
         }
 
         $headers = [];
-
-        if($request->header('HTTP_X_OVH_BATCH')) {
-            $headers['X-OVH-BATCH'] = $request->header('HTTP_X_OVH_BATCH');
-        }
-        if($request->has('batch')) {
-            $headers['X-OVH-BATCH'] = $request->query('batch');
-        }
-
-        if($request->has('pagination_sort')) {
-            $headers['X-PAGINATION-MODE'] = 'CachedObjectList-Pages';
-            $headers['X-PAGINATION-NUMBER'] = 1;
-            $headers['X-PAGINATION-SIZE'] = 40;
-            $headers['X-PAGINATION-SORT'] = $request->query('pagination_sort');
-            $headers['X-PAGINATION-SORT-ORDER'] = 'ASC';
-        }
-
-        $paginationKeys = ['pagination_mode', 'pagination_number', 'pagination_size', 'pagination_sort', 'pagination_sort_order'];
-        foreach ($paginationKeys as $key) {
-            $keySnake = str_replace('_', '-', $key);
-            if($request->header('HTTP_X_'.strtoupper($key))) {
-                $headers['X-'.strtoupper($keySnake)] = $request->header('HTTP_X_'.strtoupper($key));
-            }
-            if($request->has($key)) {
-                $headers['X-'.strtoupper($keySnake)] = $request->query($key);
+        foreach (self::PAGINATION_HEADERS as $header) {
+            if($value = $request->header($header)) {
+                $headers[$header] = $value;
             }
         }
 
-        if(!empty(http_build_query($request->except($paginationKeys+['batch'])))) {
-            $uri .= '?'.http_build_query($request->except($paginationKeys));
+        if(!empty($query = http_build_query($request->query()))) {
+            $uri .= '?'.$query;
         }
 
         $content = null;

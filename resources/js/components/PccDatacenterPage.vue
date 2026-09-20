@@ -657,7 +657,7 @@ export default {
     },
 
     setup() {
-        const { loaded, loading, errors, request, get } = httpRequester();
+        const { loaded, loading, errors, request, get, getList } = httpRequester();
 
         return {
             loaded,
@@ -665,6 +665,7 @@ export default {
             errors,
             request,
             get,
+            getList,
         };
     },
 
@@ -736,23 +737,13 @@ export default {
         },
 
         async loadBackupRepositories() {
-            const backupRepositoryIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backupRepository`);
-            if (!backupRepositoryIds.length) {
-                this.backupRepositories = {};
+            const backupRepositories = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backupRepository`);
+            if (!backupRepositories) return;
+            let loadedBackupRepositories = {};
+            for (const backupRepository of backupRepositories) {
+                loadedBackupRepositories[backupRepository.repositoryId] = { ...backupRepository };
             }
-            let backupRepositoryIdsChunks = this.chunkArray(backupRepositoryIds, 40);
-            for (let backupRepositoryIdsChunk of backupRepositoryIdsChunks) {
-                const backupRepositories = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/backupRepository/${backupRepositoryIdsChunk.join(",")}?batch=,`);
-                if (this.backupRepositories === null) {
-                    this.backupRepositories = {};
-                }
-                for (const backupRepositoryId in backupRepositories) {
-                    const backupRepository = backupRepositories[backupRepositoryId];
-                    if (!backupRepository["error"]) {
-                        this.backupRepositories[backupRepository["key"]] = { ...backupRepository["value"] };
-                    }
-                }
-            }
+            this.backupRepositories = loadedBackupRepositories;
         },
 
         async loadDisasterRecovery() {
@@ -760,96 +751,50 @@ export default {
         },
 
         async loadHosts() {
-            const hostIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/host`);
-            if (!hostIds.length) {
-                this.hosts = {};
+            const hosts = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/host`);
+            if (!hosts) return;
+            let loadedHosts = {};
+            for (const host of hosts) {
+                loadedHosts[host.hostId] = { ...host };
             }
-            let hostIdsChunks = this.chunkArray(hostIds, 40);
-            for (let hostIdsChunk of hostIdsChunks) {
-                const hosts = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/host/${hostIdsChunk.join(",")}?batch=,`);
-                if (this.hosts === null) {
-                    this.hosts = {};
-                }
-                for (const hostId in hosts) {
-                    const host = hosts[hostId];
-                    if (!host["error"]) {
-                        this.hosts[host["key"]] = { ...host["value"] };
-                    }
-                }
-            }
+            this.hosts = loadedHosts;
         },
 
         async loadFilers() {
-            const filerIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/filer`);
-            if (!filerIds.length) {
-                this.filers = {};
+            const [globalFilers, datacenterFilers] = await Promise.all([
+                this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/filer`),
+                this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/filer`),
+            ]);
+            let loadedFilers = {};
+            for (const filer of globalFilers || []) {
+                loadedFilers[filer.filerId] = { ...filer, global: true };
             }
-            let filerIdsChunks = this.chunkArray(filerIds, 40);
-            this.loadGlobalFilers();
-            for (let filerIdsChunk of filerIdsChunks) {
-                const filers = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/filer/${filerIdsChunk.join(",")}?batch=,`);
-                if (this.filers === null) {
-                    this.filers = {};
-                }
-                for (const filerId in filers) {
-                    const filer = filers[filerId];
-                    if (!filer["error"]) {
-                        filer["value"]["global"] = false;
-                        this.filers[filer["key"]] = { ...filer["value"] };
-                    }
-                }
+            for (const filer of datacenterFilers || []) {
+                loadedFilers[filer.filerId] = { ...filer, global: false };
             }
-        },
-
-        async loadGlobalFilers() {
-            const filerIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/filer`);
-            let filerIdsChunks = this.chunkArray(filerIds, 40);
-            for (let filerIdsChunk of filerIdsChunks) {
-                const filers = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/filer/${filerIdsChunk.join(",")}?batch=,`);
-                if (this.filers === null) {
-                    this.filers = {};
-                }
-                for (const filerId in filers) {
-                    const filer = filers[filerId];
-                    if (!filer["error"]) {
-                        filer["value"]["global"] = true;
-                        this.filers[filer["key"]] = { ...filer["value"] };
-                    }
-                }
-            }
+            this.filers = loadedFilers;
         },
 
         async loadVms() {
-            const vmIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/vm`);
-            if (!vmIds.length) {
-                this.vms = {};
-            }
-            let vmIdsChunks = this.chunkArray(vmIds, 40);
-            for (let vmIdsChunk of vmIdsChunks) {
-                const vms = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/vm/${vmIdsChunk.join(",")}?batch=,`);
-                if (this.vms === null) {
-                    this.vms = {};
-                }
-                for (const vmId in vms) {
-                    const vm = vms[vmId];
-                    if (!vm["error"]) {
-                        let value = vm["value"];
-                        for (const i in value.filers) {
-                            const filer = value.filers[i];
-                            let capacity = 0;
-                            for (const j in filer.disks) {
-                                const disk = filer.disks[j];
-                                if (disk.capacity) {
-                                    capacity += disk.capacity;
-                                }
-                            }
-                            value["filers"][i]["capacity"] = capacity;
+            const vms = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${this.datacenterId}/vm`);
+            if (!vms) return;
+            let loadedVms = {};
+            for (const vm of vms) {
+                for (const i in vm.filers) {
+                    const filer = vm.filers[i];
+                    let capacity = 0;
+                    for (const j in filer.disks) {
+                        const disk = filer.disks[j];
+                        if (disk.capacity) {
+                            capacity += disk.capacity;
                         }
-                        value["isOvhVm"] = this.isOvhVm(value);
-                        this.vms[vm["key"]] = { ...value };
                     }
+                    vm["filers"][i]["capacity"] = capacity;
                 }
+                vm["isOvhVm"] = this.isOvhVm(vm);
+                loadedVms[vm.vmId] = { ...vm };
             }
+            this.vms = loadedVms;
         },
 
         async loadVracks() {
@@ -860,7 +805,7 @@ export default {
         },
 
         async loadVrack(vrackName) {
-            let vrack = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}`); // No batch mode on this call
+            let vrack = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}`);
             if (!vrack) return;
             vrack["serviceName"] = vrackName;
             for (let serviceType of ["dedicatedCloud", "dedicatedCloudDatacenter"]) {
@@ -880,14 +825,6 @@ export default {
                     }
                 }
             }
-        },
-
-        chunkArray(myArray, chunk_size) {
-            var results = [];
-            while (myArray.length) {
-                results.push(myArray.splice(0, chunk_size));
-            }
-            return results;
         },
 
         gaugesValues(type) {

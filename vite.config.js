@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
-import commonjs from 'vite-plugin-commonjs';
 import path from 'path';
 
 export default defineConfig({
@@ -22,14 +21,12 @@ export default defineConfig({
                 },
             },
         }),
-        commonjs(),
     ],
     resolve: {
         alias: {
             'vue': 'vue/dist/vue.esm-bundler.js',
-            '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
-            '~fontawesome': path.resolve(__dirname, 'node_modules/@fortawesome/fontawesome-free'),
-            '~flag-icons': path.resolve(__dirname, 'node_modules/flag-icons'),
+            '~fontawesome': path.resolve(import.meta.dirname, 'node_modules/@fortawesome/fontawesome-free'),
+            '~flag-icons': path.resolve(import.meta.dirname, 'node_modules/flag-icons'),
         }
     }
 });

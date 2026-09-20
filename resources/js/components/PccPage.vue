@@ -473,7 +473,7 @@ export default {
     },
 
     setup() {
-        const { loaded, loading, errors, request, get } = httpRequester();
+        const { loaded, loading, errors, request, get, getList } = httpRequester();
 
         return {
             loaded,
@@ -481,6 +481,7 @@ export default {
             errors,
             request,
             get,
+            getList,
         };
     },
 
@@ -501,7 +502,6 @@ export default {
             allowedNetworks: null,
             twoFAWhitelists: null,
             tasks: null,
-            taskIds: {},
             robots: null,
             timer: null,
             autoRefreshTasks: false,
@@ -572,6 +572,7 @@ export default {
                 this.loadPccOption("hipaa");
                 this.loadIps();
                 this.loadTasks();
+                this.loadRobots();
                 this.loadUsers();
                 this.loadAllowedNetworks();
                 this.loadTwoFAWhitelists();
@@ -744,137 +745,70 @@ export default {
             let value = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/${optionName}`);
             if (suboptionName) {
                 value["suboptions"] = {};
-                const suboptionIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/${optionName}/${suboptionName}`);
-                if (!suboptionIds.length) {
-                    this.suboptions = {};
-                }
-                let suboptionIdsChunks = this.chunkArray(suboptionIds, 40);
-                for (let suboptionIdsChunk of suboptionIdsChunks) {
-                    const suboptions = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/${optionName}/${suboptionName}/${suboptionIdsChunk.join(",")}?batch=,`);
-                    if (this.suboptions === null) {
-                        this.suboptions = {};
-                    }
-                    for (const i in suboptions) {
-                        const suboption = suboptions[i];
-                        if (!suboption["error"]) {
-                            let suboptionValue = suboption["value"];
-                            suboptionValue["type"] = suboptionName;
-                            suboptionValue["id"] = suboptionValue[suboptionName + "Id"];
-                            for (const k in suboptionValue) {
-                                if (k.includes("Port")) {
-                                    suboptionValue["port"] = suboptionValue[k];
-                                }
-                                if (k.includes("Hostname")) {
-                                    suboptionValue["hostname"] = suboptionValue[k];
-                                }
-                            }
-                            value["suboptions"][suboption["key"]] = suboptionValue;
+                const suboptions = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/${optionName}/${suboptionName}`);
+                for (const suboption of suboptions || []) {
+                    suboption["type"] = suboptionName;
+                    suboption["id"] = suboption[suboptionName + "Id"];
+                    for (const k in suboption) {
+                        if (k.includes("Port")) {
+                            suboption["port"] = suboption[k];
+                        }
+                        if (k.includes("Hostname")) {
+                            suboption["hostname"] = suboption[k];
                         }
                     }
+                    value["suboptions"][suboption["id"]] = suboption;
                 }
             }
             this.fillOption(optionName, value);
         },
 
         async loadIps() {
-            const ipNets = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/ip`);
-            if (!ipNets.length) {
-                this.ips = {};
+            const ips = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/ip`);
+            if (!ips) return;
+            let loadedIps = {};
+            for (const ip of ips) {
+                loadedIps[ip.network] = { ...ip };
             }
-            for (let ipNet of ipNets) {
-                const ipNetEncoded = encodeURIComponent(encodeURIComponent(ipNet)); // Need to double encode slashes because of laravel routing bug with %2F
-                const ip = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/ip/${ipNetEncoded}`); // No batch mode on this call
-                if (!this.ips) {
-                    this.ips = {};
-                }
-                this.ips[ipNet] = { ...ip };
-            }
+            this.ips = loadedIps;
         },
 
         async loadAllowedNetworks() {
-            const allowedNetworkIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/allowedNetwork`);
-            if (!allowedNetworkIds.length) {
-                this.allowedNetworks = {};
+            const allowedNetworks = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/allowedNetwork`);
+            if (!allowedNetworks) return;
+            let loadedAllowedNetworks = {};
+            for (const allowedNetwork of allowedNetworks) {
+                loadedAllowedNetworks[allowedNetwork.networkAccessId] = { ...allowedNetwork };
             }
-            if (this.allowedNetworks !== null) {
-                for (const allowedNetworkId in this.allowedNetworks) {
-                    if(!allowedNetworkIds.includes(parseInt(allowedNetworkId))) {
-                        delete this.allowedNetworks[allowedNetworkId];
-                    }
-                }
-            }
-            let allowedNetworkIdsChunks = this.chunkArray(allowedNetworkIds, 40);
-            for (let allowedNetworkIdsChunk of allowedNetworkIdsChunks) {
-                const allowedNetworks = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/allowedNetwork/${allowedNetworkIdsChunk.join(",")}?batch=,`);
-                if (this.allowedNetworks === null) {
-                    this.allowedNetworks = {};
-                }
-                for (const i in allowedNetworks) {
-                    const allowedNetwork = allowedNetworks[i];
-                    if (!allowedNetwork["error"]) {
-                        this.allowedNetworks[allowedNetwork["key"]] = { ...allowedNetwork["value"] };
-                    }
-                }
-            }
+            this.allowedNetworks = loadedAllowedNetworks;
         },
 
         async loadTwoFAWhitelists() {
-            const twoFAWhitelistIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/twoFAWhitelist`);
-            if (!twoFAWhitelistIds.length) {
-                this.twoFAWhitelists = {};
+            const twoFAWhitelists = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/twoFAWhitelist`);
+            if (!twoFAWhitelists) return;
+            let loadedTwoFAWhitelists = {};
+            for (const twoFAWhitelist of twoFAWhitelists) {
+                loadedTwoFAWhitelists[twoFAWhitelist.id] = { ...twoFAWhitelist };
             }
-            if (this.twoFAWhitelists !== null) {
-                for (const twoFAWhitelistId in this.twoFAWhitelists) {
-                    if(!twoFAWhitelistIds.includes(parseInt(twoFAWhitelistId))) {
-                        delete this.twoFAWhitelists[twoFAWhitelistId];
-                    }
-                }
-            }
-            let twoFAWhitelistIdsChunks = this.chunkArray(twoFAWhitelistIds, 40);
-            for (let twoFAWhitelistIdsChunk of twoFAWhitelistIdsChunks) {
-                const twoFAWhitelists = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/twoFAWhitelist/${twoFAWhitelistIdsChunk.join(",")}?batch=,`);
-                if (this.twoFAWhitelists === null) {
-                    this.twoFAWhitelists = {};
-                }
-                for (const i in twoFAWhitelists) {
-                    const twoFAWhitelist = twoFAWhitelists[i];
-                    if (!twoFAWhitelist["error"]) {
-                        this.twoFAWhitelists[twoFAWhitelist["key"]] = { ...twoFAWhitelist["value"] };
-                    }
-                }
-            }
+            this.twoFAWhitelists = loadedTwoFAWhitelists;
         },
 
         async loadUsers() {
-            const userIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user`);
-            if (!userIds.length) {
-                this.users = {};
+            const users = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user`);
+            if (!users) return;
+            let loadedUsers = {};
+            for (const user of users) {
+                const previousUser = this.users ? this.users[user.userId] : null;
+                if (previousUser) {
+                    // Rights are loaded separately, keep the ones we already have while they refresh
+                    user.rights = previousUser.rights;
+                    user.objectRights = previousUser.objectRights;
+                }
+                loadedUsers[user.userId] = { ...user };
             }
-            if (this.users !== null) {
-                for (const userId in this.users) {
-                    if(!userIds.includes(parseInt(userId))) {
-                        delete this.users[userId];
-                    }
-                }
-            }
-            let userIdsChunks = this.chunkArray(userIds, 40);
-            for (let userIdsChunk of userIdsChunks) {
-                const users = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userIdsChunk.join(",")}?batch=,`);
-                if (this.users === null) {
-                    this.users = {};
-                }
-                for (const i in users) {
-                    const user = users[i];
-                    if (!user["error"]) {
-                        let value = user["value"];
-                        if (this.users[value.userId]) {
-                            value.rights = this.users[value.userId].rights;
-                            value.objectRights = this.users[value.userId].objectRights;
-                        }
-                        this.users[user["key"]] = { ...value };
-                        this.loadUser(user["key"]);
-                    }
-                }
+            this.users = loadedUsers;
+            for (const userId in loadedUsers) {
+                this.loadUser(userId);
             }
         },
 
@@ -884,145 +818,59 @@ export default {
         },
 
         async loadUserRights(userId) {
-            const userRightIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userId}/right`);
-            let userRightIdsChunks = this.chunkArray(userRightIds, 40);
+            const userRights = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userId}/right`);
+            if (!userRights || !this.users[userId]) return;
             let rights = {};
-            for (let userRightIdsChunk of userRightIdsChunks) {
-                const userRights = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userId}/right/${userRightIdsChunk.join(",")}?batch=,`);
-                for (const i in userRights) {
-                    const userRight = userRights[i]["value"];
-                    if(userRight) {
-                        rights[userRight.datacenterId] = userRight;
-                    }
-                }
+            for (const userRight of userRights) {
+                rights[userRight.datacenterId] = userRight;
             }
             this.users[userId]["rights"] = { ...rights };
         },
 
         async loadUserObjectRights(userId) {
-            const userObjectRightIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userId}/objectRight`);
-            let userObjectRightIdsChunks = this.chunkArray(userObjectRightIds, 40);
+            const userObjectRights = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userId}/objectRight`);
+            if (!userObjectRights || !this.users[userId]) return;
             let objectRights = {};
-            for (let userObjectRightIdsChunk of userObjectRightIdsChunks) {
-                const userRights = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/user/${userId}/objectRight/${userObjectRightIdsChunk.join(",")}?batch=,`);
-                for (const i in userRights) {
-                    const userRight = userRights[i]["value"];
-                    if(userRight) {
-                        objectRights[userRight.datacenterId] = userRight;
-                    }
-                }
+            for (const userObjectRight of userObjectRights) {
+                objectRights[userObjectRight.objectRightId] = userObjectRight;
             }
             this.users[userId]["objectRights"] = { ...objectRights };
         },
 
         async loadDatacenters() {
-            const datacenterIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter`);
-            if (!datacenterIds.length) {
-                this.datacenters = {};
+            const datacenters = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter`);
+            if (!datacenters) return;
+            let loadedDatacenters = {};
+            for (const datacenter of datacenters) {
+                loadedDatacenters[datacenter.datacenterId] = { ...datacenter };
             }
-            let datacenterIdsChunks = this.chunkArray(datacenterIds, 40);
-            for (let datacenterIdsChunk of datacenterIdsChunks) {
-                const datacenters = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/datacenter/${datacenterIdsChunk.join(",")}?batch=,`);
-                if (this.datacenters === null) {
-                    this.datacenters = {};
-                }
-                for (const i in datacenters) {
-                    const datacenter = datacenters[i];
-                    if (!datacenter["error"]) {
-                        this.datacenters[datacenter["key"]] = { ...datacenter["value"] };
-                    }
-                }
-            }
+            this.datacenters = loadedDatacenters;
         },
 
         async loadTasks() {
-            let taskIds = {};
-            let recentTaskIds = {};
-            const stateTaskIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/task`);
-            for (const taskId of stateTaskIds) {
-                if (!taskIds.hasOwnProperty(taskId)) {
-                    taskIds[taskId] = taskId;
-                }
-            }
-            for (const taskId of stateTaskIds.slice(-10)) {
-                if (!recentTaskIds.hasOwnProperty(taskId)) {
-                    recentTaskIds[taskId] = taskId;
-                }
-            }
-            for (const state of ["done", "canceled"]) {
-                const stateTaskIds = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/task?state=${state}`);
-                for (const taskId of stateTaskIds) {
-                    if (taskIds.hasOwnProperty(taskId)) {
-                        if (this.recentTasks && recentTaskIds.hasOwnProperty(taskId)) {
-                            continue;
-                        }
-                        delete taskIds[taskId];
-                    }
-                }
-            }
-            for (const taskId in taskIds) {
-                if (this.taskIds.hasOwnProperty(taskId)) {
+            const tasks = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/task`);
+            if (!tasks) return;
+            // Only active tasks are displayed, plus the 10 most recent ones when asked for
+            const recentTaskIds = window._.map(window._.orderBy(tasks, ["taskId"], ["desc"]).slice(0, 10), "taskId");
+            let loadedTasks = {};
+            for (const task of tasks) {
+                const isActive = task.state != "done" && task.state != "canceled";
+                if (!isActive && !(this.recentTasks && recentTaskIds.includes(task.taskId))) {
                     continue;
                 }
-                this.taskIds[taskId] = taskId;
+                loadedTasks[task.taskId] = { ...task };
             }
-
-            if (!Object.values(this.taskIds).length) {
-                this.tasks = {};
-            }
-            for (const taskId in this.tasks) {
-                const task = this.tasks[taskId];
-                if (this.recentTasks && recentTaskIds.hasOwnProperty(taskId)) {
-                    continue;
-                }
-                if (task.state == "done" || task.state == "canceled") {
-                    delete this.tasks[taskId];
-                    delete this.taskIds[taskId];
-                }
-            }
-            let robotsNames = {};
-            let taskIdsChunks = this.chunkArray(Object.values(this.taskIds), 40);
-            for (let taskIdsChunk of taskIdsChunks) {
-                const tasks = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/task/${taskIdsChunk.join(",")}?batch=,`);
-                if (this.tasks === null) {
-                    this.tasks = {};
-                }
-                for (const i in tasks) {
-                    const task = tasks[i];
-                    if (!task["error"]) {
-                        let value = task["value"];
-                        robotsNames[value.name] = value.name;
-                        this.tasks[task["key"]] = { ...value };
-                    }
-                }
-            }
-            this.loadRobots(window._.values(robotsNames));
+            this.tasks = loadedTasks;
         },
 
-        async loadRobots(robotsNames) {
-            const availableRobotsNames = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/robot`);
-            if (!availableRobotsNames) {
-                this.availableRobotsNames = [];
+        async loadRobots() {
+            const robots = await this.getList(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/robot`);
+            if (!robots) return;
+            let loadedRobots = {};
+            for (const robot of robots) {
+                loadedRobots[robot.name] = { ...robot };
             }
-            let robotNamesChunks = this.chunkArray(Object.values(robotsNames), 40);
-            for (let robotNamesChunk of robotNamesChunks) {
-                for (let robotName of robotNamesChunk) {
-                    if (!availableRobotsNames.includes(robotName)) {
-                        delete robotNamesChunk[robotName];
-                    }
-                }
-                const robots = await this.get(`${this.ovhapiRoute}/v1/dedicatedCloud/${this.pccName}/robot/${robotNamesChunk.join(",")}?batch=,`);
-                if (!this.robots) {
-                    this.robots = {};
-                }
-                for (const i in robots) {
-                    const robot = robots[i];
-                    if (!robot["error"]) {
-                        let value = robot["value"];
-                        this.robots[robot["key"]] = { ...value };
-                    }
-                }
-            }
+            this.robots = loadedRobots;
         },
 
         async loadVracks() {
@@ -1033,7 +881,7 @@ export default {
         },
 
         async loadVrack(vrackName) {
-            let vrack = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}`); // No batch mode on this call
+            let vrack = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}`);
             if (!vrack) return;
             vrack["serviceName"] = vrackName;
             for (let serviceType of ["dedicatedCloud", "dedicatedCloudDatacenter"]) {
@@ -1053,14 +901,6 @@ export default {
                     }
                 }
             }
-        },
-
-        chunkArray(myArray, chunk_size) {
-            var results = [];
-            while (myArray.length) {
-                results.push(myArray.splice(0, chunk_size));
-            }
-            return results;
         },
 
         getTaskStateTextClass(task) {

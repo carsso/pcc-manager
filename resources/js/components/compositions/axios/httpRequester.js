@@ -2,6 +2,12 @@ import { reactive, toRefs } from 'vue';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 
+// Asks the OVHcloud API for expanded object lists, ie. full objects instead of a list of ids
+const LIST_HEADERS = {
+    'X-Pagination-Mode': 'CachedObjectList-Pages',
+    'X-Pagination-Size': 50000,
+};
+
 export function httpRequester() {
     const _loading = {};
     const state = reactive({
@@ -11,6 +17,7 @@ export function httpRequester() {
     });
 
     const get = (url) => { return request({ 'url': url }) };
+    const getList = (url) => { return request({ 'url': url, 'headers': LIST_HEADERS }) };
     const request = async (config) => {
         state.loading = true;
         state.loaded = false;
@@ -50,7 +57,7 @@ export function httpRequester() {
         return {};
     }
 
-    return { ...toRefs(state), request, get };
+    return { ...toRefs(state), request, get, getList };
 }
 
 export default function getErrorsFromAxiosException(err) {

@@ -126,7 +126,7 @@ export default {
         },
 
         async loadVrack(vrackName) {
-            let vrack = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}`); // No batch mode on this call
+            let vrack = await this.get(`${this.ovhapiRoute}/v1/vrack/${vrackName}`);
             if (!vrack) return;
             this.vracks[vrackName] = {};
             vrack['serviceName'] = vrackName;
