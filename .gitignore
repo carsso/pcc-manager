@@ -17,7 +17,6 @@ docker-compose.override.yml
 Homestead.json
 Homestead.yaml
 npm-debug.log
-.npmrc
 yarn-error.log
 composer.phar
 laravel-echo-server.lock
